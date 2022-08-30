@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// `Letter` encapsulates information broadcast to observers via a `PostOffice`.
 public struct Letter<T> {
     public let name: Notification.Name
     public let sender: AnyObject?

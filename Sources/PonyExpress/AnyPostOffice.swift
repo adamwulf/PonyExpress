@@ -7,10 +7,11 @@
 
 import Foundation
 
+/// A type-erased `PostOffice` value, which holds the original `PostOffice` weakly.
 class AnyPostOffice<Contents>: PostOffice {
     typealias MailContents = Contents
-    let receive: (Letter<Contents>) -> Void
-    let checkEmpty: () -> Bool
+    private let receive: (Letter<Contents>) -> Void
+    private let checkEmpty: () -> Bool
 
     init<U: PostOffice>(_ postOffice: U) where U.MailContents == Contents {
         receive = { [weak postOffice] letter in
