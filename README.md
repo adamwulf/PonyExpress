@@ -2,6 +2,10 @@
 
 `PonyExpress` provides a type-safe alternative to `NotificationCenter`.
 
+## Documentation
+
+[View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`.
+
 ## Initialize Singleton
 
 To mimic the `NotificationCenter.default`:
