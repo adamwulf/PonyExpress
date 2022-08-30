@@ -10,8 +10,9 @@ import Foundation
 import Locks
 
 public class PonyExpress<T> {
-    typealias PostOfficeBlock = (Letter<T>) -> Void
-    enum Observer {
+    public typealias PostOfficeBlock = (Letter<T>) -> Void
+
+    private enum Observer {
         case postOffice(_ postOffice: AnyPostOffice<T>, queue: DispatchQueue?)
         case block(_ block: PostOfficeBlock, queue: DispatchQueue?)
     }
@@ -31,7 +32,7 @@ public class PonyExpress<T> {
         observers[name] = curr
     }
 
-    public func add(name: Notification.Name, queue: DispatchQueue? = nil, block: @escaping (Letter<T>) -> Void) {
+    public func add(name: Notification.Name, queue: DispatchQueue? = nil, block: @escaping PostOfficeBlock) {
         lock.lock()
         defer { lock.unlock() }
         var curr = observers[name] ?? []
@@ -44,9 +45,10 @@ public class PonyExpress<T> {
         let toNotify = observers[name]
         lock.unlock()
 
+        guard let toNotify = toNotify else { return }
         let letter = Letter(name: name, sender: sender, contents: contents)
 
-        toNotify?.forEach({ observer in
+        for observer in toNotify {
             switch observer {
             case .postOffice(let postOffice, let queue):
                 if let queue = queue {
@@ -65,6 +67,6 @@ public class PonyExpress<T> {
                     block(letter)
                 }
             }
-        })
+        }
     }
 }
