@@ -4,10 +4,6 @@ import XCTest
 final class PonyExpressTests: XCTestCase {
     func testExample() throws {
         let ponyExpress = PonyExpress<UserInfo>()
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-
         var received = 0
         let graph = TestObserver()
         graph.observe = { letter in
@@ -28,10 +24,6 @@ final class PonyExpressTests: XCTestCase {
 
     func testExampleBlock() throws {
         let ponyExpress = PonyExpress<UserInfo>()
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-
         var received = 0
 
         ponyExpress.add(name: .NSCalendarDayChanged) { letter in
@@ -51,10 +43,6 @@ final class PonyExpressTests: XCTestCase {
 
     func testAsync() throws {
         let ponyExpress = PonyExpress<UserInfo>()
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
         let graph = TestObserver()
@@ -85,10 +73,6 @@ final class PonyExpressTests: XCTestCase {
 
     func testAsyncBlock() throws {
         let ponyExpress = PonyExpress<UserInfo>()
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
