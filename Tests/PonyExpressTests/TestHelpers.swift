@@ -21,7 +21,7 @@ enum UserInfo {
 }
 
 class TestObserver: PostOffice {
-    typealias MailContents=UserInfo
+    typealias MailContents = UserInfo
 
     var observe: ((Letter<UserInfo>) -> Void)?
 
