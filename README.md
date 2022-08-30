@@ -1,6 +1,7 @@
 # PonyExpress
 
 `PonyExpress` provides a type-safe alternative to `NotificationCenter`.
+
 [![CI](https://github.com/adamwulf/PonyExpress/actions/workflows/swift.yml/badge.svg)](https://github.com/adamwulf/PonyExpress/actions/workflows/swift.yml)
 
 ## Documentation
