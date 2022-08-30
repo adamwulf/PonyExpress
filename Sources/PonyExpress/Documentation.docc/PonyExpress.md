@@ -10,7 +10,7 @@ and requires casting at the observer site. If the `userInfo` format ever changes
 for a notification, there is no compile-time check that all observers expect the new
 format.
 
-With `PonyExpress`, the contents of the notification, called a `Letter`, are type-safe
+With ``PonyExpress``, the contents of the notification, called a ``Letter``, are type-safe
 and guaranteed at compile-time to match the observer site.
 
 ### Example
