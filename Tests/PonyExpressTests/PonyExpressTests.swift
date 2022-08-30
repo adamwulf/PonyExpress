@@ -58,9 +58,10 @@ final class PonyExpressTests: XCTestCase {
         }
 
         ponyExpress.add(name: .NSCalendarDayChanged, queue: queue, observer: graph)
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
 
         XCTAssertEqual(received, 0)
+
+        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
 
         let exp = expectation(description: "wait for notification")
         queue.async {
@@ -86,9 +87,10 @@ final class PonyExpressTests: XCTestCase {
             XCTAssertEqual(objectKeys, Set([12, 13]))
             received += 1
         }
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
 
         XCTAssertEqual(received, 0)
+
+        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
 
         let exp = expectation(description: "wait for notification")
         queue.async {
