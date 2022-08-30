@@ -10,9 +10,10 @@ import Foundation
 import Locks
 
 public class PonyExpress<T> {
-    private struct Observer {
-        let postOffice: AnyPostOffice<T>
-        let queue: DispatchQueue?
+    typealias PostOfficeBlock = (Letter<T>) -> Void
+    enum Observer {
+        case postOffice(_ postOffice: AnyPostOffice<T>, queue: DispatchQueue?)
+        case block(_ block: PostOfficeBlock, queue: DispatchQueue?)
     }
     private let lock = Mutex()
     private var observers: [Notification.Name: [Observer]]
@@ -26,7 +27,7 @@ public class PonyExpress<T> {
         lock.lock()
         defer { lock.unlock() }
         var curr = observers[name] ?? []
-        curr.append(Observer(postOffice: AnyPostOffice(observer), queue: queue))
+        curr.append(.postOffice(AnyPostOffice(observer), queue: queue))
         observers[name] = curr
     }
 
@@ -35,13 +36,26 @@ public class PonyExpress<T> {
         let toNotify = observers[name]
         lock.unlock()
 
+        let letter = Letter(name: name, sender: sender, contents: contents)
+
         toNotify?.forEach({ observer in
-            if let queue = observer.queue {
-                queue.async {
-                    observer.postOffice.receive(mail: Letter(name: name, sender: sender, contents: contents))
+            switch observer {
+            case .postOffice(let postOffice, let queue):
+                if let queue = queue {
+                    queue.async {
+                        postOffice.receive(mail: letter)
+                    }
+                } else {
+                    postOffice.receive(mail: letter)
                 }
-            } else {
-                observer.postOffice.receive(mail: Letter(name: name, sender: sender, contents: contents))
+            case .block(let block, queue: let queue):
+                if let queue = queue {
+                    queue.async {
+                        block(letter)
+                    }
+                } else {
+                    block(letter)
+                }
             }
         })
     }
