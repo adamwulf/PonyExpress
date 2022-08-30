@@ -23,11 +23,19 @@ public class PonyExpress<T> {
         observers = [:]
     }
 
-    public func add<U: PostOffice>(name: Notification.Name, observer: U, queue: DispatchQueue? = nil) where U.MailContents == T {
+    public func add<U: PostOffice>(name: Notification.Name, queue: DispatchQueue? = nil, observer: U) where U.MailContents == T {
         lock.lock()
         defer { lock.unlock() }
         var curr = observers[name] ?? []
         curr.append(.postOffice(AnyPostOffice(observer), queue: queue))
+        observers[name] = curr
+    }
+
+    public func add(name: Notification.Name, queue: DispatchQueue? = nil, block: @escaping (Letter<T>) -> Void) {
+        lock.lock()
+        defer { lock.unlock() }
+        var curr = observers[name] ?? []
+        curr.append(.block(block, queue: queue))
         observers[name] = curr
     }
 
