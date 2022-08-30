@@ -9,7 +9,7 @@ import Foundation
 import PonyExpress
 
 // Create a static shared PonyExpress
-let globalShared = PonyExpress<Int>()
+private let globalShared = PonyExpress<Int>()
 public extension PonyExpress {
     static var shared: PonyExpress<Int> {
         return globalShared
