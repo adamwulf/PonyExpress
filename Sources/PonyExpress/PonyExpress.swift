@@ -15,7 +15,7 @@ public class PonyExpress<Contents> {
     public typealias PostOfficeBlock = (Letter<Contents>) -> Void
 
     private enum Observer {
-        case postOffice(_ postOffice: AnyPostOffice<Contents>, queue: DispatchQueue?)
+        case postOffice(_ postOffice: any PostOffice<Contents>, queue: DispatchQueue?)
         case block(_ block: PostOfficeBlock, queue: DispatchQueue?)
     }
     private let lock = Mutex()
@@ -40,7 +40,7 @@ public class PonyExpress<Contents> {
         lock.lock()
         defer { lock.unlock() }
         var curr = observers[name] ?? []
-        curr.append(.postOffice(AnyPostOffice(observer), queue: queue))
+        curr.append(.postOffice(observer, queue: queue))
         observers[name] = curr
     }
 
