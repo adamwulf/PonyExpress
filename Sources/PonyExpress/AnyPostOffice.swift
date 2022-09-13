@@ -8,25 +8,15 @@
 import Foundation
 
 /// A type-erased `PostOffice` value, which holds the original `PostOffice` weakly.
-class AnyPostOffice<Contents>: PostOffice {
-    typealias MailContents = Contents
-    private let receive: (Letter<Contents>) -> Void
-    private let checkEmpty: () -> Bool
+public class AnyPostOffice<Contents>: PostOffice {
+    public typealias MailContents = Contents
+    let wrapped: any PostOffice<MailContents>
 
-    init<U: PostOffice>(_ postOffice: U) where U.MailContents == Contents {
-        receive = { [weak postOffice] letter in
-            postOffice?.receive(mail: letter)
-        }
-        checkEmpty = { [weak postOffice] in
-            return postOffice == nil
-        }
+    init(_ postOffice: some PostOffice<Contents>) {
+        wrapped = postOffice
     }
 
-    func receive(mail: Letter<Contents>) {
-        self.receive(mail)
-    }
-
-    var isEmpty: Bool {
-        return self.checkEmpty()
+    public func receive(mail: Letter<Contents>) {
+        wrapped.receive(mail: mail)
     }
 }
