@@ -101,4 +101,34 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
+    func testSendingClosure() throws {
+        let ponyExpress = PonyExpress<UserInfo>()
+        let queue = DispatchQueue(label: "any.queue")
+        var received = 0
+
+        func listener(_ letter: Letter<UserInfo>) {
+            guard case .specificInfo(let objectKeys) = letter.contents else {
+                XCTFail()
+                return
+            }
+            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
+            XCTAssertNil(letter.sender)
+            XCTAssertEqual(objectKeys, Set([12, 13]))
+            received += 1
+        }
+
+        ponyExpress.add(name: .NSCalendarDayChanged, queue: queue, block: listener)
+
+        XCTAssertEqual(received, 0)
+
+        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
+
+        let exp = expectation(description: "wait for notification")
+        queue.async {
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 0.1)
+
+        XCTAssertEqual(received, 1)
+    }
 }
