@@ -18,6 +18,9 @@ disabled_rules: # rule identifiers to exclude from running
 opt_in_rules: # some rules are only opt-in
   - empty_count
   - operator_usage_whitespace
+  - fatal_error_message
+  - first_where
+  - modifier_order
 
 line_length:
   warning: 140
