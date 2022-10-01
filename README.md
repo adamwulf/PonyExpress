@@ -13,24 +13,46 @@
 To mimic the `NotificationCenter.default`:
 
 ```swift
-// Create a static shared PonyExpress
-let globalDefault = PonyExpress<Int>()
-public extension PonyExpress {
-    static var default: PonyExpress<Int> {
+// Create a static shared PostOffice
+let globalDefault = PostOffice<Int>()
+public extension PostOffice {
+    static var default: PostOffice<Int> {
         return globalDefault
     }
 }
 ```
 
-The above will create a `PonyExpress.default` that can send `Int` along with each notification.
+The above will create a `PostOffice.default` that can send `Int` along with each notification.
 
 ## Observing notifications
 
 All observers must implement the `PostOffice` protocol, and define the `Letter` contents type.
 
 ```swift
-class MyClass: PostOffice {
+class MyClass: MailRecipient {
     typealias MailContents = Int
+    
+    func init() {
+        PostOffice.default.add(name: .MyNotificationName, observer: self) 
+    }
+
+    func receive(mail: Letter<Int>) {
+        let notificationName: Notification.Name = mail.name
+        let sender: AnyObject = mail.sender
+        let contents: Int = mail.contents
+    }
+}
+```
+
+Instead of implementing the protocol directly, a block or method can also be passed into the
+PostOffice to observe `Letters`.
+
+```swift
+class MyClass {
+    
+    func init() {
+        PostOffice.default.add(name: .MyNotificationName, observer: self.receive) 
+    }
     
     func receive(mail: Letter<Int>) {
         let notificationName: Notification.Name = mail.name
@@ -43,11 +65,11 @@ class MyClass: PostOffice {
 ## UserInfo
 
 While `Notification.userInfo` is typed as `[AnyHashable: Any]?`, the information sent along with 
-`Letters` is strongly-typed to the `PonyExpress` instance that sends it.
+`Letters` is strongly-typed to the `PostOffice` instance that sends it.
 
 ```swift
 // send Int with every notification
-let intSender = PonyExpress<Int>()
+let intSender = PostOffice<Int>()
 
 intSender.post(.MyNotificationName, sender: nil, contents: 12)
 ```
@@ -60,7 +82,7 @@ enum UserInfo {
     case fumble(variable: Int, other: Double)
     case mumble(things: [Float], name: String)
 }
-let mySender = PonyExpress<UserInfo>()
+let mySender = PostOffice<UserInfo>()
 ```
 
 Then, your receiver will implement:
