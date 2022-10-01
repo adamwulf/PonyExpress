@@ -26,12 +26,12 @@ struct ExampleNotification: Letter {
 
 public class PostOffice {
     private struct Recipient {
-        let block: (Letter) -> Void
+        let block: (Letter, AnyObject?) -> Void
 
-        init<U: Letter>(_ block: @escaping (U) -> Void) {
-            self.block = { notification in
+        init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
+            self.block = { notification, sender in
                 guard let notification = notification as? U else { return }
-                block(notification)
+                block(notification, sender)
             }
         }
     }
@@ -43,13 +43,19 @@ public class PostOffice {
         // noop
     }
 
-    func register<U: Letter>(queue: DispatchQueue? = nil, _ recipient: @escaping (U) -> Void) {
+    func register<U: Letter>(queue: DispatchQueue? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
         lock.lock()
         defer { lock.unlock() }
         listeners[U.name, default: []].append((recipient: Recipient(recipient), queue: queue))
     }
 
-    func post<U: Letter>(_ notification: U) {
+    func register<U: Letter>(queue: DispatchQueue? = nil, _ recipient: @escaping (U) -> Void) {
+        register(queue: queue) { letter, _ in
+            recipient(letter)
+        }
+    }
+
+    func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
         lock.lock()
         defer { lock.unlock() }
         guard let listeners = listeners[U.name] else { return }
@@ -57,10 +63,10 @@ public class PostOffice {
         for listener in listeners {
             if let queue = listener.queue {
                 queue.async {
-                    listener.recipient.block(notification)
+                    listener.recipient.block(notification, sender)
                 }
             } else {
-                listener.recipient.block(notification)
+                listener.recipient.block(notification, sender)
             }
         }
     }
