@@ -9,23 +9,9 @@ import Foundation
 import PonyExpress
 
 // Create a static shared PostOffice
-private let globalShared = PostOffice<Int>()
+private let globalShared = PostOffice()
 public extension PostOffice {
-    static var shared: PostOffice<Int> {
+    static var shared: PostOffice {
         return globalShared
-    }
-}
-
-enum UserInfo {
-    case specificInfo(objectKeys: Set<Int>)
-}
-
-class TestObserver: MailRecipient {
-    typealias MailContents = UserInfo
-
-    var observe: ((Letter<UserInfo>) -> Void)?
-
-    func receive(mail: Letter<UserInfo>) {
-        observe?(mail)
     }
 }
