@@ -23,19 +23,32 @@ public struct Package<T>: Letter {
     public let contents: T
 }
 
+public protocol Recipient<T> {
+    associatedtype T: Letter
+
+    func receive(letter: T, sender: AnyObject?)
+}
+
 public class PostOffice {
 
     static let `default` = PostOffice()
 
-    private typealias RecipientContext = (recipient: Recipient, queue: DispatchQueue?, sender: AnyObject?)
+    private typealias RecipientContext = (recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?)
 
-    private struct Recipient {
+    private struct AnyRecipient {
         let block: (Letter, AnyObject?) -> Void
 
         init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
             self.block = { notification, sender in
                 guard let notification = notification as? U else { return }
                 block(notification, sender)
+            }
+        }
+
+        init<U: Letter>(_ recipient: any Recipient<U>) {
+            self.block = { notification, sender in
+                guard let notification = notification as? U else { return }
+                recipient.receive(letter: notification, sender: sender)
             }
         }
     }
@@ -47,10 +60,16 @@ public class PostOffice {
         // noop
     }
 
+    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: any Recipient<U>) {
+        lock.lock()
+        defer { lock.unlock() }
+        listeners[U.name, default: []].append((recipient: AnyRecipient(recipient), queue: queue, sender: sender))
+    }
+
     public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
         lock.lock()
         defer { lock.unlock() }
-        listeners[U.name, default: []].append((recipient: Recipient(recipient), queue: queue, sender: sender))
+        listeners[U.name, default: []].append((recipient: AnyRecipient(recipient), queue: queue, sender: sender))
     }
 
     public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U) -> Void) {
