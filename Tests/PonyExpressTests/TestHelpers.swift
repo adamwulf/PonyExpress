@@ -42,8 +42,15 @@ class ExampleRecipient: Recipient {
         count += 1
         block?()
     }
+}
 
-    func foo() {
-        let foo: (ExampleRecipient) -> (ExampleNotification, AnyObject?) -> Void = ExampleRecipient.receive
+class OtherRecipient {
+    private(set) var count = 0
+
+    var block: (() -> Void)?
+
+    func receive(letter: ExampleNotification, sender: AnyObject?) {
+        count += 1
+        block?()
     }
 }

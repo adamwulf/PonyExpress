@@ -40,4 +40,17 @@ internal class AnyRecipient {
             strongRecipient.receive(letter: notification, sender: sender)
         }
     }
+
+    init<T: AnyObject, U: Letter>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: AnyObject?) -> Void) {
+        weak var weakRecipient = recipient
+        _canCollect = {
+            guard let _ = weakRecipient else { return true }
+            return false
+        }
+        self.block = { notification, sender in
+            guard let strongRecipient = weakRecipient else { return }
+            guard let notification = notification as? U else { return }
+            method(strongRecipient)(notification, sender)
+        }
+    }
 }
