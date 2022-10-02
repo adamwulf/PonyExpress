@@ -138,7 +138,7 @@ public class PostOffice {
         lock.unlock()
 
         for listener in listeners {
-            guard sender == nil || listener.sender == nil || listener.sender === sender else { continue }
+            guard listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
                     listener.recipient.block?(letter, sender)

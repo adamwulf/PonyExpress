@@ -3,69 +3,69 @@ import XCTest
 
 final class PonyExpressTests: XCTestCase {
     func testSimple() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register { (_: ExampleLetter) -> Void in
+        postOffice.register { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
     func testIgnoreSender() throws {
         let sender = NSObject()
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register { (_: ExampleLetter) -> Void in
+        postOffice.register { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
     }
 
     func testMatchSender() throws {
         let sender = NSObject()
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register(sender: sender) { (_: ExampleLetter) -> Void in
+        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
     }
 
     func testFailedMatchSender() throws {
         let sender = NSObject()
         let other = NSObject()
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register(sender: sender) { (_: ExampleLetter) -> Void in
+        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 0)
     }
 
     func testAsync() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
-        ponyExpress.register(queue: queue) { (_: ExampleLetter) -> Void in
+        postOffice.register(queue: queue) { (_: ExampleLetter) -> Void in
             received += 1
         }
 
         XCTAssertEqual(received, 0)
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
 
         let exp = expectation(description: "wait for letter")
         queue.async {
@@ -77,7 +77,7 @@ final class PonyExpressTests: XCTestCase {
     }
 
     func testRegisterFunction() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
@@ -85,11 +85,11 @@ final class PonyExpressTests: XCTestCase {
             received += 1
         }
 
-        ponyExpress.register(queue: queue, listener(_:))
+        postOffice.register(queue: queue, listener(_:))
 
         XCTAssertEqual(received, 0)
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
 
         let exp = expectation(description: "wait for letter")
         queue.async {
@@ -103,65 +103,65 @@ final class PonyExpressTests: XCTestCase {
     func testSender() throws {
         let sender = NSObject()
         let other = NSObject()
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register { (_: ExampleLetter, _: AnyObject?) in
+        postOffice.register { (_: ExampleLetter, _: AnyObject?) in
             received += 1
         }
 
-        ponyExpress.register(sender: sender) { (_: ExampleLetter) in
+        postOffice.register(sender: sender) { (_: ExampleLetter) in
             received += 1
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        ponyExpress.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 3)
     }
 
     func testEnumLetter() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.register { (_: MultipleChoice) in
+        postOffice.register { (_: MultipleChoice) in
             received += 1
         }
 
-        ponyExpress.post(MultipleChoice.option1)
-        ponyExpress.post(MultipleChoice.option2)
+        postOffice.post(MultipleChoice.option1)
+        postOffice.post(MultipleChoice.option2)
         XCTAssertEqual(received, 2)
     }
 
     func testRecipient() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         let recipient = ExampleRecipient()
 
-        ponyExpress.register(recipient)
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
-        ponyExpress.post(Package<Int>(contents: 12))
+        postOffice.register(recipient)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
 
         XCTAssertEqual(recipient.count, 1)
     }
 
     func testUnregsiterRecipient() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         let recipient = ExampleRecipient()
 
-        let id = ponyExpress.register(recipient)
+        let id = postOffice.register(recipient)
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
-        ponyExpress.post(Package<Int>(contents: 12))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
 
-        ponyExpress.unregister(id)
+        postOffice.unregister(id)
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
-        ponyExpress.post(Package<Int>(contents: 12))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
 
         XCTAssertEqual(recipient.count, 1)
     }
 
     func testWeakRecipient() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var count = 0
         let block = {
             count += 1
@@ -169,24 +169,24 @@ final class PonyExpressTests: XCTestCase {
         autoreleasepool {
             let recipient = ExampleRecipient()
             recipient.block = block
-            ponyExpress.register(recipient)
+            postOffice.register(recipient)
 
-            ponyExpress.post(ExampleLetter(info: 12, other: 15))
-            ponyExpress.post(Package<Int>(contents: 12))
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(Package<Int>(contents: 12))
 
             XCTAssertEqual(count, 1)
-            XCTAssertEqual(ponyExpress.count, 1)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
-        ponyExpress.post(Package<Int>(contents: 12))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
 
         XCTAssertEqual(count, 1)
-        XCTAssertEqual(ponyExpress.count, 0)
+        XCTAssertEqual(postOffice.count, 0)
     }
 
     func testTypedSelector() throws {
-        let ponyExpress = PostOffice()
+        let postOffice = PostOffice()
         var count = 0
         let block = {
             count += 1
@@ -194,19 +194,111 @@ final class PonyExpressTests: XCTestCase {
         autoreleasepool {
             let recipient = OtherRecipient()
             recipient.block = block
-            ponyExpress.register(recipient, OtherRecipient.receive)
+            postOffice.register(recipient, OtherRecipient.receive)
 
-            ponyExpress.post(ExampleLetter(info: 12, other: 15))
-            ponyExpress.post(Package<Int>(contents: 12))
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(Package<Int>(contents: 12))
 
             XCTAssertEqual(count, 1)
-            XCTAssertEqual(ponyExpress.count, 1)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
-        ponyExpress.post(ExampleLetter(info: 12, other: 15))
-        ponyExpress.post(Package<Int>(contents: 12))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
 
         XCTAssertEqual(count, 1)
-        XCTAssertEqual(ponyExpress.count, 0)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithSender() {
+        class ExampleRecipient {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter, sender: AnyObject?) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+
+            postOffice.register(recipient, ExampleRecipient.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithoutSender() {
+        class ExampleRecipient {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+
+            postOffice.register(recipient, ExampleRecipient.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodSpecificSender() {
+        class ExampleRecipient {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        let sender = NSObject()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+
+            postOffice.register(sender: sender, recipient, ExampleRecipient.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
     }
 }
