@@ -22,9 +22,9 @@ internal class AnyRecipient {
 
     init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
         _canCollect = { return false }
-        self.block = { notification, sender in
-            guard let notification = notification as? U else { return }
-            block(notification, sender)
+        self.block = { letter, sender in
+            guard let letter = letter as? U else { return }
+            block(letter, sender)
         }
     }
 
@@ -34,10 +34,10 @@ internal class AnyRecipient {
             guard let _ = weakRecipient else { return true }
             return false
         }
-        self.block = { notification, sender in
+        self.block = { letter, sender in
             guard let strongRecipient = weakRecipient else { return }
-            guard let notification = notification as? U else { return }
-            strongRecipient.receive(letter: notification, sender: sender)
+            guard let letter = letter as? U else { return }
+            strongRecipient.receive(letter: letter, sender: sender)
         }
     }
 
@@ -47,10 +47,23 @@ internal class AnyRecipient {
             guard let _ = weakRecipient else { return true }
             return false
         }
-        self.block = { notification, sender in
+        self.block = { letter, sender in
             guard let strongRecipient = weakRecipient else { return }
-            guard let notification = notification as? U else { return }
-            method(strongRecipient)(notification, sender)
+            guard let letter = letter as? U else { return }
+            method(strongRecipient)(letter, sender)
+        }
+    }
+
+    init<T: AnyObject, U: Letter>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U) -> Void) {
+        weak var weakRecipient = recipient
+        _canCollect = {
+            guard let _ = weakRecipient else { return true }
+            return false
+        }
+        self.block = { letter, _ in
+            guard let strongRecipient = weakRecipient else { return }
+            guard let letter = letter as? U else { return }
+            method(strongRecipient)(letter)
         }
     }
 }

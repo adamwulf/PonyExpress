@@ -78,23 +78,46 @@ public class PostOffice {
     }
 
     @discardableResult
-    public func register<U: Letter>(queue: DispatchQueue? = nil,
-                                    sender: AnyObject? = nil,
-                                    _ recipient: @escaping (U, AnyObject?) -> Void) -> RecipientId {
+    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
+                                       sender: AnyObject? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[U.name, default: []].append(context)
         recipientToName[context.id] = U.name
         return context.id
     }
 
+    /// Register a block with the `Letter` and sender as parameters
+    ///
+    /// ```
+    /// PostOffice.default.register { letter, sender in ... }
+    /// ```
     @discardableResult
     public func register<U: Letter>(queue: DispatchQueue? = nil,
                                     sender: AnyObject? = nil,
-                                    _ recipient: @escaping (U) -> Void) -> RecipientId {
+                                    _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
+    }
+
+    /// Register a block with the `Letter` as the single parameter:
+    ///
+    /// ```
+    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// ```
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ block: @escaping (U) -> Void) -> RecipientId {
         return register(queue: queue, sender: sender) { letter, _ in
-            recipient(letter)
+            block(letter)
         }
     }
 
@@ -105,7 +128,7 @@ public class PostOffice {
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
-    public func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
+    public func post<U: Letter>(_ letter: U, sender: AnyObject? = nil) {
         lock.lock()
         guard let listeners = listeners[U.name] else {
             lock.unlock()
@@ -118,10 +141,10 @@ public class PostOffice {
             guard sender == nil || listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
-                    listener.recipient.block?(notification, sender)
+                    listener.recipient.block?(letter, sender)
                 }
             } else {
-                listener.recipient.block?(notification, sender)
+                listener.recipient.block?(letter, sender)
             }
         }
     }

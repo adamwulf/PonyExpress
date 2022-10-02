@@ -18,7 +18,7 @@ the object and the method name - the primary difference is that `PonyExpress` is
 An example:
 
 ```swift
-struct ExampleNotification: Letter {
+struct ExampleLetter: Letter {
     var info: Int
     var other: Float
 }
@@ -29,13 +29,13 @@ class ExampleRecipient {
         PostOffice.default.register(self, ExampleRecipient.receive)
     }
 
-    func receive(letter: ExampleNotification, sender: AnyObject?) {
+    func receive(letter: ExampleLetter, sender: AnyObject?) {
         // ... process the Letter
     }
 }
 
 // Send the notification ...
-PostOffice.default.post(ExampleNotification(info: 12, other: 15))
+PostOffice.default.post(ExampleLetter(info: 12, other: 15))
 ```
 
 ## Observing notifications
@@ -74,7 +74,7 @@ class MyClass {
     var token: RecipientId? 
     
     func init() {
-        token = PostOffice.default.register { [weak self] (_: ExampleNotification, _: AnyObject?) in
+        token = PostOffice.default.register { [weak self] (_: ExampleLetter, _: AnyObject?) in
             // make sure to hold `self` weakly inside this block to prevent a cycle
             // ... handle the notification
         }
@@ -100,9 +100,9 @@ and then registering for that notification.
 
 ```swift
 class ExampleRecipient: Recipient {
-    typealias Letter = ExampleNotification
+    typealias Letter = ExampleLetter
 
-    func receive(letter: ExampleNotification, sender: AnyObject?) {
+    func receive(letter: ExampleLetter, sender: AnyObject?) {
         // ... process the notification
     }
 }

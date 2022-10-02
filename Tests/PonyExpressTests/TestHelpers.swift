@@ -22,23 +22,23 @@ enum MultipleChoice: Letter {
     case option3
 }
 
-struct ExampleNotification: Letter {
+struct ExampleLetter: Letter {
     var info: Int
     var other: Float
 }
 
-struct OtherNotification: Letter {
+struct OtherLetter: Letter {
     var fumble: Int
     var bumble: String
 }
 
 class ExampleRecipient: Recipient {
-    typealias Letter = ExampleNotification
+    typealias Letter = ExampleLetter
     private(set) var count = 0
 
     var block: (() -> Void)?
 
-    func receive(letter: ExampleNotification, sender: AnyObject?) {
+    func receive(letter: ExampleLetter, sender: AnyObject?) {
         count += 1
         block?()
     }
@@ -49,7 +49,7 @@ class OtherRecipient {
 
     var block: (() -> Void)?
 
-    func receive(letter: ExampleNotification, sender: AnyObject?) {
+    func receive(letter: ExampleLetter, sender: AnyObject?) {
         count += 1
         block?()
     }
