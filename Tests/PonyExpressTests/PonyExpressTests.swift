@@ -194,7 +194,7 @@ final class PonyExpressTests: XCTestCase {
         autoreleasepool {
             let recipient = OtherRecipient()
             recipient.block = block
-            ponyExpress.register(recipient: recipient, OtherRecipient.receive)
+            ponyExpress.register(recipient, OtherRecipient.receive)
 
             ponyExpress.post(ExampleNotification(info: 12, other: 15))
             ponyExpress.post(Package<Int>(contents: 12))

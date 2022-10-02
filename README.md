@@ -28,7 +28,8 @@ The above will create a `PostOffice.default` that can send `Int` along with each
 
 Any type that implements the `Letter` protocol can be sent as a notification. Recipients can then
 register for that notification type explicitly. This allows the receiving method to be strongly
-typed for the notification that it receives.
+typed for the notification that it receives. Registration is similar to NotificationCenter, requiring
+the object and the method name - the primary difference is that `PonyExpress` is type-safe.
 
 For example:
 
@@ -38,22 +39,19 @@ struct ExampleNotification: Letter {
     var other: Float
 }
 
-class ExampleRecipient: Recipient {
-    typealias Letter = ExampleNotification
+class ExampleRecipient {
+
+    init() {
+        PostOffice.default.register(recipient, ExampleRecipient.receive)
+    }
 
     func receive(letter: ExampleNotification, sender: AnyObject?) {
         // ... process the Letter
     }
 }
 
-func sendExample() {
-    let postOffice = PostOffice()
-    let recipient = ExampleRecipient()
-
-    postOffice.register(recipient)
-
-    postOffice.post(ExampleNotification(info: 12, other: 15))
-}
+// Send the notification ...
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
 Above uses the `Recipient` protocol to define a single type of `Letter` that can be recieved,

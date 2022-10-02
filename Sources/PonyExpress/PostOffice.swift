@@ -88,7 +88,7 @@ public class PostOffice {
     @discardableResult
     public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
                                        sender: AnyObject? = nil,
-                                       recipient: T,
+                                       _ recipient: T,
                                        _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
