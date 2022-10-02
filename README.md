@@ -8,6 +8,15 @@
 
 [View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`.
 
+## Installation
+
+`PonyExpress` is available as a Swift package.
+
+```
+    .package(url: "https://github.com/adamwulf/PonyExpress.git", .branch("main"))
+```
+
+https://github.com/adamwulf/PonyExpress.git
 ## Quick Start
 
 Any type that implements the `Letter` protocol can be sent as a notification. Recipients can then
