@@ -9,44 +9,6 @@
 import Foundation
 import Locks
 
-public protocol Letter {
-    static var name: String { get }
-}
-
-public extension Letter {
-    static var name: String {
-        return String(describing: Self.self)
-    }
-}
-
-public struct Package<T>: Letter {
-    public let contents: T
-}
-
-public protocol Recipient<Letter> {
-    associatedtype Letter: PonyExpress.Letter
-
-    func receive(letter: Letter, sender: AnyObject?)
-}
-
-private struct AnyRecipient {
-    let block: (Letter, AnyObject?) -> Void
-
-    init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
-        self.block = { notification, sender in
-            guard let notification = notification as? U else { return }
-            block(notification, sender)
-        }
-    }
-
-    init<U: Letter>(_ recipient: any Recipient<U>) {
-        self.block = { notification, sender in
-            guard let notification = notification as? U else { return }
-            recipient.receive(letter: notification, sender: sender)
-        }
-    }
-}
-
 public class PostOffice {
 
     static let `default` = PostOffice()
