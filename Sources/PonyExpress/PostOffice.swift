@@ -9,24 +9,14 @@
 import Foundation
 import Locks
 
-protocol Letter {
+public protocol Letter {
     static var name: String { get }
 }
 
-extension Letter {
+public extension Letter {
     static var name: String {
         return String(describing: Self.self)
     }
-}
-
-struct ExampleNotification: Letter {
-    var info: Int
-    var other: Float
-}
-
-struct OtherNotification: Letter {
-    var fumble: Int
-    var bumble: String
 }
 
 public class PostOffice {
@@ -51,19 +41,19 @@ public class PostOffice {
         // noop
     }
 
-    func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
+    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
         lock.lock()
         defer { lock.unlock() }
         listeners[U.name, default: []].append((recipient: Recipient(recipient), queue: queue, sender: sender))
     }
 
-    func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U) -> Void) {
+    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U) -> Void) {
         register(queue: queue, sender: sender) { letter, _ in
             recipient(letter)
         }
     }
 
-    func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
+    public func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
         lock.lock()
         defer { lock.unlock() }
         guard let listeners = listeners[U.name] else { return }

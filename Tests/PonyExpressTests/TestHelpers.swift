@@ -15,3 +15,19 @@ public extension PostOffice {
         return globalShared
     }
 }
+
+enum MultipleChoice: Letter {
+    case option1
+    case option2
+    case option3
+}
+
+struct ExampleNotification: Letter {
+    var info: Int
+    var other: Float
+}
+
+struct OtherNotification: Letter {
+    var fumble: Int
+    var bumble: String
+}

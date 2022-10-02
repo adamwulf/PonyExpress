@@ -118,4 +118,17 @@ final class PonyExpressTests: XCTestCase {
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 3)
     }
+
+    func testEnumLetter() throws {
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register { (_: MultipleChoice) in
+            received += 1
+        }
+
+        ponyExpress.post(MultipleChoice.option1)
+        ponyExpress.post(MultipleChoice.option2)
+        XCTAssertEqual(received, 2)
+    }
 }
