@@ -31,3 +31,12 @@ struct OtherNotification: Letter {
     var fumble: Int
     var bumble: String
 }
+
+class ExampleRecipient: Recipient {
+    typealias Letter = ExampleNotification
+    private(set) var count = 0
+
+    func receive(letter: ExampleNotification, sender: AnyObject?) {
+        count += 1
+    }
+}

@@ -23,10 +23,10 @@ public struct Package<T>: Letter {
     public let contents: T
 }
 
-public protocol Recipient<T> {
-    associatedtype T: Letter
+public protocol Recipient<Letter> {
+    associatedtype Letter: PonyExpress.Letter
 
-    func receive(letter: T, sender: AnyObject?)
+    func receive(letter: Letter, sender: AnyObject?)
 }
 
 public class PostOffice {

@@ -132,15 +132,14 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 2)
     }
 
-    func testPackage() throws {
+    func testRecipient() throws {
         let ponyExpress = PostOffice()
-        var received = 0
+        let recipient = ExampleRecipient()
 
-        ponyExpress.register { (_: Package<Int>) in
-            received += 1
-        }
-
+        ponyExpress.register(recipient)
+        ponyExpress.post(ExampleNotification(info: 12, other: 15))
         ponyExpress.post(Package<Int>(contents: 12))
-        XCTAssertEqual(received, 1)
+
+        XCTAssertEqual(recipient.count, 1)
     }
 }
