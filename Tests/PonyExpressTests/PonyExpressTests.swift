@@ -142,4 +142,21 @@ final class PonyExpressTests: XCTestCase {
 
         XCTAssertEqual(recipient.count, 1)
     }
+
+    func testUnregsiterRecipient() throws {
+        let ponyExpress = PostOffice()
+        let recipient = ExampleRecipient()
+
+        let id = ponyExpress.register(recipient)
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15))
+        ponyExpress.post(Package<Int>(contents: 12))
+
+        ponyExpress.unregsiter(id)
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15))
+        ponyExpress.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(recipient.count, 1)
+    }
 }
