@@ -65,6 +65,19 @@ public class PostOffice {
     }
 
     @discardableResult
+    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
+                                       sender: AnyObject? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
+    }
+
+    @discardableResult
     public func register<U: Letter>(queue: DispatchQueue? = nil,
                                     sender: AnyObject? = nil,
                                     _ recipient: @escaping (U, AnyObject?) -> Void) -> RecipientId {
@@ -83,19 +96,6 @@ public class PostOffice {
         return register(queue: queue, sender: sender) { letter, _ in
             recipient(letter)
         }
-    }
-
-    @discardableResult
-    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
-                                       sender: AnyObject? = nil,
-                                       _ recipient: T,
-                                       _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
-        lock.lock()
-        defer { lock.unlock() }
-        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
-        listeners[U.name, default: []].append(context)
-        recipientToName[context.id] = U.name
-        return context.id
     }
 
     public func unregister(_ recipient: RecipientId) {
