@@ -24,22 +24,63 @@ public extension PostOffice {
 
 The above will create a `PostOffice.default` that can send `Int` along with each notification.
 
+## Notification Types
+
+Any type that implements the `Letter` protocol can be sent as a notification. Recipients can then
+register for that notification type explicitly. This allows the receiving method to be strongly
+typed for the notification that it receives.
+
+For example:
+
+```swift
+struct ExampleNotification: Letter {
+    var info: Int
+    var other: Float
+}
+
+class ExampleRecipient: Recipient {
+    typealias Letter = ExampleNotification
+
+    func receive(letter: ExampleNotification, sender: AnyObject?) {
+        // ... process the Letter
+    }
+}
+
+func sendExample() {
+    let postOffice = PostOffice()
+    let recipient = ExampleRecipient()
+
+    postOffice.register(recipient)
+
+    postOffice.post(ExampleNotification(info: 12, other: 15))
+}
+```
+
+Above uses the `Recipient` protocol to define a single type of `Letter` that can be recieved,
+but there are many ways to register for notifications, and all of them are typesafe for the
+type of notification received.
+
 ## Observing notifications
 
-All observers must implement the `PostOffice` protocol, and define the `Letter` contents type.
+There are multiple ways to receive notifications.
+
+### Option 1: The `Recipient` protocol
+
+Classes can implement the `Recipient` protocol to receive a single type of notification.
+The `Recipient` requires setting the type of `Letter` recieved as its associated type, 
+and then registering for that notification.
 
 ```swift
 class MyClass: MailRecipient {
     typealias MailContents = Int
     
     func init() {
-        PostOffice.default.add(name: .MyNotificationName, observer: self) 
+        PostOffice.default.register(self) 
     }
 
-    func receive(mail: Letter<Int>) {
-        let notificationName: Notification.Name = mail.name
-        let sender: AnyObject = mail.sender
-        let contents: Int = mail.contents
+    func receive(letter: NotificationType, sender: AnyObject?) {
+        let notificationName: String = letter.name
+        let contents: Int = letter.anything
     }
 }
 ```
