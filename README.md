@@ -24,7 +24,6 @@ struct ExampleLetter: Letter {
 }
 
 class ExampleRecipient {
-
     init() {
         PostOffice.default.register(self, ExampleRecipient.receive)
     }
@@ -134,7 +133,23 @@ where recipients can optionally register for notifications sent only from a spec
 Recipients can choose to include or exclude the sender parameter from the receiving block or method.
 
 ```swift
-PostOffice.default.register(sender: someSender, recipient, MyClass.receive) 
+class ExampleRecipient {
+    init() {
+        PostOffice.default.register(self, ExampleRecipient.receive)
+    }
+
+    func receiveWithSender(letter: ExampleLetter, sender: AnyObject?) {
+        // ... process the Letter
+    }
+
+    func receiveWithoutSender(letter: ExampleLetter) {
+        // ... process the Letter
+    }
+}
+
+let recipient = ExampleRecipient()
+PostOffice.default.register(sender: someSender, recipient, ExampleRecipient.receiveWithSender) 
+PostOffice.default.register(sender: someSender, recipient, ExampleRecipient.receiveWithoutSender) 
 ```
 
 ### DispatchQueue
