@@ -152,11 +152,36 @@ final class PonyExpressTests: XCTestCase {
         ponyExpress.post(ExampleNotification(info: 12, other: 15))
         ponyExpress.post(Package<Int>(contents: 12))
 
-        ponyExpress.unregsiter(id)
+        ponyExpress.unregister(id)
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15))
         ponyExpress.post(Package<Int>(contents: 12))
 
         XCTAssertEqual(recipient.count, 1)
+    }
+
+    func testWeakRecipient() throws {
+        let ponyExpress = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+            ponyExpress.register(recipient)
+
+            ponyExpress.post(ExampleNotification(info: 12, other: 15))
+            ponyExpress.post(Package<Int>(contents: 12))
+
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(ponyExpress.count, 1)
+        }
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15))
+        ponyExpress.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(ponyExpress.count, 0)
     }
 }

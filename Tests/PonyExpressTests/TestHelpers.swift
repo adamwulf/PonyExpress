@@ -36,7 +36,10 @@ class ExampleRecipient: Recipient {
     typealias Letter = ExampleNotification
     private(set) var count = 0
 
+    var block: (() -> Void)?
+
     func receive(letter: ExampleNotification, sender: AnyObject?) {
         count += 1
+        block?()
     }
 }

@@ -42,6 +42,12 @@ public class PostOffice {
     private var listeners: [String: [RecipientContext]] = [:]
     private var recipientToName: [RecipientId: String] = [:]
 
+    public var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return listeners.reduce(0, { $0 + $1.value.count })
+    }
+
     public init() {
         // noop
     }
@@ -79,7 +85,7 @@ public class PostOffice {
         }
     }
 
-    public func unregsiter(_ recipient: RecipientId) {
+    public func unregister(_ recipient: RecipientId) {
         lock.lock()
         defer { lock.unlock() }
         guard let name = recipientToName.removeValue(forKey: recipient) else { return }
@@ -92,16 +98,17 @@ public class PostOffice {
             lock.unlock()
             return
         }
+        self.listeners[U.name] = listeners.filter({ !$0.recipient.canCollect })
         lock.unlock()
 
         for listener in listeners {
             guard sender == nil || listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
-                    listener.recipient.block(notification, sender)
+                    listener.recipient.block?(notification, sender)
                 }
             } else {
-                listener.recipient.block(notification, sender)
+                listener.recipient.block?(notification, sender)
             }
         }
     }
