@@ -42,8 +42,11 @@ public class PostOffice {
 
     public func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
         lock.lock()
-        defer { lock.unlock() }
-        guard let listeners = listeners[U.name] else { return }
+        guard let listeners = listeners[U.name] else {
+            lock.unlock()
+            return
+        }
+        lock.unlock()
 
         for listener in listeners {
             guard sender == nil || listener.sender == nil || listener.sender === sender else { continue }
