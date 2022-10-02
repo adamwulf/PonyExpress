@@ -85,6 +85,10 @@ public class PostOffice {
         }
     }
 
+    public func register<T, U: Letter>(recipient: T, _ method: @escaping (T) -> (U, AnyObject?) -> Void) {
+
+    }
+
     public func unregister(_ recipient: RecipientId) {
         lock.lock()
         defer { lock.unlock() }

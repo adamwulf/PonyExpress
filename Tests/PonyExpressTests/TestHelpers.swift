@@ -42,4 +42,8 @@ class ExampleRecipient: Recipient {
         count += 1
         block?()
     }
+
+    func foo() {
+        let foo: (ExampleRecipient) -> (ExampleNotification, AnyObject?) -> Void = ExampleRecipient.receive
+    }
 }
