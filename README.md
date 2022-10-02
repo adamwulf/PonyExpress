@@ -21,7 +21,7 @@ https://github.com/adamwulf/PonyExpress.git
 
 Any type that implements the `Letter` protocol can be sent as a notification. Recipients can then
 register for that notification type explicitly. This allows the receiving method to be strongly
-typed for the notification that it receives. Registration is similar to NotificationCenter, requiring
+typed for the notification that it receives. Registration is similar to `NotificationCenter`, requiring
 the object and the method name - the primary difference is that `PonyExpress` is type-safe.
 
 An example:
@@ -49,6 +49,17 @@ PostOffice.default.post(ExampleLetter(info: 12, other: 15))
 Any other type can be wrapped in a `Package` and sent as a notification as well.
 
 ```swift
+
+class ExampleRecipient {
+    init() {
+        PostOffice.default.register(self, ExampleRecipient.receive)
+    }
+
+    func receive(letter: Package<Int>, sender: AnyObject?) {
+        // ... process the Package
+    }
+}
+
 PostOffice.default.post(Package<Int>(contents: 12))
 ```
 
