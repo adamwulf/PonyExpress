@@ -46,6 +46,12 @@ class ExampleRecipient {
 PostOffice.default.post(ExampleLetter(info: 12, other: 15))
 ```
 
+Any other type can be wrapped in a `Package` and sent as a notification as well.
+
+```swift
+PostOffice.default.post(Package<Int>(contents: 12))
+```
+
 ## Observing notifications
 
 There are multiple ways to receive notifications.
@@ -64,10 +70,8 @@ class MyClass {
         PostOffice.default.register(self, MyClass.receive) 
     }
     
-    func receive(mail: Letter<Int>) {
-        let notificationName: Notification.Name = mail.name
-        let sender: AnyObject = mail.sender
-        let contents: Int = mail.contents
+    func receive(_ letter: ExampleLetter) {
+        // process the letter
     }
 }
 ```
@@ -90,12 +94,6 @@ class MyClass {
     
     deinit {
         PostOffice.default.unregister(token)
-    }
-    
-    func receive(mail: Letter<Int>) {
-        let notificationName: Notification.Name = mail.name
-        let sender: AnyObject = mail.sender
-        let contents: Int = mail.contents
     }
 }
 ```
@@ -144,7 +142,8 @@ Recipients can choose to include or exclude the sender parameter from the receiv
 ```swift
 class ExampleRecipient {
     init() {
-        PostOffice.default.register(self, ExampleRecipient.receive)
+        PostOffice.default.register(self, ExampleRecipient.receiveWithSender)
+        PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)
     }
 
     func receiveWithSender(letter: ExampleLetter, sender: AnyObject?) {
