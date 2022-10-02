@@ -9,35 +9,81 @@
 import Foundation
 import Locks
 
+public struct RecipientId: Hashable {
+    static var nextIdentifier: UInt = 0
+
+    let value: UInt
+
+    init() {
+        self.value = Self.nextIdentifier
+        Self.nextIdentifier += 1
+    }
+}
+
 public class PostOffice {
 
     static let `default` = PostOffice()
 
-    private typealias RecipientContext = (recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?)
+    private struct RecipientContext {
+        let recipient: AnyRecipient
+        let queue: DispatchQueue?
+        let sender: AnyObject?
+        let id: RecipientId
+
+        init(recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?) {
+            self.recipient = recipient
+            self.queue = queue
+            self.sender = sender
+            self.id = RecipientId()
+        }
+    }
 
     private let lock = Mutex()
     private var listeners: [String: [RecipientContext]] = [:]
+    private var recipientToName: [RecipientId: String] = [:]
 
     public init() {
         // noop
     }
 
-    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: any Recipient<U>) {
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ recipient: any Recipient<U>) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        listeners[U.name, default: []].append((recipient: AnyRecipient(recipient), queue: queue, sender: sender))
+        let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
     }
 
-    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ recipient: @escaping (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        listeners[U.name, default: []].append((recipient: AnyRecipient(recipient), queue: queue, sender: sender))
+        let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
     }
 
-    public func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U) -> Void) {
-        register(queue: queue, sender: sender) { letter, _ in
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ recipient: @escaping (U) -> Void) -> RecipientId {
+        return register(queue: queue, sender: sender) { letter, _ in
             recipient(letter)
         }
+    }
+
+    public func unregsiter(_ recipient: RecipientId) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let name = recipientToName.removeValue(forKey: recipient) else { return }
+        listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
     public func post<U: Letter>(_ notification: U, sender: AnyObject? = nil) {
