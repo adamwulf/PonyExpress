@@ -29,29 +29,29 @@ public protocol Recipient<Letter> {
     func receive(letter: Letter, sender: AnyObject?)
 }
 
+private struct AnyRecipient {
+    let block: (Letter, AnyObject?) -> Void
+
+    init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
+        self.block = { notification, sender in
+            guard let notification = notification as? U else { return }
+            block(notification, sender)
+        }
+    }
+
+    init<U: Letter>(_ recipient: any Recipient<U>) {
+        self.block = { notification, sender in
+            guard let notification = notification as? U else { return }
+            recipient.receive(letter: notification, sender: sender)
+        }
+    }
+}
+
 public class PostOffice {
 
     static let `default` = PostOffice()
 
     private typealias RecipientContext = (recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?)
-
-    private struct AnyRecipient {
-        let block: (Letter, AnyObject?) -> Void
-
-        init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
-            self.block = { notification, sender in
-                guard let notification = notification as? U else { return }
-                block(notification, sender)
-            }
-        }
-
-        init<U: Letter>(_ recipient: any Recipient<U>) {
-            self.block = { notification, sender in
-                guard let notification = notification as? U else { return }
-                recipient.receive(letter: notification, sender: sender)
-            }
-        }
-    }
 
     private let lock = Mutex()
     private var listeners: [String: [RecipientContext]] = [:]
