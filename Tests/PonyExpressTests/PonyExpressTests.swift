@@ -2,7 +2,7 @@ import XCTest
 @testable import PonyExpress
 
 final class PonyExpressTests: XCTestCase {
-    func testExample() throws {
+    func testSimple() throws {
         let ponyExpress = PostOffice()
         var received = 0
 
@@ -12,6 +12,46 @@ final class PonyExpressTests: XCTestCase {
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
+    }
+
+    func testIgnoreSender() throws {
+        let sender = NSObject()
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register({ (_: ExampleNotification) -> Void in
+            received += 1
+        })
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
+        XCTAssertEqual(received, 1)
+    }
+
+    func testMatchSender() throws {
+        let sender = NSObject()
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register(sender: sender, { (_: ExampleNotification) -> Void in
+            received += 1
+        })
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
+        XCTAssertEqual(received, 1)
+    }
+
+    func testFailedMatchSender() throws {
+        let sender = NSObject()
+        let other = NSObject()
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register(sender: sender, { (_: ExampleNotification) -> Void in
+            received += 1
+        })
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: other)
+        XCTAssertEqual(received, 0)
     }
 
     func testAsync() throws {
@@ -36,7 +76,7 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
-    func testSendingClosure() throws {
+    func testRegisterFunction() throws {
         let ponyExpress = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
@@ -58,5 +98,24 @@ final class PonyExpressTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
 
         XCTAssertEqual(received, 1)
+    }
+
+    func testSender() throws {
+        let sender = NSObject()
+        let other = NSObject()
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register { (_: ExampleNotification, _: AnyObject?) in
+            received += 1
+        }
+
+        ponyExpress.register(sender: sender, { (_: ExampleNotification) in
+            received += 1
+        })
+
+        ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
+        ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: other)
+        XCTAssertEqual(received, 3)
     }
 }

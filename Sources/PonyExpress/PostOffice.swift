@@ -24,7 +24,15 @@ struct ExampleNotification: Letter {
     var other: Float
 }
 
+struct OtherNotification: Letter {
+    var fumble: Int
+    var bumble: String
+}
+
 public class PostOffice {
+
+    private typealias RecipientContext = (recipient: Recipient, queue: DispatchQueue?, sender: AnyObject?)
+
     private struct Recipient {
         let block: (Letter, AnyObject?) -> Void
 
@@ -37,20 +45,20 @@ public class PostOffice {
     }
 
     private let lock = Mutex()
-    private var listeners: [String: [(recipient: Recipient, queue: DispatchQueue?)]] = [:]
+    private var listeners: [String: [RecipientContext]] = [:]
 
     public init() {
         // noop
     }
 
-    func register<U: Letter>(queue: DispatchQueue? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
+    func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U, AnyObject?) -> Void) {
         lock.lock()
         defer { lock.unlock() }
-        listeners[U.name, default: []].append((recipient: Recipient(recipient), queue: queue))
+        listeners[U.name, default: []].append((recipient: Recipient(recipient), queue: queue, sender: sender))
     }
 
-    func register<U: Letter>(queue: DispatchQueue? = nil, _ recipient: @escaping (U) -> Void) {
-        register(queue: queue) { letter, _ in
+    func register<U: Letter>(queue: DispatchQueue? = nil, sender: AnyObject? = nil, _ recipient: @escaping (U) -> Void) {
+        register(queue: queue, sender: sender) { letter, _ in
             recipient(letter)
         }
     }
@@ -61,6 +69,7 @@ public class PostOffice {
         guard let listeners = listeners[U.name] else { return }
 
         for listener in listeners {
+            guard sender == nil || listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
                     listener.recipient.block(notification, sender)
