@@ -1,15 +1,18 @@
 //
-//  Letter.swift
+//  File.swift
 //  
 //
-//  Created by Adam Wulf on 8/27/22.
+//  Created by Adam Wulf on 10/1/22.
 //
 
 import Foundation
 
-/// `Letter` encapsulates information broadcast to observers via a `PostOffice`.
-public struct Letter<T> {
-    public let name: Notification.Name
-    public let sender: AnyObject?
-    public let contents: T?
+public protocol Letter {
+    static var name: String { get }
+}
+
+public extension Letter {
+    static var name: String {
+        return String(describing: Self.self)
+    }
 }

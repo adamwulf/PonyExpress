@@ -9,83 +9,142 @@
 import Foundation
 import Locks
 
-/// Register `MailRecipient`s with the `PostOffice` to receive `Letter`s when they are posted.
-public class PostOffice<Contents> {
-    /// A block that can receive a `Letter`
-    public typealias PostOfficeBlock = (Letter<Contents>) -> Void
+public struct RecipientId: Hashable {
+    static var nextIdentifier: UInt = 0
 
-    private enum Observer {
-        case postOffice(_ postOffice: any MailRecipient<Contents>, queue: DispatchQueue?)
-        case block(_ block: PostOfficeBlock, queue: DispatchQueue?)
+    let value: UInt
+
+    init() {
+        self.value = Self.nextIdentifier
+        Self.nextIdentifier += 1
     }
+}
+
+public class PostOffice {
+
+    static let `default` = PostOffice()
+
+    private struct RecipientContext {
+        let recipient: AnyRecipient
+        let queue: DispatchQueue?
+        let sender: AnyObject?
+        let id: RecipientId
+
+        init(recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?) {
+            self.recipient = recipient
+            self.queue = queue
+            self.sender = sender
+            self.id = RecipientId()
+        }
+    }
+
     private let lock = Mutex()
-    private var observers: [Notification.Name: [Observer]]
+    private var listeners: [String: [RecipientContext]] = [:]
+    private var recipientToName: [RecipientId: String] = [:]
 
-    /// Create a new `PostOffice` for a particular `Letter` type.
-    ///
-    /// The following code will create a `PostOffice` that can post `Int`s as the contents of the `Letter`
-    /// ```
-    /// let ponyExpress = PostOffice<Int>()
-    /// ```
+    public var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return listeners.reduce(0, { $0 + $1.value.count })
+    }
+
     public init() {
-        // only allow a singleton
-        observers = [:]
+        // noop
     }
 
-    /// Add a `MailRecipient` to receive letters for the given `Notification.Name`.
-    /// - parameter name: The name of the `Letter` to receive.
-    /// - parameter queue: The optional queue to receive the `Letter` when posted. If `nil`, then the `Letter` will arrive on the same thread that posted it.
-    /// - parameter observer: The `MailRecipient` that will receive the `Letter` when it is posted.
-    public func add<U: MailRecipient>(name: Notification.Name, queue: DispatchQueue? = nil, recipient: U) where U.MailContents == Contents {
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ recipient: any Recipient<U>) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        var curr = observers[name] ?? []
-        curr.append(.postOffice(recipient, queue: queue))
-        observers[name] = curr
+        let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
     }
 
-    /// Add a `PostOfficeBlock` to receive letters for the given `Notification.Name`
-    /// - parameter name: The name of the `Letter` to receive.
-    /// - parameter queue: Optional. The queue to receive the `Letter` when posted. If `nil`, then the `Letter` will arrive on the same thread that posted it.
-    /// - parameter block: The `PostOfficeBlock` that will receive the `Letter` when it is posted.
-    public func add(name: Notification.Name, queue: DispatchQueue? = nil, recipient: @escaping PostOfficeBlock) {
+    @discardableResult
+    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
+                                       sender: AnyObject? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        var curr = observers[name] ?? []
-        curr.append(.block(recipient, queue: queue))
-        observers[name] = curr
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
     }
 
-    /// Posts a `Letter` to all `PostOffice`s that have registered to observer the input `name`.
-    /// - parameter name: The name of the `Letter` to receive.
-    /// - parameter sender: Optional. The objct that is sending the `Letter`.
-    /// - parameter contents: Optional. The contents of the `Letter` being posted.
-    public func post(name: Notification.Name, sender: AnyObject? = nil, contents: Contents? = nil) {
+    @discardableResult
+    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
+                                       sender: AnyObject? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
-        let toNotify = observers[name]
+        defer { lock.unlock() }
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
+    }
+
+    /// Register a block with the `Letter` and sender as parameters
+    ///
+    /// ```
+    /// PostOffice.default.register { letter, sender in ... }
+    /// ```
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
+        listeners[U.name, default: []].append(context)
+        recipientToName[context.id] = U.name
+        return context.id
+    }
+
+    /// Register a block with the `Letter` as the single parameter:
+    ///
+    /// ```
+    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// ```
+    @discardableResult
+    public func register<U: Letter>(queue: DispatchQueue? = nil,
+                                    sender: AnyObject? = nil,
+                                    _ block: @escaping (U) -> Void) -> RecipientId {
+        return register(queue: queue, sender: sender) { letter, _ in
+            block(letter)
+        }
+    }
+
+    public func unregister(_ recipient: RecipientId) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let name = recipientToName.removeValue(forKey: recipient) else { return }
+        listeners[name]?.removeAll(where: { $0.id == recipient })
+    }
+
+    public func post<U: Letter>(_ letter: U, sender: AnyObject? = nil) {
+        lock.lock()
+        guard let listeners = listeners[U.name] else {
+            lock.unlock()
+            return
+        }
+        self.listeners[U.name] = listeners.filter({ !$0.recipient.canCollect })
         lock.unlock()
 
-        guard let toNotify = toNotify else { return }
-        let letter = Letter(name: name, sender: sender, contents: contents)
-
-        for observer in toNotify {
-            switch observer {
-            case .postOffice(let postOffice, let queue):
-                if let queue = queue {
-                    queue.async {
-                        postOffice.receive(mail: letter)
-                    }
-                } else {
-                    postOffice.receive(mail: letter)
+        for listener in listeners {
+            guard listener.sender == nil || listener.sender === sender else { continue }
+            if let queue = listener.queue {
+                queue.async {
+                    listener.recipient.block?(letter, sender)
                 }
-            case .block(let block, queue: let queue):
-                if let queue = queue {
-                    queue.async {
-                        block(letter)
-                    }
-                } else {
-                    block(letter)
-                }
+            } else {
+                listener.recipient.block?(letter, sender)
             }
         }
     }

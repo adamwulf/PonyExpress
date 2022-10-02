@@ -2,68 +2,72 @@ import XCTest
 @testable import PonyExpress
 
 final class PonyExpressTests: XCTestCase {
-    func testExample() throws {
-        let ponyExpress = PostOffice<UserInfo>()
+    func testSimple() throws {
+        let postOffice = PostOffice()
         var received = 0
-        let graph = TestObserver()
-        graph.observe = { letter in
-            guard case .specificInfo(let objectKeys) = letter.contents else {
-                XCTFail()
-                return
-            }
-            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
-            XCTAssertNil(letter.sender)
-            XCTAssertEqual(objectKeys, Set([12, 13]))
+
+        postOffice.register { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.add(name: .NSCalendarDayChanged, recipient: graph)
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
-    func testExampleBlock() throws {
-        let ponyExpress = PostOffice<UserInfo>()
+    func testIgnoreSender() throws {
+        let sender = NSObject()
+        let postOffice = PostOffice()
         var received = 0
 
-        ponyExpress.add(name: .NSCalendarDayChanged) { letter in
-            guard case .specificInfo(let objectKeys) = letter.contents else {
-                XCTFail()
-                return
-            }
-            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
-            XCTAssertNil(letter.sender)
-            XCTAssertEqual(objectKeys, Set([12, 13]))
+        postOffice.register { (_: ExampleLetter) -> Void in
             received += 1
         }
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
 
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
+    }
+
+    func testMatchSender() throws {
+        let sender = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        XCTAssertEqual(received, 1)
+    }
+
+    func testFailedMatchSender() throws {
+        let sender = NSObject()
+        let other = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        XCTAssertEqual(received, 0)
     }
 
     func testAsync() throws {
-        let ponyExpress = PostOffice<UserInfo>()
+        let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
-        let graph = TestObserver()
-        graph.observe = { letter in
-            guard case .specificInfo(let objectKeys) = letter.contents else {
-                XCTFail()
-                return
-            }
-            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
-            XCTAssertNil(letter.sender)
-            XCTAssertEqual(objectKeys, Set([12, 13]))
+
+        postOffice.register(queue: queue) { (_: ExampleLetter) -> Void in
             received += 1
         }
 
-        ponyExpress.add(name: .NSCalendarDayChanged, queue: queue, recipient: graph)
-
         XCTAssertEqual(received, 0)
 
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
 
-        let exp = expectation(description: "wait for notification")
+        let exp = expectation(description: "wait for letter")
         queue.async {
             exp.fulfill()
         }
@@ -72,27 +76,22 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
-    func testAsyncBlock() throws {
-        let ponyExpress = PostOffice<UserInfo>()
+    func testRegisterFunction() throws {
+        let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
-        ponyExpress.add(name: .NSCalendarDayChanged, queue: queue) { letter in
-            guard case .specificInfo(let objectKeys) = letter.contents else {
-                XCTFail()
-                return
-            }
-            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
-            XCTAssertNil(letter.sender)
-            XCTAssertEqual(objectKeys, Set([12, 13]))
+        func listener(_ letter: ExampleLetter) {
             received += 1
         }
 
+        postOffice.register(queue: queue, listener(_:))
+
         XCTAssertEqual(received, 0)
 
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
+        postOffice.post(ExampleLetter(info: 12, other: 15))
 
-        let exp = expectation(description: "wait for notification")
+        let exp = expectation(description: "wait for letter")
         queue.async {
             exp.fulfill()
         }
@@ -101,58 +100,197 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
-    func testSendingClosure() throws {
-        let ponyExpress = PostOffice<UserInfo>()
-        let queue = DispatchQueue(label: "any.queue")
+    func testSender() throws {
+        let sender = NSObject()
+        let other = NSObject()
+        let postOffice = PostOffice()
         var received = 0
 
-        func listener(_ letter: Letter<UserInfo>) {
-            guard case .specificInfo(let objectKeys) = letter.contents else {
-                XCTFail()
-                return
-            }
-            XCTAssertEqual(letter.name, .NSCalendarDayChanged)
-            XCTAssertNil(letter.sender)
-            XCTAssertEqual(objectKeys, Set([12, 13]))
+        postOffice.register { (_: ExampleLetter, _: AnyObject?) in
             received += 1
         }
 
-        ponyExpress.add(name: .NSCalendarDayChanged, queue: queue, recipient: listener)
-
-        XCTAssertEqual(received, 0)
-
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
-
-        let exp = expectation(description: "wait for notification")
-        queue.async {
-            exp.fulfill()
+        postOffice.register(sender: sender) { (_: ExampleLetter) in
+            received += 1
         }
-        wait(for: [exp], timeout: 0.1)
 
-        XCTAssertEqual(received, 1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        XCTAssertEqual(received, 3)
     }
 
-    /// Instead of sending an `MailRecipient` as the `recipient`, a method or block that matches the `MailContents` can be sent instead.
-    func testExampleWithMethod() throws {
-
-        class TestObserverWithMethod {
-            var observe: ((Letter<UserInfo>) -> Void)?
-
-            func receive(_ mail: Letter<UserInfo>) {
-                observe?(mail)
-            }
-        }
-
-        let ponyExpress = PostOffice<UserInfo>()
+    func testEnumLetter() throws {
+        let postOffice = PostOffice()
         var received = 0
-        let recipient = TestObserverWithMethod()
 
-        recipient.observe = { _ in
+        postOffice.register { (_: MultipleChoice) in
             received += 1
         }
 
-        ponyExpress.add(name: .NSCalendarDayChanged, recipient: recipient.receive)
-        ponyExpress.post(name: .NSCalendarDayChanged, sender: nil, contents: .specificInfo(objectKeys: Set([12, 13])))
-        XCTAssertEqual(received, 1)
+        postOffice.post(MultipleChoice.option1)
+        postOffice.post(MultipleChoice.option2)
+        XCTAssertEqual(received, 2)
+    }
+
+    func testRecipient() throws {
+        let postOffice = PostOffice()
+        let recipient = ExampleRecipient()
+
+        postOffice.register(recipient)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(recipient.count, 1)
+    }
+
+    func testUnregsiterRecipient() throws {
+        let postOffice = PostOffice()
+        let recipient = ExampleRecipient()
+
+        let id = postOffice.register(recipient)
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
+
+        postOffice.unregister(id)
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(recipient.count, 1)
+    }
+
+    func testWeakRecipient() throws {
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+            postOffice.register(recipient)
+
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(Package<Int>(contents: 12))
+
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testTypedSelector() throws {
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+        autoreleasepool {
+            let recipient = OtherRecipient()
+            recipient.block = block
+            postOffice.register(recipient, OtherRecipient.receive)
+
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(Package<Int>(contents: 12))
+
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(Package<Int>(contents: 12))
+
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithSender() {
+        class RecipientWithMethod {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter, sender: AnyObject?) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = RecipientWithMethod()
+            recipient.block = block
+
+            postOffice.register(recipient, RecipientWithMethod.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithoutSender() {
+        class RecipientWithMethod {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = RecipientWithMethod()
+            recipient.block = block
+
+            postOffice.register(recipient, RecipientWithMethod.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodSpecificSender() {
+        let postOffice = PostOffice()
+        let sender = NSObject()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.block = block
+
+            postOffice.register(sender: sender, recipient, ExampleRecipient.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
     }
 }
