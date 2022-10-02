@@ -19,7 +19,13 @@ public extension Letter {
     }
 }
 
+public struct Package<T>: Letter {
+    public let contents: T
+}
+
 public class PostOffice {
+
+    static let `default` = PostOffice()
 
     private typealias RecipientContext = (recipient: Recipient, queue: DispatchQueue?, sender: AnyObject?)
 

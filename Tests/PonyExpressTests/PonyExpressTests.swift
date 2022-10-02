@@ -6,9 +6,9 @@ final class PonyExpressTests: XCTestCase {
         let ponyExpress = PostOffice()
         var received = 0
 
-        ponyExpress.register({ (_: ExampleNotification) -> Void in
+        ponyExpress.register { (_: ExampleNotification) -> Void in
             received += 1
-        })
+        }
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
@@ -19,9 +19,9 @@ final class PonyExpressTests: XCTestCase {
         let ponyExpress = PostOffice()
         var received = 0
 
-        ponyExpress.register({ (_: ExampleNotification) -> Void in
+        ponyExpress.register { (_: ExampleNotification) -> Void in
             received += 1
-        })
+        }
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
@@ -32,9 +32,9 @@ final class PonyExpressTests: XCTestCase {
         let ponyExpress = PostOffice()
         var received = 0
 
-        ponyExpress.register(sender: sender, { (_: ExampleNotification) -> Void in
+        ponyExpress.register(sender: sender) { (_: ExampleNotification) -> Void in
             received += 1
-        })
+        }
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
@@ -46,9 +46,9 @@ final class PonyExpressTests: XCTestCase {
         let ponyExpress = PostOffice()
         var received = 0
 
-        ponyExpress.register(sender: sender, { (_: ExampleNotification) -> Void in
+        ponyExpress.register(sender: sender) { (_: ExampleNotification) -> Void in
             received += 1
-        })
+        }
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 0)
@@ -59,9 +59,9 @@ final class PonyExpressTests: XCTestCase {
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
-        ponyExpress.register(queue: queue, { (_: ExampleNotification) -> Void in
+        ponyExpress.register(queue: queue) { (_: ExampleNotification) -> Void in
             received += 1
-        })
+        }
 
         XCTAssertEqual(received, 0)
 
@@ -110,9 +110,9 @@ final class PonyExpressTests: XCTestCase {
             received += 1
         }
 
-        ponyExpress.register(sender: sender, { (_: ExampleNotification) in
+        ponyExpress.register(sender: sender) { (_: ExampleNotification) in
             received += 1
-        })
+        }
 
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: sender)
         ponyExpress.post(ExampleNotification(info: 12, other: 15), sender: other)
@@ -130,5 +130,17 @@ final class PonyExpressTests: XCTestCase {
         ponyExpress.post(MultipleChoice.option1)
         ponyExpress.post(MultipleChoice.option2)
         XCTAssertEqual(received, 2)
+    }
+
+    func testPackage() throws {
+        let ponyExpress = PostOffice()
+        var received = 0
+
+        ponyExpress.register { (_: Package<Int>) in
+            received += 1
+        }
+
+        ponyExpress.post(Package<Int>(contents: 12))
+        XCTAssertEqual(received, 1)
     }
 }
