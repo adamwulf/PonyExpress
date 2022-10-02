@@ -55,7 +55,7 @@ class ExampleRecipient {
         PostOffice.default.register(self, ExampleRecipient.receive)
     }
 
-    func receive(letter: Package<Int>, sender: AnyObject?) {
+    func receive(package: Package<Int>, sender: AnyObject?) {
         // ... process the Package
     }
 }

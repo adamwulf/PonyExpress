@@ -293,4 +293,34 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testRegisterForPackage() {
+        class RecipientWithMethod {
+            var block: (() -> Void)?
+
+            func receive(package: Package<Int>) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = RecipientWithMethod()
+            recipient.block = block
+
+            postOffice.register(recipient, RecipientWithMethod.receive)
+            postOffice.post(Package<Int>(contents: 12))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(Package<Int>(contents: 13))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
 }
