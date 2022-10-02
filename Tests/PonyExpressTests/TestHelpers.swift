@@ -27,11 +27,6 @@ struct ExampleLetter: Letter {
     var other: Float
 }
 
-struct OtherLetter: Letter {
-    var fumble: Int
-    var bumble: String
-}
-
 class ExampleRecipient: Recipient {
     typealias Letter = ExampleLetter
     private(set) var count = 0
