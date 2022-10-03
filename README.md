@@ -13,7 +13,7 @@
 `PonyExpress` is available as a Swift package.
 
 ```
-    .package(url: "https://github.com/adamwulf/PonyExpress.git", .branch("main"))
+.package(url: "https://github.com/adamwulf/PonyExpress.git", .branch("main"))
 ```
 
 https://github.com/adamwulf/PonyExpress.git
