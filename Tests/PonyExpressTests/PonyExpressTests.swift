@@ -311,7 +311,19 @@ final class PonyExpressTests: XCTestCase {
         }
 
         postOffice.post(ExampleSubObjectLetter(), sender: sender)
-        XCTAssertEqual(objectReceived, 1) // fails :(
-        XCTAssertEqual(subObjectReceived, 1) // passes
+        XCTAssertEqual(objectReceived, 1)
+        XCTAssertEqual(subObjectReceived, 1)
+    }
+
+    func testReceiveInts() throws {
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register { (sent: Int) -> Void in
+            count = sent
+        }
+
+        postOffice.post(12)
+        XCTAssertEqual(count, 12)
     }
 }
