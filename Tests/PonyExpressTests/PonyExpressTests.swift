@@ -323,4 +323,17 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testRegisterProtocol() throws {
+        let sender = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register { (_: ExampleObjectLetter) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleSubObjectLetter(info: 12, other: 15, stuff: 20), sender: sender)
+        XCTAssertEqual(received, 1)
+    }
 }
