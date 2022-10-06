@@ -32,14 +32,14 @@ public class PostOffice {
     /// Using a Mirror of the object, create a Mirror for each type in its ancestry and build names from those types
     private static func names<T>(for object: T) -> [String] {
         var ret: [String] = []
-        // get a mirror of the object. Its subjectType String would be "ExampleClass"
+        // get a mirror of the object, if we use this Mirror to build a String, it would be "ExampleClass"
         var mirror: Mirror? = Mirror(reflecting: object)
         while let concrete = mirror {
-            // we need to build Mirrors for the /Types/, not for the object itself
+            // we need to build Mirrors for the /type/, not for the object itself
             // This will build a string for the type like "ExampleClass.Type"
             let name = String(describing: Mirror(reflecting: concrete.subjectType).subjectType)
             ret.append(name)
-            // now iterate up the parent class chain
+            // now iterate up the parent class chain and repeat until we're done
             mirror = concrete.superclassMirror
         }
         return ret
