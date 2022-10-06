@@ -330,13 +330,18 @@ final class PonyExpressTests: XCTestCase {
 
         let sender = NSObject()
         let postOffice = PostOffice()
-        var received = 0
+        var objectReceived = 0
+        var subObjectReceived = 0
 
         postOffice.register { (_: ExampleObjectLetter) -> Void in
-            received += 1
+            objectReceived += 1
+        }
+        postOffice.register { (_: ExampleSubObjectLetter) -> Void in
+            subObjectReceived += 1
         }
 
         postOffice.post(ExampleSubObjectLetter(), sender: sender)
-        XCTAssertEqual(received, 1) // fails :(
+        XCTAssertEqual(objectReceived, 1) // fails :(
+        XCTAssertEqual(subObjectReceived, 1) // passes
     }
 }
