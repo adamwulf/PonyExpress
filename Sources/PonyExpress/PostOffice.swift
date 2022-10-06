@@ -24,6 +24,27 @@ public class PostOffice {
 
     static let `default` = PostOffice()
 
+    private static func name<T>(for type: T.Type) -> String {
+        // build a string to represent the Type. This will be something like "ExampleClass.Type"
+        return String(describing: Mirror(reflecting: type).subjectType)
+    }
+
+    /// Using a Mirror of the object, create a Mirror for each type in its ancestry and build names from those types
+    private static func names<T>(for object: T) -> [String] {
+        var ret: [String] = []
+        // get a mirror of the object. Its subjectType String would be "ExampleClass"
+        var mirror: Mirror? = Mirror(reflecting: object)
+        while let concrete = mirror {
+            // we need to build Mirrors for the /Types/, not for the object itself
+            // This will build a string for the type like "ExampleClass.Type"
+            let name = String(describing: Mirror(reflecting: concrete.subjectType).subjectType)
+            ret.append(name)
+            // now iterate up the parent class chain
+            mirror = concrete.superclassMirror
+        }
+        return ret
+    }
+
     private struct RecipientContext {
         let recipient: AnyRecipient
         let queue: DispatchQueue?
@@ -58,9 +79,10 @@ public class PostOffice {
                                     _ recipient: any Recipient<U>) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
+        let name = Self.name(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
-        listeners[U.name, default: []].append(context)
-        recipientToName[context.id] = U.name
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
         return context.id
     }
 
@@ -71,9 +93,10 @@ public class PostOffice {
                                        _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
+        let name = Self.name(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
-        listeners[U.name, default: []].append(context)
-        recipientToName[context.id] = U.name
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
         return context.id
     }
 
@@ -84,9 +107,10 @@ public class PostOffice {
                                        _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
+        let name = Self.name(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
-        listeners[U.name, default: []].append(context)
-        recipientToName[context.id] = U.name
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
         return context.id
     }
 
@@ -101,9 +125,10 @@ public class PostOffice {
                                     _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
+        let name = Self.name(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
-        listeners[U.name, default: []].append(context)
-        recipientToName[context.id] = U.name
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
         return context.id
     }
 
@@ -129,15 +154,22 @@ public class PostOffice {
     }
 
     public func post<U: Letter>(_ letter: U, sender: AnyObject? = nil) {
+        let names = Self.names(for: letter)
         lock.lock()
-        guard let listeners = listeners[U.name] else {
+        var allListeners: [RecipientContext] = []
+        for name in names {
+            if let typeListeners = listeners[name] {
+                allListeners.append(contentsOf: typeListeners)
+                listeners[name] = typeListeners.filter({ !$0.recipient.canCollect })
+            }
+        }
+        guard !allListeners.isEmpty else {
             lock.unlock()
             return
         }
-        self.listeners[U.name] = listeners.filter({ !$0.recipient.canCollect })
         lock.unlock()
 
-        for listener in listeners {
+        for listener in allListeners {
             guard listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {

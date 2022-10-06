@@ -7,12 +7,4 @@
 
 import Foundation
 
-public protocol Letter {
-    static var name: String { get }
-}
-
-public extension Letter {
-    static var name: String {
-        return String(describing: Self.self)
-    }
-}
+public protocol Letter { }
