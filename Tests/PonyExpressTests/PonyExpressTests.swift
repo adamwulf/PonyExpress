@@ -325,6 +325,9 @@ final class PonyExpressTests: XCTestCase {
     }
 
     func testRegisterSubclass() throws {
+        class ExampleObjectLetter: Letter { }
+        class ExampleSubObjectLetter: ExampleObjectLetter { }
+
         let sender = NSObject()
         let postOffice = PostOffice()
         var received = 0
@@ -333,7 +336,7 @@ final class PonyExpressTests: XCTestCase {
             received += 1
         }
 
-        postOffice.post(ExampleSubObjectLetter(info: 12, other: 15, stuff: 20), sender: sender)
+        postOffice.post(ExampleSubObjectLetter(), sender: sender)
         XCTAssertEqual(received, 1) // fails :(
     }
 }

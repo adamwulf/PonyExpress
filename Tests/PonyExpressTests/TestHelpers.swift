@@ -27,25 +27,6 @@ struct ExampleLetter: Letter {
     var other: Float
 }
 
-class ExampleObjectLetter: Letter {
-    var info: Int
-    var other: Float
-
-    init(info: Int, other: Float) {
-        self.info = info
-        self.other = other
-    }
-}
-
-class ExampleSubObjectLetter: ExampleObjectLetter {
-    var stuff: Double
-
-    init(info: Int, other: Float, stuff: Double) {
-        self.stuff = stuff
-        super.init(info: info, other: other)
-    }
-}
-
 class ExampleRecipient: Recipient {
     typealias Letter = ExampleLetter
     private(set) var count = 0
