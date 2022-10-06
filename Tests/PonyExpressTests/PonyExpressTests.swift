@@ -334,6 +334,6 @@ final class PonyExpressTests: XCTestCase {
         }
 
         postOffice.post(ExampleSubObjectLetter(info: 12, other: 15, stuff: 20), sender: sender)
-        XCTAssertEqual(received, 1)
+        XCTAssertEqual(received, 1) // fails :(
     }
 }
