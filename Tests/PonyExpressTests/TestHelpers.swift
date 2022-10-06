@@ -16,13 +16,13 @@ public extension PostOffice {
     }
 }
 
-enum MultipleChoice: Letter {
+enum MultipleChoice {
     case option1
     case option2
     case option3
 }
 
-struct ExampleLetter: Letter {
+struct ExampleLetter {
     var info: Int
     var other: Float
 }

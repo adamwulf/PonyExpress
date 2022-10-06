@@ -74,9 +74,9 @@ public class PostOffice {
     }
 
     @discardableResult
-    public func register<U: Letter>(queue: DispatchQueue? = nil,
-                                    sender: AnyObject? = nil,
-                                    _ recipient: any Recipient<U>) -> RecipientId {
+    public func register<U>(queue: DispatchQueue? = nil,
+                            sender: AnyObject? = nil,
+                            _ recipient: any Recipient<U>) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -87,10 +87,10 @@ public class PostOffice {
     }
 
     @discardableResult
-    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
-                                       sender: AnyObject? = nil,
-                                       _ recipient: T,
-                                       _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
+    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
+                                          sender: AnyObject? = nil,
+                                          _ recipient: T,
+                                          _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -101,10 +101,10 @@ public class PostOffice {
     }
 
     @discardableResult
-    public func register<T: AnyObject, U: Letter>(queue: DispatchQueue? = nil,
-                                       sender: AnyObject? = nil,
-                                       _ recipient: T,
-                                       _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
+    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
+                                          sender: AnyObject? = nil,
+                                          _ recipient: T,
+                                          _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -114,15 +114,15 @@ public class PostOffice {
         return context.id
     }
 
-    /// Register a block with the `Letter` and sender as parameters
+    /// Register a block for the object and sender as parameters
     ///
     /// ```
     /// PostOffice.default.register { letter, sender in ... }
     /// ```
     @discardableResult
-    public func register<U: Letter>(queue: DispatchQueue? = nil,
-                                    sender: AnyObject? = nil,
-                                    _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
+    public func register<U>(queue: DispatchQueue? = nil,
+                            sender: AnyObject? = nil,
+                            _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -132,15 +132,15 @@ public class PostOffice {
         return context.id
     }
 
-    /// Register a block with the `Letter` as the single parameter:
+    /// Register a block with the object as the single parameter:
     ///
     /// ```
     /// PostOffice.default.register { (letter: ExampleLetter) in ... }
     /// ```
     @discardableResult
-    public func register<U: Letter>(queue: DispatchQueue? = nil,
-                                    sender: AnyObject? = nil,
-                                    _ block: @escaping (U) -> Void) -> RecipientId {
+    public func register<U>(queue: DispatchQueue? = nil,
+                            sender: AnyObject? = nil,
+                            _ block: @escaping (U) -> Void) -> RecipientId {
         return register(queue: queue, sender: sender) { letter, _ in
             block(letter)
         }
@@ -153,7 +153,7 @@ public class PostOffice {
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
-    public func post<U: Letter>(_ letter: U, sender: AnyObject? = nil) {
+    public func post<U>(_ letter: U, sender: AnyObject? = nil) {
         let names = Self.names(for: letter)
         lock.lock()
         var allListeners: [RecipientContext] = []

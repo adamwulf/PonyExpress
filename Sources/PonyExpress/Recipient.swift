@@ -8,19 +8,19 @@
 import Foundation
 
 public protocol Recipient<Letter>: AnyObject {
-    associatedtype Letter: PonyExpress.Letter
+    associatedtype Letter
 
     func receive(letter: Letter, sender: AnyObject?)
 }
 
 internal class AnyRecipient {
-    var block: ((Letter, AnyObject?) -> Void)?
+    var block: ((Any, AnyObject?) -> Void)?
     private let _canCollect: () -> Bool
     var canCollect: Bool {
         return _canCollect()
     }
 
-    init<U: Letter>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
+    init<U>(_ block: @escaping (_ letter: U, _ sender: AnyObject?) -> Void) {
         _canCollect = { return false }
         self.block = { letter, sender in
             guard let letter = letter as? U else { return }
@@ -28,7 +28,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<U: Letter>(_ recipient: any Recipient<U>) {
+    init<U>(_ recipient: any Recipient<U>) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }
@@ -41,7 +41,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<T: AnyObject, U: Letter>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: AnyObject?) -> Void) {
+    init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: AnyObject?) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }
@@ -54,7 +54,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<T: AnyObject, U: Letter>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U) -> Void) {
+    init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }

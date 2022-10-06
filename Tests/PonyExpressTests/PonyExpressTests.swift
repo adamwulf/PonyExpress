@@ -138,7 +138,7 @@ final class PonyExpressTests: XCTestCase {
 
         postOffice.register(recipient)
         postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(Package<Int>(contents: 12))
+        postOffice.post(12)
 
         XCTAssertEqual(recipient.count, 1)
     }
@@ -150,12 +150,12 @@ final class PonyExpressTests: XCTestCase {
         let id = postOffice.register(recipient)
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(Package<Int>(contents: 12))
+        postOffice.post(12)
 
         postOffice.unregister(id)
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(Package<Int>(contents: 12))
+        postOffice.post(12)
 
         XCTAssertEqual(recipient.count, 1)
     }
@@ -172,14 +172,14 @@ final class PonyExpressTests: XCTestCase {
             postOffice.register(recipient)
 
             postOffice.post(ExampleLetter(info: 12, other: 15))
-            postOffice.post(Package<Int>(contents: 12))
+            postOffice.post(12)
 
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(Package<Int>(contents: 12))
+        postOffice.post(12)
 
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
@@ -197,14 +197,14 @@ final class PonyExpressTests: XCTestCase {
             postOffice.register(recipient, OtherRecipient.receive)
 
             postOffice.post(ExampleLetter(info: 12, other: 15))
-            postOffice.post(Package<Int>(contents: 12))
+            postOffice.post(12)
 
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(Package<Int>(contents: 12))
+        postOffice.post(12)
 
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
@@ -294,38 +294,8 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testRegisterForPackage() {
-        class RecipientWithMethod {
-            var block: (() -> Void)?
-
-            func receive(package: Package<Int>) {
-                block?()
-            }
-        }
-
-        let postOffice = PostOffice()
-        var count = 0
-        let block = {
-            count += 1
-        }
-
-        autoreleasepool {
-            let recipient = RecipientWithMethod()
-            recipient.block = block
-
-            postOffice.register(recipient, RecipientWithMethod.receive)
-            postOffice.post(Package<Int>(contents: 12))
-            XCTAssertEqual(count, 1)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(Package<Int>(contents: 13))
-        XCTAssertEqual(count, 1)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
     func testRegisterSubclass() throws {
-        class ExampleObjectLetter: Letter { }
+        class ExampleObjectLetter { }
         class ExampleSubObjectLetter: ExampleObjectLetter { }
 
         let sender = NSObject()
