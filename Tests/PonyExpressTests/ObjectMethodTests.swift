@@ -3,16 +3,16 @@ import XCTest
 
 final class ObjectMethodTests: XCTestCase {
 
-    func testTypedSelector() throws {
+    func testObjectHeldWeakly() throws {
         let postOffice = PostOffice()
         var count = 0
         let block = {
             count += 1
         }
         autoreleasepool {
-            let recipient = OtherRecipient()
+            let recipient = ExampleRecipient()
             recipient.testBlock = block
-            postOffice.register(recipient, OtherRecipient.receiveWithSender)
+            postOffice.register(recipient, ExampleRecipient.receiveWithOptSender)
 
             postOffice.post(ExampleLetter(info: 12, other: 15))
             postOffice.post(12)
@@ -28,79 +28,10 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testRegisterMethodWithSender() {
+    func testRegisterMethodWithOptSender() {
+        let sender1 = ExampleSender()
+        let sender2 = SomeSender()
         let postOffice = PostOffice()
-        var count = 0
-        let block = {
-            count += 1
-        }
-
-        autoreleasepool {
-            let recipient = OtherRecipient()
-            recipient.testBlock = block
-
-            postOffice.register(recipient, OtherRecipient.receiveWithSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            XCTAssertEqual(count, 1)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        XCTAssertEqual(count, 1)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
-    func testRegisterMethodWithoutSender() {
-        let postOffice = PostOffice()
-        var count = 0
-        let block = {
-            count += 1
-        }
-
-        autoreleasepool {
-            let recipient = OtherRecipient()
-            recipient.testBlock = block
-
-            postOffice.register(recipient, OtherRecipient.receiveWithSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            XCTAssertEqual(count, 1)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        XCTAssertEqual(count, 1)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
-    func testRegisterMethodWithoutSenderForSender() {
-        class SomeSender { }
-        let postOffice = PostOffice()
-        let sender = SomeSender()
-        var count = 0
-        let block = {
-            count += 1
-        }
-
-        autoreleasepool {
-            let recipient = OtherRecipient()
-            recipient.testBlock = block
-
-            postOffice.register(sender: sender, recipient, OtherRecipient.receiveWithSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            XCTAssertEqual(count, 1)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        XCTAssertEqual(count, 1)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
-    func testRegisterMethodSpecificSender() {
-        let postOffice = PostOffice()
-        let sender = NSObject()
         var count = 0
         let block = {
             count += 1
@@ -108,10 +39,65 @@ final class ObjectMethodTests: XCTestCase {
 
         autoreleasepool {
             let recipient = ExampleRecipient()
-            recipient.block = block
+            recipient.testBlock = block
 
-            postOffice.register(sender: sender, recipient, ExampleRecipient.receiveWithOptSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+            postOffice.register(recipient, ExampleRecipient.receiveWithOptSender)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+            XCTAssertEqual(count, 2)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+        XCTAssertEqual(count, 2)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithoutSender() {
+        let sender1 = ExampleSender()
+        let sender2 = SomeSender()
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.testBlock = block
+
+            postOffice.register(recipient, ExampleRecipient.receiveWithoutSender)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+            XCTAssertEqual(count, 3)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 3)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodSpecificSender() {
+        let postOffice = PostOffice()
+        let sender1 = ExampleSender()
+        let sender2 = ExampleSender()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.testBlock = block
+
+            postOffice.register(sender: sender1, recipient, ExampleRecipient.receiveWithSender)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
             postOffice.post(ExampleLetter(info: 12, other: 15))
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)

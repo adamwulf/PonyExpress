@@ -87,6 +87,20 @@ public class PostOffice {
         return context.id
     }
 
+    @discardableResult
+    public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
+                                          sender: S? = nil,
+                                          _ recipient: T,
+                                          _ method: @escaping (T) -> (U, S) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let name = Self.name(for: U.self)
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
+        return context.id
+    }
+
     // MARK: - Register Method Without Sender
 
     @discardableResult

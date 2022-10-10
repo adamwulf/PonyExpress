@@ -45,6 +45,21 @@ internal class AnyRecipient {
         }
     }
 
+    init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: S) -> Void) {
+        weak var weakRecipient = recipient
+        _canCollect = {
+            guard let _ = weakRecipient else { return true }
+            return false
+        }
+        self.block = { letter, sender in
+            guard let strongRecipient = weakRecipient else { return }
+            guard let letter = letter as? U else { return }
+            if let sender = sender as? S {
+                method(strongRecipient)(letter, sender)
+            }
+        }
+    }
+
     init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {

@@ -27,35 +27,31 @@ struct ExampleLetter {
     var other: Float
 }
 
+class SomeSender { }
+
 class ExampleSender { }
 
 class ExampleRecipient {
     private(set) var count = 0
 
-    var block: (() -> Void)?
+    var testBlock: (() -> Void)?
 
-    func receiveWithOptSender(letter: ExampleLetter, sender: AnyObject?) {
+    func receiveWithAnySender(letter: ExampleLetter, sender: AnyObject?) {
         count += 1
-        block?()
+        testBlock?()
     }
 
-    func receiveWithSender(letter: ExampleLetter, sender: AnyObject) {
+    func receiveWithOptSender(letter: ExampleLetter, sender: ExampleSender?) {
         count += 1
-        block?()
+        testBlock?()
+    }
+
+    func receiveWithSender(letter: ExampleLetter, sender: ExampleSender) {
+        count += 1
+        testBlock?()
     }
 
     func receiveWithoutSender(letter: ExampleLetter) {
-        count += 1
-        block?()
-    }
-}
-
-class OtherRecipient {
-    private(set) var count = 0
-
-    var testBlock: (() -> Void)?
-
-    func receiveWithSender(letter: ExampleLetter, sender: AnyObject?) {
         count += 1
         testBlock?()
     }
