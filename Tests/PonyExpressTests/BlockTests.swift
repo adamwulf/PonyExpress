@@ -56,17 +56,35 @@ final class BlockTests: XCTestCase {
     }
 
     func testMatchSenderTypeExplicit() throws {
-        let sender = NSObject()
+        let sender1 = NSObject()
+        let sender2 = NSObject()
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register(sender: sender) { (_: ExampleLetter, _: NSObject) -> Void in
+        postOffice.register(sender: sender1) { (_: ExampleLetter, _: NSObject) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
         postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
+    }
+
+    func testMatchExplicitSenderForAnyPostedSender() throws {
+        let sender1 = NSObject()
+        let sender2 = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register { (_: ExampleLetter, _: NSObject) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(received, 2)
     }
 
     func testMatchSenderTypeOptional() throws {

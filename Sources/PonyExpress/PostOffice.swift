@@ -133,10 +133,12 @@ public class PostOffice {
 
     // MARK: - Register Block With Sender
 
-    /// Register a block for the object and sender as parameters
+    /// Register a block for the object and sender as parameters. This block will be called if the sender matches
+    /// the `sender` parameter, or if the sender is `nil`.
     ///
+    /// Example registration code:
     /// ```
-    /// PostOffice.default.register { letter, sender in ... }
+    /// PostOffice.default.register { (letter: MyNotification, sender: MySender?) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -151,10 +153,12 @@ public class PostOffice {
         return context.id
     }
 
-    /// Register a block for the object and sender as parameters
+    /// Register a block for the object and sender as parameters. The block will be called if the sender matches
+    /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
+    /// If the notification is posted without a sender, this block will not be called.
     ///
     /// ```
-    /// PostOffice.default.register { letter, sender in ... }
+    /// PostOffice.default.register { (letter: MyNotification, sender: MySender) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -178,7 +182,7 @@ public class PostOffice {
     /// Register a block with the object as the single parameter:
     ///
     /// ```
-    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// PostOffice.default.register { (letter: MyNotification) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
