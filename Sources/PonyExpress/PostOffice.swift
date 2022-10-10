@@ -74,10 +74,10 @@ public class PostOffice {
     }
 
     @discardableResult
-    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
-                                          sender: AnyObject? = nil,
+    public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
+                                          sender: S? = nil,
                                           _ recipient: T,
-                                          _ method: @escaping (T) -> (U, AnyObject?) -> Void) -> RecipientId {
+                                          _ method: @escaping (T) -> (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -87,9 +87,11 @@ public class PostOffice {
         return context.id
     }
 
+    // MARK: - Register Method Without Sender
+
     @discardableResult
-    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
-                                          sender: AnyObject? = nil,
+    public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
+                                          sender: S?,
                                           _ recipient: T,
                                           _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
@@ -101,15 +103,31 @@ public class PostOffice {
         return context.id
     }
 
+    @discardableResult
+    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
+                                          _ recipient: T,
+                                          _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let sender: AnyObject? = nil
+        let name = Self.name(for: U.self)
+        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
+        return context.id
+    }
+
+    // MARK: - Register Block With Sender
+
     /// Register a block for the object and sender as parameters
     ///
     /// ```
     /// PostOffice.default.register { letter, sender in ... }
     /// ```
     @discardableResult
-    public func register<U>(queue: DispatchQueue? = nil,
-                            sender: AnyObject? = nil,
-                            _ block: @escaping (U, AnyObject?) -> Void) -> RecipientId {
+    public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
+                            sender: S? = nil,
+                            _ block: @escaping (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Self.name(for: U.self)
@@ -119,6 +137,22 @@ public class PostOffice {
         return context.id
     }
 
+    // MARK: - Register Block Without Sender
+
+    /// Register a block with the object as the single parameter:
+    ///
+    /// ```
+    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// ```
+    @discardableResult
+    public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
+                            sender: S?,
+                            _ block: @escaping (U) -> Void) -> RecipientId {
+        return register(queue: queue, sender: sender) { letter, _ in
+            block(letter)
+        }
+    }
+
     /// Register a block with the object as the single parameter:
     ///
     /// ```
@@ -126,12 +160,14 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<U>(queue: DispatchQueue? = nil,
-                            sender: AnyObject? = nil,
                             _ block: @escaping (U) -> Void) -> RecipientId {
-        return register(queue: queue, sender: sender) { letter, _ in
+        let anySender: AnyObject? = nil
+        return register(queue: queue, sender: anySender) { letter, _ in
             block(letter)
         }
     }
+
+    // MARK: - Unregister
 
     public func unregister(_ recipient: RecipientId) {
         lock.lock()
@@ -140,7 +176,35 @@ public class PostOffice {
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
-    public func post<U>(_ letter: U, sender: AnyObject? = nil) {
+    public func post<U>(_ letter: U) {
+        let names = Self.names(for: letter)
+        lock.lock()
+        var allListeners: [RecipientContext] = []
+        for name in names {
+            if let typeListeners = listeners[name] {
+                allListeners.append(contentsOf: typeListeners)
+                listeners[name] = typeListeners.filter({ !$0.recipient.canCollect })
+            }
+        }
+        guard !allListeners.isEmpty else {
+            lock.unlock()
+            return
+        }
+        lock.unlock()
+
+        for listener in allListeners {
+            guard listener.sender == nil else { continue }
+            if let queue = listener.queue {
+                queue.async {
+                    listener.recipient.block?(letter, nil)
+                }
+            } else {
+                listener.recipient.block?(letter, nil)
+            }
+        }
+    }
+
+    public func post<U, S: AnyObject>(_ letter: U, sender: S? = nil) {
         let names = Self.names(for: letter)
         lock.lock()
         var allListeners: [RecipientContext] = []
