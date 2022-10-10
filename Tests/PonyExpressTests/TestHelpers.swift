@@ -34,7 +34,17 @@ class ExampleRecipient {
 
     var block: (() -> Void)?
 
-    func receive(letter: ExampleLetter, sender: AnyObject?) {
+    func receiveWithOptSender(letter: ExampleLetter, sender: AnyObject?) {
+        count += 1
+        block?()
+    }
+
+    func receiveWithSender(letter: ExampleLetter, sender: AnyObject) {
+        count += 1
+        block?()
+    }
+
+    func receiveWithoutSender(letter: ExampleLetter) {
         count += 1
         block?()
     }
@@ -43,18 +53,10 @@ class ExampleRecipient {
 class OtherRecipient {
     private(set) var count = 0
 
-    var block: (() -> Void)?
+    var testBlock: (() -> Void)?
 
-    func receive(letter: ExampleLetter, sender: AnyObject?) {
+    func receiveWithSender(letter: ExampleLetter, sender: AnyObject?) {
         count += 1
-        block?()
-    }
-}
-
-class RecipientWithMethod {
-    var block: (() -> Void)?
-
-    func receive(letter: ExampleLetter, sender: AnyObject?) {
-        block?()
+        testBlock?()
     }
 }

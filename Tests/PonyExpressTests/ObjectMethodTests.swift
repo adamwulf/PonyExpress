@@ -11,8 +11,8 @@ final class ObjectMethodTests: XCTestCase {
         }
         autoreleasepool {
             let recipient = OtherRecipient()
-            recipient.block = block
-            postOffice.register(recipient, OtherRecipient.receive)
+            recipient.testBlock = block
+            postOffice.register(recipient, OtherRecipient.receiveWithSender)
 
             postOffice.post(ExampleLetter(info: 12, other: 15))
             postOffice.post(12)
@@ -36,10 +36,10 @@ final class ObjectMethodTests: XCTestCase {
         }
 
         autoreleasepool {
-            let recipient = RecipientWithMethod()
-            recipient.block = block
+            let recipient = OtherRecipient()
+            recipient.testBlock = block
 
-            postOffice.register(recipient, RecipientWithMethod.receive)
+            postOffice.register(recipient, OtherRecipient.receiveWithSender)
             postOffice.post(ExampleLetter(info: 12, other: 15))
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
@@ -58,10 +58,10 @@ final class ObjectMethodTests: XCTestCase {
         }
 
         autoreleasepool {
-            let recipient = RecipientWithMethod()
-            recipient.block = block
+            let recipient = OtherRecipient()
+            recipient.testBlock = block
 
-            postOffice.register(recipient, RecipientWithMethod.receive)
+            postOffice.register(recipient, OtherRecipient.receiveWithSender)
             postOffice.post(ExampleLetter(info: 12, other: 15))
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
@@ -82,10 +82,10 @@ final class ObjectMethodTests: XCTestCase {
         }
 
         autoreleasepool {
-            let recipient = RecipientWithMethod()
-            recipient.block = block
+            let recipient = OtherRecipient()
+            recipient.testBlock = block
 
-            postOffice.register(sender: sender, recipient, RecipientWithMethod.receive)
+            postOffice.register(sender: sender, recipient, OtherRecipient.receiveWithSender)
             postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
             postOffice.post(ExampleLetter(info: 12, other: 15))
             XCTAssertEqual(count, 1)
@@ -110,7 +110,7 @@ final class ObjectMethodTests: XCTestCase {
             let recipient = ExampleRecipient()
             recipient.block = block
 
-            postOffice.register(sender: sender, recipient, ExampleRecipient.receive)
+            postOffice.register(sender: sender, recipient, ExampleRecipient.receiveWithOptSender)
             postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
             postOffice.post(ExampleLetter(info: 12, other: 15))
             XCTAssertEqual(count, 1)
