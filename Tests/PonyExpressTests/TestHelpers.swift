@@ -50,3 +50,11 @@ class OtherRecipient {
         block?()
     }
 }
+
+class RecipientWithMethod {
+    var block: (() -> Void)?
+
+    func receive(letter: ExampleLetter, sender: AnyObject?) {
+        block?()
+    }
+}
