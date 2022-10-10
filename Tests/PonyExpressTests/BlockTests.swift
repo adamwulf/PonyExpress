@@ -14,6 +14,18 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
+    func testReceiveInts() throws {
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register { (sent: Int) -> Void in
+            count = sent
+        }
+
+        postOffice.post(12)
+        XCTAssertEqual(count, 12)
+    }
+
     func testIgnoreSender() throws {
         let sender = NSObject()
         let postOffice = PostOffice()
@@ -27,17 +39,48 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
-    func testMatchSender() throws {
+    func testMatchExactSender() throws {
+        let sender1 = NSObject()
+        let sender2 = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register(sender: sender1) { (_: ExampleLetter) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(received, 1)
+    }
+
+    func testMatchSenderTypeExplicit() throws {
         let sender = NSObject()
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
+        postOffice.register(sender: sender) { (_: ExampleLetter, _: NSObject) -> Void in
             received += 1
         }
 
         postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
+    }
+
+    func testMatchSenderTypeOptional() throws {
+        let sender = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register { (_: ExampleLetter, _: NSObject?) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(received, 2)
     }
 
     func testFailedMatchSender() throws {
@@ -54,10 +97,10 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(received, 0)
     }
 
-    func testMatchSenderType() throws {
+    func testMatchOptionalSenderType() throws {
         class SomeObject {}
-        let sender = SomeObject()
-        let other = NSObject()
+        let senderType1 = SomeObject()
+        let senderType2 = NSObject()
         let postOffice = PostOffice()
         var received = 0
 
@@ -65,16 +108,16 @@ final class BlockTests: XCTestCase {
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType2)
         postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 2)
     }
 
-    func testMatchSenderType2() throws {
+    func testMatchExplicitSenderType2() throws {
         class SomeObject {}
-        let sender = SomeObject()
-        let other = NSObject()
+        let senderType1 = SomeObject()
+        let senderType2 = NSObject()
         let postOffice = PostOffice()
         var received = 0
 
@@ -82,8 +125,8 @@ final class BlockTests: XCTestCase {
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType1)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType2)
         postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
@@ -92,19 +135,18 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
+        let exp = expectation(description: "wait for letter")
 
         postOffice.register(queue: queue) { (_: ExampleLetter) -> Void in
+            XCTAssert(!Thread.isMainThread)
             received += 1
+            exp.fulfill()
         }
 
         XCTAssertEqual(received, 0)
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
 
-        let exp = expectation(description: "wait for letter")
-        queue.async {
-            exp.fulfill()
-        }
         wait(for: [exp], timeout: 0.1)
 
         XCTAssertEqual(received, 1)
@@ -115,8 +157,11 @@ final class BlockTests: XCTestCase {
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
+        let exp = expectation(description: "wait for letter")
         func listener(_ letter: ExampleLetter) {
+            XCTAssert(!Thread.isMainThread)
             received += 1
+            exp.fulfill()
         }
 
         postOffice.register(queue: queue, listener(_:))
@@ -125,10 +170,6 @@ final class BlockTests: XCTestCase {
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
 
-        let exp = expectation(description: "wait for letter")
-        queue.async {
-            exp.fulfill()
-        }
         wait(for: [exp], timeout: 0.1)
 
         XCTAssertEqual(received, 1)
@@ -187,20 +228,9 @@ final class BlockTests: XCTestCase {
             subObjectReceived += 1
         }
 
+        postOffice.post(ExampleObjectLetter(), sender: sender)
         postOffice.post(ExampleSubObjectLetter(), sender: sender)
-        XCTAssertEqual(objectReceived, 1)
+        XCTAssertEqual(objectReceived, 2)
         XCTAssertEqual(subObjectReceived, 1)
-    }
-
-    func testReceiveInts() throws {
-        let postOffice = PostOffice()
-        var count = 0
-
-        postOffice.register { (sent: Int) -> Void in
-            count = sent
-        }
-
-        postOffice.post(12)
-        XCTAssertEqual(count, 12)
     }
 }
