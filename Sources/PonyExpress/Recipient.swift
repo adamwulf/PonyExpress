@@ -7,12 +7,6 @@
 
 import Foundation
 
-internal protocol Recipient<Letter>: AnyObject {
-    associatedtype Letter
-
-    func receive(letter: Letter, sender: AnyObject?)
-}
-
 internal class AnyRecipient {
     var block: ((Any, AnyObject?) -> Void)?
     private let _canCollect: () -> Bool
@@ -25,19 +19,6 @@ internal class AnyRecipient {
         self.block = { letter, sender in
             guard let letter = letter as? U else { return }
             block(letter, sender)
-        }
-    }
-
-    init<U>(_ recipient: any Recipient<U>) {
-        weak var weakRecipient = recipient
-        _canCollect = {
-            guard let _ = weakRecipient else { return true }
-            return false
-        }
-        self.block = { letter, sender in
-            guard let strongRecipient = weakRecipient else { return }
-            guard let letter = letter as? U else { return }
-            strongRecipient.receive(letter: letter, sender: sender)
         }
     }
 

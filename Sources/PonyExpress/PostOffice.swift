@@ -74,19 +74,6 @@ public class PostOffice {
     }
 
     @discardableResult
-    func register<U>(queue: DispatchQueue? = nil,
-                            sender: AnyObject? = nil,
-                            _ recipient: any Recipient<U>) -> RecipientId {
-        lock.lock()
-        defer { lock.unlock() }
-        let name = Self.name(for: U.self)
-        let context = RecipientContext(recipient: AnyRecipient(recipient), queue: queue, sender: sender)
-        listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
-        return context.id
-    }
-
-    @discardableResult
     public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
                                           sender: AnyObject? = nil,
                                           _ recipient: T,
