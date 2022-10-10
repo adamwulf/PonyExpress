@@ -27,6 +27,8 @@ struct ExampleLetter {
     var other: Float
 }
 
+class ExampleSender { }
+
 class ExampleRecipient {
     private(set) var count = 0
 

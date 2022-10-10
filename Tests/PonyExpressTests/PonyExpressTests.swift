@@ -135,12 +135,13 @@ final class PonyExpressTests: XCTestCase {
     }
 
     func testSender() throws {
+        class OtherSender { }
         let sender = NSObject()
         let other = NSObject()
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _: OtherRecipient?) in
+        postOffice.register { (_: ExampleLetter, _: OtherSender?) in
             received += 1
         }
 
@@ -251,6 +252,40 @@ final class PonyExpressTests: XCTestCase {
         }
 
         postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testRegisterMethodWithoutSenderForSender() {
+        class SomeSender { }
+        class RecipientWithMethod {
+            var block: (() -> Void)?
+
+            func receive(letter: ExampleLetter) {
+                block?()
+            }
+        }
+
+        let postOffice = PostOffice()
+        let sender = SomeSender()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient = RecipientWithMethod()
+            recipient.block = block
+
+            postOffice.register(sender: sender, recipient, RecipientWithMethod.receive)
+            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+            postOffice.post(ExampleLetter(info: 12, other: 15))
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }

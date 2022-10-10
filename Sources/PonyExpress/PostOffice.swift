@@ -170,7 +170,7 @@ public class PostOffice {
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
                             sender: S?,
                             _ block: @escaping (U) -> Void) -> RecipientId {
-        return register(queue: queue, sender: sender) { letter in
+        return register(queue: queue, sender: sender) { (letter: U, _: S?) in
             block(letter)
         }
     }
