@@ -132,59 +132,6 @@ final class PonyExpressTests: XCTestCase {
         XCTAssertEqual(received, 2)
     }
 
-    func testRecipient() throws {
-        let postOffice = PostOffice()
-        let recipient = ExampleRecipient()
-
-        postOffice.register(recipient)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(12)
-
-        XCTAssertEqual(recipient.count, 1)
-    }
-
-    func testUnregsiterRecipient() throws {
-        let postOffice = PostOffice()
-        let recipient = ExampleRecipient()
-
-        let id = postOffice.register(recipient)
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(12)
-
-        postOffice.unregister(id)
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(12)
-
-        XCTAssertEqual(recipient.count, 1)
-    }
-
-    func testWeakRecipient() throws {
-        let postOffice = PostOffice()
-        var count = 0
-        let block = {
-            count += 1
-        }
-        autoreleasepool {
-            let recipient = ExampleRecipient()
-            recipient.block = block
-            postOffice.register(recipient)
-
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            postOffice.post(12)
-
-            XCTAssertEqual(count, 1)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(12)
-
-        XCTAssertEqual(count, 1)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
     func testTypedSelector() throws {
         let postOffice = PostOffice()
         var count = 0

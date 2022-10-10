@@ -27,8 +27,7 @@ struct ExampleLetter {
     var other: Float
 }
 
-class ExampleRecipient: Recipient {
-    typealias Letter = ExampleLetter
+class ExampleRecipient {
     private(set) var count = 0
 
     var block: (() -> Void)?

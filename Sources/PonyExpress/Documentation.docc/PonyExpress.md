@@ -5,20 +5,17 @@ https://en.wikipedia.org/wiki/Pony_Express.
 
 ## Overview
 
-With `PonyExpress`, the notification, called a ``Letter``, are type-safe and guaranteed
-at compile-time to match the observer site.
+With `PonyExpress`, the notification is type-safe and guaranteed at compile-time to
+match the observer site.
 
 When sending notifications, `NotificationCenter` only provides an optional `[AnyHashable: Any]?`
-`userInfo` object for the `Notification`. Unfortunately, this is not type-safe,
-and requires casting at the observer site. If the `userInfo` format ever changes
-for a notification, there is no compile-time check that all observers expect the new
-format.
+`userInfo` object for the `Notification`. Unfortunately, this requires casting at the
+observer site. If the `userInfo` format ever changes for a notification, there is no
+compile-time check that all observers expect the new format.
 
-### Letters and Packages
+### Send Anything
 
-All notifications must implement the ``Letter`` protocol. A provided ``Package`` struct
-is available to wrap any other type. You can provide your notifications in whatever format
-best suites your code.
+Anything can be sent as a 
 
 ### Example
 

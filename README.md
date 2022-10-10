@@ -19,15 +19,13 @@
 https://github.com/adamwulf/PonyExpress.git
 ## Quick Start
 
-Any type that implements the `Letter` protocol can be sent as a notification. Recipients can then
-register for that notification type explicitly. This allows the receiving method to be strongly
-typed for the notification that it receives. Registration is similar to `NotificationCenter`, requiring
-the object and the method name - the primary difference is that `PonyExpress` is type-safe.
+Any object or value can be sent as a notification. The observer registers a handler
+method for the type of object is expect to receive.
 
 An example:
 
 ```swift
-struct ExampleLetter: Letter {
+struct ExampleNotification {
     var info: Int
     var other: Float
 }
@@ -37,30 +35,13 @@ class ExampleRecipient {
         PostOffice.default.register(self, ExampleRecipient.receive)
     }
 
-    func receive(letter: ExampleLetter, sender: AnyObject?) {
-        // ... process the Letter
+    func receive(notification: ExampleNotification) {
+        // ... process the notification
     }
 }
 
 // Send the notification ...
-PostOffice.default.post(ExampleLetter(info: 12, other: 15))
-```
-
-Any other type can be wrapped in a `Package` and sent as a notification as well.
-
-```swift
-
-class ExampleRecipient {
-    init() {
-        PostOffice.default.register(self, ExampleRecipient.receive)
-    }
-
-    func receive(package: Package<Int>, sender: AnyObject?) {
-        // ... process the Package
-    }
-}
-
-PostOffice.default.post(Package<Int>(contents: 12))
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
 ## Observing notifications
@@ -68,9 +49,6 @@ PostOffice.default.post(Package<Int>(contents: 12))
 There are multiple ways to receive notifications.
 
 ### Option 1: Register an object and method
-
-As described in the Quick Start above, an object can register one of its methods
-to handle an incoming `Letter`.
 
 Just as in `NotificationCenter`, the object is held weakly, and does not need to
 be explicitly unregistered when the object deallocs. 
@@ -81,15 +59,15 @@ class MyClass {
         PostOffice.default.register(self, MyClass.receive) 
     }
     
-    func receive(_ letter: ExampleLetter) {
-        // process the letter
+    func receive(_ notification: ExampleNotification, _ sender: AnyObject?) {
+        // process the notification
     }
 }
 ```
 
 ### Option 2: Register a block
 
-A block or method can be passed into the ``PostOffice`` to observe `Letters`. Blocks
+A block or method can be passed into the ``PostOffice`` to observe notifications. Blocks
 are held strongly inside the ``PostOffice``, and must be unregistered explicitly.
 
 ```swift
@@ -97,7 +75,7 @@ class MyClass {
     var token: RecipientId? 
     
     func init() {
-        token = PostOffice.default.register { [weak self] (_: ExampleLetter, _: AnyObject?) in
+        token = PostOffice.default.register { [weak self] (_ note: ExampleNotification, _ sender: AnyObject?) in
             // make sure to hold `self` weakly inside this block to prevent a cycle
             // ... handle the notification
         }
@@ -107,25 +85,6 @@ class MyClass {
         PostOffice.default.unregister(token)
     }
 }
-```
-
-### Option 3: The `Recipient` protocol
-
-Classes can implement the `Recipient` protocol to receive a single type of notification.
-The `Recipient` requires setting the type of `Letter` recieved as its associated type, 
-and then registering for that notification.
-
-```swift
-class ExampleRecipient: Recipient {
-    typealias Letter = ExampleLetter
-
-    func receive(letter: ExampleLetter, sender: AnyObject?) {
-        // ... process the notification
-    }
-}
-
-let object = ExampleRecipient()
-PostOffice.default.register(object) 
 ```
 
 ## Unregistering

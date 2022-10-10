@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Recipient<Letter>: AnyObject {
+internal protocol Recipient<Letter>: AnyObject {
     associatedtype Letter
 
     func receive(letter: Letter, sender: AnyObject?)
