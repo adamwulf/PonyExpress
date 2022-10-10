@@ -137,6 +137,28 @@ public class PostOffice {
         return context.id
     }
 
+    /// Register a block for the object and sender as parameters
+    ///
+    /// ```
+    /// PostOffice.default.register { letter, sender in ... }
+    /// ```
+    @discardableResult
+    public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
+                            sender: S? = nil,
+                            _ block: @escaping (U, S) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let name = Self.name(for: U.self)
+        let optBlock = { (note: U, sender: S?) in
+            guard let sender = sender else { return }
+            block(note, sender)
+        }
+        let context = RecipientContext(recipient: AnyRecipient(optBlock), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToName[context.id] = name
+        return context.id
+    }
+
     // MARK: - Register Block Without Sender
 
     /// Register a block with the object as the single parameter:
@@ -148,7 +170,7 @@ public class PostOffice {
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
                             sender: S?,
                             _ block: @escaping (U) -> Void) -> RecipientId {
-        return register(queue: queue, sender: sender) { letter, _ in
+        return register(queue: queue, sender: sender) { letter in
             block(letter)
         }
     }
@@ -162,7 +184,7 @@ public class PostOffice {
     public func register<U>(queue: DispatchQueue? = nil,
                             _ block: @escaping (U) -> Void) -> RecipientId {
         let anySender: AnyObject? = nil
-        return register(queue: queue, sender: anySender) { letter, _ in
+        return register(queue: queue, sender: anySender) { letter in
             block(letter)
         }
     }

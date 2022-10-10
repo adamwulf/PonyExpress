@@ -67,6 +67,24 @@ final class PonyExpressTests: XCTestCase {
 
         postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
         postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
+        XCTAssertEqual(received, 2)
+    }
+
+    func testMatchSenderType2() throws {
+        class SomeObject {}
+        let sender = SomeObject()
+        let other = NSObject()
+        let postOffice = PostOffice()
+        var received = 0
+
+        postOffice.register { (_: ExampleLetter, _ sender: SomeObject) -> Void in
+            received += 1
+        }
+
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleLetter(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
