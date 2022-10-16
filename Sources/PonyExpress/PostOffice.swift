@@ -81,17 +81,17 @@ public class PostOffice {
     /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
     /// matches the method's parameter's type. The sender must also match the method's type or be `nil`.
     ///
-    /// - parameter queue: The recipient will always recieve posts on this queue. If `nil`, then the post will be made
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. An object that represents the sender of the notification.
-    /// - parameter recipient: The object that will recieve the posted notification.
-    /// - parameter method: The method of the `sender` that will be called with the posted notification. Its two arguments
+    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
     /// types match, or if the letter type matches and the `sender` is `nil`.
     ///
     /// Example registration code:
     /// ```
-    /// PostOffice.default.register(recipient, ExampleRecipient.receiveWithOptSender)
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -110,17 +110,17 @@ public class PostOffice {
     /// Register a recipient and method with the `PostOffice`. This method will be called if both the posted notification
     /// and `sender` match the method's parameter's type.
     ///
-    /// - parameter queue: The recipient will always recieve posts on this queue. If `nil`, then the post will be made
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: An object that represents the sender of the notification.
-    /// - parameter recipient: The object that will recieve the posted notification.
-    /// - parameter method: The method of the `sender` that will be called with the posted notification. Its two arguments
+    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
     /// types match.
     ///
     /// Example registration code:
     /// ```
-    /// PostOffice.default.register(recipient, ExampleRecipient.receiveWithOptSender)
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -138,6 +138,20 @@ public class PostOffice {
 
     // MARK: - Register Method without Sender
 
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: An object that represents the sender of the notification.
+    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
                                           sender: S?,
