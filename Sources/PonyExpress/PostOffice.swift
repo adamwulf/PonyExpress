@@ -46,6 +46,25 @@ public class PostOffice {
         return ret
     }
 
+    private struct Key: Hashable {
+        let name: String
+        let test: (Any) -> Bool
+
+        static func == (lhs: PostOffice.Key, rhs: PostOffice.Key) -> Bool {
+            return lhs.name == rhs.name
+        }
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+        }
+
+        static func key<T>(for type: T.Type) -> Key {
+            return Key(name: PostOffice.name(for: type),
+                       test: { obj in
+                return obj is T
+            })
+        }
+    }
+
     /// Storage to keep the recipient and all of its metadata conveniently linked
     private struct RecipientContext {
         let recipient: AnyRecipient
@@ -62,8 +81,8 @@ public class PostOffice {
     }
 
     private let lock = Mutex()
-    private var listeners: [String: [RecipientContext]] = [:]
-    private var recipientToName: [RecipientId: String] = [:]
+    private var listeners: [Key: [RecipientContext]] = [:]
+    private var recipientToKey: [RecipientId: Key] = [:]
 
     /// The number of listeners for all registered types. Used for testing only.
     var count: Int {
@@ -100,10 +119,10 @@ public class PostOffice {
                                           _ method: @escaping (T) -> (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -129,10 +148,10 @@ public class PostOffice {
                                           _ method: @escaping (T) -> (U, S) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -159,10 +178,10 @@ public class PostOffice {
                                           _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -173,10 +192,10 @@ public class PostOffice {
         lock.lock()
         defer { lock.unlock() }
         let sender: AnyObject? = nil
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -195,10 +214,10 @@ public class PostOffice {
                             _ block: @escaping (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -215,14 +234,14 @@ public class PostOffice {
                             _ block: @escaping (U, S) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Self.name(for: U.self)
+        let name = Key.key(for: U.self)
         let optBlock = { (note: U, sender: S?) in
             guard let sender = sender else { return }
             block(note, sender)
         }
         let context = RecipientContext(recipient: AnyRecipient(optBlock), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
-        recipientToName[context.id] = name
+        recipientToKey[context.id] = name
         return context.id
     }
 
@@ -261,20 +280,20 @@ public class PostOffice {
     public func unregister(_ recipient: RecipientId) {
         lock.lock()
         defer { lock.unlock() }
-        guard let name = recipientToName.removeValue(forKey: recipient) else { return }
+        guard let name = recipientToKey.removeValue(forKey: recipient) else { return }
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
     // MARK: - Post
 
     public func post<U>(_ letter: U) {
-        let names = Self.names(for: letter)
         lock.lock()
         var allListeners: [RecipientContext] = []
-        for name in names {
-            if let typeListeners = listeners[name] {
+        for key in listeners.keys {
+            if key.test(letter),
+               let typeListeners = listeners[key] {
                 allListeners.append(contentsOf: typeListeners)
-                listeners[name] = typeListeners.filter({ !$0.recipient.canCollect })
+                listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
             }
         }
         guard !allListeners.isEmpty else {
@@ -296,13 +315,13 @@ public class PostOffice {
     }
 
     public func post<U, S: AnyObject>(_ letter: U, sender: S? = nil) {
-        let names = Self.names(for: letter)
         lock.lock()
         var allListeners: [RecipientContext] = []
-        for name in names {
-            if let typeListeners = listeners[name] {
+        for key in listeners.keys {
+            if key.test(letter),
+               let typeListeners = listeners[key] {
                 allListeners.append(contentsOf: typeListeners)
-                listeners[name] = typeListeners.filter({ !$0.recipient.canCollect })
+                listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
             }
         }
         guard !allListeners.isEmpty else {
