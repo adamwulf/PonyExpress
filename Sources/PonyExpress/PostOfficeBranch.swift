@@ -7,10 +7,40 @@
 
 import Foundation
 
+extension Mirror {
+    func isSubtype<T>(of type: T.Type) -> Bool {
+        if subjectType == type {
+            return true
+        }
+        var iterator: Mirror? = self
+        while let mirror = iterator?.superclassMirror {
+            if mirror.subjectType == type {
+                return true
+            }
+            iterator = mirror
+        }
+        return false
+    }
+}
+
 class PostOfficeBranch<Letter, Sender: AnyObject> {
     private let mainBranch = PostOffice()
 
     // MARK: - Register Method with Sender
+
+    @discardableResult
+    public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
+                                       sender: Sender? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (U, Sender?) -> Void) -> RecipientId {
+        return mainBranch.register { (letter: U, sender: Sender?) in
+            guard Mirror(reflecting: letter).isSubtype(of: Letter.self) else {
+                fatalError("Invalid registration")
+            }
+            guard letter is Letter else { return }
+            method(recipient)(letter, sender)
+        }
+    }
 
     @discardableResult
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,

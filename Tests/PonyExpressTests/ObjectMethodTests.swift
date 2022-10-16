@@ -133,4 +133,42 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(count, 2)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testSpecificPostOffice() throws {
+        class MyLetter {
+            var foo: Int
+            init(_ foo: Int) { self.foo = foo }
+        }
+        class MySubLetter: MyLetter { }
+        class MySender { }
+        class MySubSender: MySender { }
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveLetter(letter: MyLetter, sender: MySender?) {
+                count += 1
+            }
+            func receiveSubLetter(letter: MySubLetter, sender: MySender?) {
+                count += 1
+            }
+            func receiveExampleLetter(letter: ExampleLetter, sender: MySender?) {
+                count += 1
+            }
+        }
+
+        let letter = MyLetter(13)
+        let subLetter = MySubLetter(12)
+        let subSender = MySubSender()
+        let recipient = SpecificRecipient()
+        let postOffice = PostOfficeBranch<MyLetter, MySender>()
+
+        postOffice.register(recipient, SpecificRecipient.receiveLetter)
+        postOffice.register(recipient, SpecificRecipient.receiveSubLetter)
+        postOffice.register(recipient, SpecificRecipient.receiveExampleLetter)
+        postOffice.post(letter, sender: subSender)
+        postOffice.post(subLetter, sender: subSender)
+        postOffice.post(ExampleLetter())
+
+        XCTAssertEqual(recipient.count, 3)
+    }
 }
