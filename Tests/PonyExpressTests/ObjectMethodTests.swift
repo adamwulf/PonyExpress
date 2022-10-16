@@ -170,7 +170,6 @@ final class ObjectMethodTests: XCTestCase {
         }
         class OtherLetter: Mail { }
         class MySender { }
-        class MySubSender: MySender { }
 
         class SpecificRecipient {
             var count = 0
@@ -179,15 +178,12 @@ final class ObjectMethodTests: XCTestCase {
             }
         }
 
-        let letter = MyLetter(13)
-        let subLetter = OtherLetter()
-        let subSender = MySubSender()
         let recipient = SpecificRecipient()
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
         postOffice.register(recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(letter, sender: subSender)
-        postOffice.post(subLetter, sender: subSender)
+        postOffice.post(MyLetter(13), sender: MySender())
+        postOffice.post(OtherLetter(), sender: MySender())
 
         XCTAssertEqual(recipient.count, 2)
     }
