@@ -73,6 +73,8 @@ public class PostOffice {
         // noop
     }
 
+    // MARK: - Register Method with Sender
+
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
                                           sender: S? = nil,
@@ -101,7 +103,7 @@ public class PostOffice {
         return context.id
     }
 
-    // MARK: - Register Method Without Sender
+    // MARK: - Register Method without Sender
 
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -131,7 +133,7 @@ public class PostOffice {
         return context.id
     }
 
-    // MARK: - Register Block With Sender
+    // MARK: - Register Block with Sender
 
     /// Register a block for the object and sender as parameters. This block will be called if the sender matches
     /// the `sender` parameter, or if the sender is `nil`.
@@ -177,7 +179,7 @@ public class PostOffice {
         return context.id
     }
 
-    // MARK: - Register Block Without Sender
+    // MARK: - Register Block without Sender
 
     /// Register a block with the object as the single parameter:
     ///
@@ -215,6 +217,8 @@ public class PostOffice {
         guard let name = recipientToName.removeValue(forKey: recipient) else { return }
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
+
+    // MARK: - Post
 
     public func post<U>(_ letter: U) {
         let names = Self.names(for: letter)
