@@ -24,8 +24,9 @@ public class PostOffice {
 
     static let `default` = PostOffice()
 
+    /// - returns: a string to represent the Type. This will be something like "ExampleClass.Type". The string is not guaranteed
+    /// to be unique across runs of an app, but will be unique within a single run.
     private static func name<T>(for type: T.Type) -> String {
-        // build a string to represent the Type. This will be something like "ExampleClass.Type"
         return String(describing: Mirror(reflecting: type).subjectType)
     }
 
@@ -45,6 +46,7 @@ public class PostOffice {
         return ret
     }
 
+    /// Storage to keep the recipient and all of its metadata conveniently linked
     private struct RecipientContext {
         let recipient: AnyRecipient
         let queue: DispatchQueue?
@@ -63,7 +65,8 @@ public class PostOffice {
     private var listeners: [String: [RecipientContext]] = [:]
     private var recipientToName: [RecipientId: String] = [:]
 
-    public var count: Int {
+    /// The number of listeners for all registered types. Used for testing only.
+    var count: Int {
         lock.lock()
         defer { lock.unlock() }
         return listeners.reduce(0, { $0 + $1.value.count })
@@ -75,6 +78,21 @@ public class PostOffice {
 
     // MARK: - Register Method with Sender
 
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type. The sender must also match the method's type or be `nil`.
+    ///
+    /// - parameter queue: The recipient will always recieve posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. An object that represents the sender of the notification.
+    /// - parameter recipient: The object that will recieve the posted notification.
+    /// - parameter method: The method of the `sender` that will be called with the posted notification. Its two arguments
+    /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
+    /// types match, or if the letter type matches and the `sender` is `nil`.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveWithOptSender)
+    /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
                                           sender: S? = nil,
@@ -89,6 +107,21 @@ public class PostOffice {
         return context.id
     }
 
+    /// Register a recipient and method with the `PostOffice`. This method will be called if both the posted notification
+    /// and `sender` match the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always recieve posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: An object that represents the sender of the notification.
+    /// - parameter recipient: The object that will recieve the posted notification.
+    /// - parameter method: The method of the `sender` that will be called with the posted notification. Its two arguments
+    /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
+    /// types match.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveWithOptSender)
+    /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
                                           sender: S? = nil,

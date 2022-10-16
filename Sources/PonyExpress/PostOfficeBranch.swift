@@ -7,7 +7,9 @@
 
 import Foundation
 
+/// Just like a ``PostOffice`` but also able to limit the types of posts and senders.
 class PostOfficeBranch<Letter, Sender: AnyObject> {
+    /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
 
     // MARK: - Register Method with Sender
