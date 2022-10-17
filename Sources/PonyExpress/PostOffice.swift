@@ -24,28 +24,6 @@ public class PostOffice {
 
     static let `default` = PostOffice()
 
-    /// - returns: a string to represent the Type. This will be something like "ExampleClass.Type". The string is not guaranteed
-    /// to be unique across runs of an app, but will be unique within a single run.
-    private static func name<T>(for type: T.Type) -> String {
-        return String(describing: Mirror(reflecting: type).subjectType)
-    }
-
-    /// Using a Mirror of the object, create a Mirror for each type in its ancestry and build names from those types
-    private static func names<T>(for object: T) -> [String] {
-        var ret: [String] = []
-        // get a mirror of the object, if we use this Mirror to build a String, it would be "ExampleClass"
-        var mirror: Mirror? = Mirror(reflecting: object)
-        while let concrete = mirror {
-            // we need to build Mirrors for the /type/, not for the object itself
-            // This will build a string for the type like "ExampleClass.Type"
-            let name = String(describing: Mirror(reflecting: concrete.subjectType).subjectType)
-            ret.append(name)
-            // now iterate up the parent class chain and repeat until we're done
-            mirror = concrete.superclassMirror
-        }
-        return ret
-    }
-
     private struct Key: Hashable {
         let name: String
         let test: (Any) -> Bool
@@ -58,7 +36,7 @@ public class PostOffice {
         }
 
         static func key<T>(for type: T.Type) -> Key {
-            return Key(name: PostOffice.name(for: type),
+            return Key(name: String(describing: type),
                        test: { obj in
                 return obj is T
             })
