@@ -9,6 +9,7 @@
 import Foundation
 import Locks
 
+/// An opaque value that represents a specific recipient registered at a ``PostOffice``
 public struct RecipientId: Hashable {
     static var nextIdentifier: UInt = 0
 
@@ -22,8 +23,13 @@ public struct RecipientId: Hashable {
 
 public class PostOffice {
 
+    /// A default `PostOffice`, akin to `NotificationCenter.default`.
     static let `default` = PostOffice()
 
+    /// A key to help cache recipients into `listeners`. This provides a hashable value for an arbitrary swift type
+    /// and also provides an easy method to test if any object matches a type. This helps all recipients for a specific
+    /// type to be grouped together in `listeners`, and for any notification object to be quickly tested to see which
+    /// groups of recipients should be notified.
     private struct Key: Hashable {
         let name: String
         let test: (Any) -> Bool
@@ -85,6 +91,7 @@ public class PostOffice {
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
     /// types match, or if the letter type matches and the `sender` is `nil`.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
     /// ```
@@ -92,9 +99,9 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: S? = nil,
-                                          _ recipient: T,
-                                          _ method: @escaping (T) -> (U, S?) -> Void) -> RecipientId {
+                                                        sender: S? = nil,
+                                                        _ recipient: T,
+                                                        _ method: @escaping (T) -> (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: U.self)
@@ -114,6 +121,7 @@ public class PostOffice {
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
     /// types match.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
     /// ```
@@ -121,9 +129,9 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: S? = nil,
-                                          _ recipient: T,
-                                          _ method: @escaping (T) -> (U, S) -> Void) -> RecipientId {
+                                                        sender: S? = nil,
+                                                        _ recipient: T,
+                                                        _ method: @escaping (T) -> (U, S) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: U.self)
@@ -140,10 +148,11 @@ public class PostOffice {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter sender: Limits the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
     /// ```
@@ -151,9 +160,9 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: S? = nil,
-                                          _ recipient: T,
-                                          _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
+                                                        sender: S,
+                                                        _ recipient: T,
+                                                        _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: U.self)
@@ -163,6 +172,20 @@ public class PostOffice {
         return context.id
     }
 
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
     @discardableResult
     public func register<T: AnyObject, U>(queue: DispatchQueue? = nil,
                                           _ recipient: T,
@@ -182,14 +205,21 @@ public class PostOffice {
     /// Register a block for the object and sender as parameters. This block will be called if the sender matches
     /// the `sender` parameter, or if the sender is `nil`.
     ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted notification and sender, if any. Posted notifications
+    /// that are sent with a `nil` sender will be passed to this block as well
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
     /// Example registration code:
     /// ```
     /// PostOffice.default.register { (letter: MyNotification, sender: MySender?) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
-                            sender: S? = nil,
-                            _ block: @escaping (U, S?) -> Void) -> RecipientId {
+                                          sender: S? = nil,
+                                          _ block: @escaping (U, S?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: U.self)
@@ -203,13 +233,19 @@ public class PostOffice {
     /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
     /// If the notification is posted without a sender, this block will not be called.
     ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted notification and sender.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
     /// ```
     /// PostOffice.default.register { (letter: MyNotification, sender: MySender) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
-                            sender: S? = nil,
-                            _ block: @escaping (U, S) -> Void) -> RecipientId {
+                                          sender: S? = nil,
+                                          _ block: @escaping (U, S) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: U.self)
@@ -227,20 +263,31 @@ public class PostOffice {
 
     /// Register a block with the object as the single parameter:
     ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted notification.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
     /// ```
     /// PostOffice.default.register { (letter: MyNotification) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
-                            sender: S?,
-                            _ block: @escaping (U) -> Void) -> RecipientId {
-        return register(queue: queue, sender: sender) { (letter: U, _: S?) in
+                                          sender: S?,
+                                          _ block: @escaping (U) -> Void) -> RecipientId {
+        return register(queue: queue, sender: sender, { (letter: U, _: S?) in
             block(letter)
-        }
+        })
     }
 
     /// Register a block with the object as the single parameter:
     ///
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter block: The block that will receive the posted notification.
     /// ```
     /// PostOffice.default.register { (letter: ExampleLetter) in ... }
     /// ```
@@ -248,13 +295,15 @@ public class PostOffice {
     public func register<U>(queue: DispatchQueue? = nil,
                             _ block: @escaping (U) -> Void) -> RecipientId {
         let anySender: AnyObject? = nil
-        return register(queue: queue, sender: anySender) { letter in
+        return register(queue: queue, sender: anySender, { letter in
             block(letter)
-        }
+        })
     }
 
     // MARK: - Unregister
 
+    /// Stops any future notifications from being sent to the recipient method or block that was registered with this ``RecipientId``.
+    /// - parameter recipient: The ``RecipientId`` that was returned from a registration method.
     public func unregister(_ recipient: RecipientId) {
         lock.lock()
         defer { lock.unlock() }
@@ -264,11 +313,13 @@ public class PostOffice {
 
     // MARK: - Post
 
-    public func post<U>(_ letter: U) {
+    /// Sends the notification to all recipients that match the notification's type.
+    /// - parameter notification: The notification object to send.
+    public func post<U>(_ notification: U) {
         lock.lock()
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {
-            if key.test(letter),
+            if key.test(notification),
                let typeListeners = listeners[key] {
                 allListeners.append(contentsOf: typeListeners)
                 listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
@@ -284,19 +335,22 @@ public class PostOffice {
             guard listener.sender == nil else { continue }
             if let queue = listener.queue {
                 queue.async {
-                    listener.recipient.block?(letter, nil)
+                    listener.recipient.block?(notification, nil)
                 }
             } else {
-                listener.recipient.block?(letter, nil)
+                listener.recipient.block?(notification, nil)
             }
         }
     }
 
-    public func post<U, S: AnyObject>(_ letter: U, sender: S? = nil) {
+    /// Sends the notification to all recipients that match the notification's type.
+    /// - parameter notification: The notification object to send.
+    /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
+    public func post<U, S: AnyObject>(_ notification: U, sender: S? = nil) {
         lock.lock()
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {
-            if key.test(letter),
+            if key.test(notification),
                let typeListeners = listeners[key] {
                 allListeners.append(contentsOf: typeListeners)
                 listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
@@ -312,10 +366,10 @@ public class PostOffice {
             guard listener.sender == nil || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
-                    listener.recipient.block?(letter, sender)
+                    listener.recipient.block?(notification, sender)
                 }
             } else {
-                listener.recipient.block?(letter, sender)
+                listener.recipient.block?(notification, sender)
             }
         }
     }

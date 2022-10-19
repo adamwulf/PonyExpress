@@ -34,7 +34,7 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
 
     @discardableResult
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,
-                                       sender: Sender?,
+                                       sender: Sender,
                                        _ recipient: T,
                                        _ method: @escaping (T) -> (Letter) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, recipient, method)
