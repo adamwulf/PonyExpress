@@ -278,5 +278,4 @@ final class BlockTests: XCTestCase {
 
         XCTAssertEqual(recipient.count, 2)
     }
-
 }
