@@ -251,4 +251,32 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(objectReceived, 2)
         XCTAssertEqual(subObjectReceived, 1)
     }
+
+    func testSubscribeProtocol() throws {
+        class MyLetter: Mail {
+            var foo: Int
+            init(_ foo: Int) { self.foo = foo }
+        }
+        class OtherLetter: Mail { }
+        class OtherThing { }
+        class MySender { }
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveLetter(letter: Mail, sender: MySender?) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+        let postOffice = PostOffice()
+
+        postOffice.register(recipient, SpecificRecipient.receiveLetter)
+        postOffice.post(MyLetter(13), sender: MySender())
+        postOffice.post(OtherLetter(), sender: MySender())
+        postOffice.post(OtherThing(), sender: MySender())
+
+        XCTAssertEqual(recipient.count, 2)
+    }
+
 }
