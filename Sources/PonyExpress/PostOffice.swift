@@ -23,8 +23,12 @@ public struct RecipientId: Hashable {
 
 public class PostOffice {
 
+    // MARK: - Public
+
     /// A default `PostOffice`, akin to `NotificationCenter.default`.
-    static let `default` = PostOffice()
+    public static let `default` = PostOffice()
+
+    // MARK: - Private
 
     /// A key to help cache recipients into `listeners`. This provides a hashable value for an arbitrary swift type
     /// and also provides an easy method to test if any object matches a type. This helps all recipients for a specific
@@ -68,12 +72,16 @@ public class PostOffice {
     private var listeners: [Key: [RecipientContext]] = [:]
     private var recipientToKey: [RecipientId: Key] = [:]
 
+    // MARK: - Internal
+
     /// The number of listeners for all registered types. Used for testing only.
     var count: Int {
         lock.lock()
         defer { lock.unlock() }
         return listeners.reduce(0, { $0 + $1.value.count })
     }
+
+    // MARK: - Initializer
 
     public init() {
         // noop
@@ -315,36 +323,6 @@ public class PostOffice {
 
     /// Sends the notification to all recipients that match the notification's type.
     /// - parameter notification: The notification object to send.
-    public func post<U>(_ notification: U) {
-        lock.lock()
-        var allListeners: [RecipientContext] = []
-        for key in listeners.keys {
-            if key.test(notification),
-               let typeListeners = listeners[key] {
-                allListeners.append(contentsOf: typeListeners)
-                listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
-            }
-        }
-        guard !allListeners.isEmpty else {
-            lock.unlock()
-            return
-        }
-        lock.unlock()
-
-        for listener in allListeners {
-            guard listener.sender == nil else { continue }
-            if let queue = listener.queue {
-                queue.async {
-                    listener.recipient.block?(notification, nil)
-                }
-            } else {
-                listener.recipient.block?(notification, nil)
-            }
-        }
-    }
-
-    /// Sends the notification to all recipients that match the notification's type.
-    /// - parameter notification: The notification object to send.
     /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
     public func post<U, S: AnyObject>(_ notification: U, sender: S? = nil) {
         lock.lock()
@@ -372,5 +350,12 @@ public class PostOffice {
                 listener.recipient.block?(notification, sender)
             }
         }
+    }
+
+    /// Sends the notification to all recipients that match the notification's type.
+    /// - parameter notification: The notification object to send.
+    public func post<U>(_ notification: U) {
+        let anySender: AnyObject? = nil
+        post(notification, sender: anySender)
     }
 }
