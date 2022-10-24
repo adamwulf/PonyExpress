@@ -99,7 +99,7 @@ public class PostOffice {
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
-    /// types match, or if the letter type matches and the `sender` is `nil`.
+    /// types match, or if the notification type matches and the `sender` is `nil`.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -304,8 +304,8 @@ public class PostOffice {
     public func register<U>(queue: DispatchQueue? = nil,
                             _ block: @escaping (U) -> Void) -> RecipientId {
         let anySender: AnyObject? = nil
-        return register(queue: queue, sender: anySender, { letter in
-            block(letter)
+        return register(queue: queue, sender: anySender, { notification in
+            block(notification)
         })
     }
 

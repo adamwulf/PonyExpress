@@ -33,14 +33,14 @@ internal class AnyRecipient {
             guard let _ = weakRecipient else { return true }
             return false
         }
-        self.block = { letter, sender in
+        self.block = { notification, sender in
             guard let strongRecipient = weakRecipient else { return }
-            guard let letter = letter as? U else { return }
+            guard let notification = notification as? U else { return }
             if sender == nil {
-                method(strongRecipient)(letter, nil)
+                method(strongRecipient)(notification, nil)
             } else if sender != nil,
                       let sender = sender as? S {
-                method(strongRecipient)(letter, sender)
+                method(strongRecipient)(notification, sender)
             }
         }
     }
@@ -51,11 +51,11 @@ internal class AnyRecipient {
             guard let _ = weakRecipient else { return true }
             return false
         }
-        self.block = { letter, sender in
+        self.block = { notification, sender in
             guard let strongRecipient = weakRecipient else { return }
-            guard let letter = letter as? U else { return }
+            guard let notification = notification as? U else { return }
             if let sender = sender as? S {
-                method(strongRecipient)(letter, sender)
+                method(strongRecipient)(notification, sender)
             }
         }
     }
@@ -66,10 +66,10 @@ internal class AnyRecipient {
             guard let _ = weakRecipient else { return true }
             return false
         }
-        self.block = { letter, _ in
+        self.block = { notification, _ in
             guard let strongRecipient = weakRecipient else { return }
-            guard let letter = letter as? U else { return }
-            method(strongRecipient)(letter)
+            guard let notification = notification as? U else { return }
+            method(strongRecipient)(notification)
         }
     }
 }
