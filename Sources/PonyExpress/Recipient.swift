@@ -16,13 +16,13 @@ internal class AnyRecipient {
 
     init<U, S: AnyObject>(_ block: @escaping (_ notification: U, _ sender: S?) -> Void) {
         _canCollect = { return false }
-        self.block = { letter, sender in
-            guard let letter = letter as? U else { return }
+        self.block = { notification, sender in
+            guard let notification = notification as? U else { return }
             if sender == nil {
-                block(letter, nil)
+                block(notification, nil)
             } else if sender != nil,
                       let sender = sender as? S {
-                block(letter, sender)
+                block(notification, sender)
             }
         }
     }

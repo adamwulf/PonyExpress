@@ -76,14 +76,9 @@ class MyClass {
     var token: RecipientId? 
     
     func init() {
-        token = PostOffice.default.register { [weak self] (_ note: ExampleNotification, _ sender: AnyObject?) in
-            // make sure to hold `self` weakly inside this block to prevent a cycle
-            // ... handle the notification
+        PostOffice.default.register { [weak self] (_ note: ExampleNotification, _ sender: AnyObject?) in
+            // process the notification
         }
-    }
-    
-    deinit {
-        PostOffice.default.unregister(token)
     }
 }
 ```

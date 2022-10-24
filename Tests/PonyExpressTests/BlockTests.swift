@@ -6,11 +6,11 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter) -> Void in
+        postOffice.register { (_: ExampleNotification) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
@@ -31,11 +31,11 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter) -> Void in
+        postOffice.register { (_: ExampleNotification) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender)
         XCTAssertEqual(received, 1)
     }
 
@@ -45,13 +45,13 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register(sender: sender1) { (_: ExampleLetter) -> Void in
+        postOffice.register(sender: sender1) { (_: ExampleNotification) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
@@ -61,13 +61,13 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register(sender: sender1) { (_: ExampleLetter, _: NSObject) -> Void in
+        postOffice.register(sender: sender1) { (_: ExampleNotification, _: NSObject) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
@@ -77,13 +77,13 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _: NSObject) -> Void in
+        postOffice.register { (_: ExampleNotification, _: NSObject) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 2)
     }
 
@@ -92,12 +92,12 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _: NSObject?) -> Void in
+        postOffice.register { (_: ExampleNotification, _: NSObject?) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 2)
     }
 
@@ -107,11 +107,11 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register(sender: sender) { (_: ExampleLetter) -> Void in
+        postOffice.register(sender: sender) { (_: ExampleNotification) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 0)
     }
 
@@ -122,13 +122,13 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _ sender: SomeObject?) -> Void in
+        postOffice.register { (_: ExampleNotification, _ sender: SomeObject?) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: senderType1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: senderType2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 2)
     }
 
@@ -139,13 +139,13 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _ sender: SomeObject) -> Void in
+        postOffice.register { (_: ExampleNotification, _ sender: SomeObject) -> Void in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: senderType2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: senderType1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: senderType2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(received, 1)
     }
 
@@ -153,9 +153,9 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
-        let exp = expectation(description: "wait for letter")
+        let exp = expectation(description: "wait for notification")
 
-        postOffice.register(queue: queue) { (_: ExampleLetter) -> Void in
+        postOffice.register(queue: queue) { (_: ExampleNotification) -> Void in
             XCTAssert(!Thread.isMainThread)
             received += 1
             exp.fulfill()
@@ -163,7 +163,7 @@ final class BlockTests: XCTestCase {
 
         XCTAssertEqual(received, 0)
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
 
         wait(for: [exp], timeout: 0.1)
 
@@ -175,8 +175,8 @@ final class BlockTests: XCTestCase {
         let queue = DispatchQueue(label: "any.queue")
         var received = 0
 
-        let exp = expectation(description: "wait for letter")
-        func listener(_ notification: ExampleLetter) {
+        let exp = expectation(description: "wait for notification")
+        func listener(_ notification: ExampleNotification) {
             XCTAssert(!Thread.isMainThread)
             received += 1
             exp.fulfill()
@@ -186,7 +186,7 @@ final class BlockTests: XCTestCase {
 
         XCTAssertEqual(received, 0)
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
 
         wait(for: [exp], timeout: 0.1)
 
@@ -200,20 +200,20 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
         var received = 0
 
-        postOffice.register { (_: ExampleLetter, _: OtherSender?) in
+        postOffice.register { (_: ExampleNotification, _: OtherSender?) in
             received += 1
         }
 
-        postOffice.register { (_: ExampleLetter, _: NSObject?) in
+        postOffice.register { (_: ExampleNotification, _: NSObject?) in
             received += 1
         }
 
-        postOffice.register(sender: sender) { (_: ExampleLetter) in
+        postOffice.register(sender: sender) { (_: ExampleNotification) in
             received += 1
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: other)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: other)
         XCTAssertEqual(received, 3)
     }
 
@@ -253,11 +253,11 @@ final class BlockTests: XCTestCase {
     }
 
     func testSubscribeProtocol() throws {
-        class MyLetter: Mail {
+        class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class OtherLetter: Mail { }
+        class OtherNote: Mail { }
         class OtherThing { }
         class MySender { }
 
@@ -272,8 +272,8 @@ final class BlockTests: XCTestCase {
         let postOffice = PostOffice()
 
         postOffice.register(recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(MyLetter(13), sender: MySender())
-        postOffice.post(OtherLetter(), sender: MySender())
+        postOffice.post(MyNote(13), sender: MySender())
+        postOffice.post(OtherNote(), sender: MySender())
         postOffice.post(OtherThing(), sender: MySender())
 
         XCTAssertEqual(recipient.count, 2)

@@ -66,7 +66,7 @@ struct MyImportantNotification: Letter {
 
 // Listen for a `MyImportantNotification`
 postOffice.register({ (notification: MyImportantNotification) in
-    print("received: \(letter.fumble)")
+    // process notification
 })
 
 // Send a MyImportantNotification
@@ -81,9 +81,9 @@ let postOffice = PostOffice()
 
 // Listen for packages
 postOffice.register({ (notification: Package<Int>) in
-    print("received: \(letter.contents)")
+    // process notification
 })
 
-// Send a `Letter`
+// Send a notification
 postOffice.post(Package<Int>(contents: 12))
 ```

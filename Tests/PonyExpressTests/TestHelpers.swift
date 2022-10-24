@@ -16,7 +16,7 @@ enum MultipleChoice {
     case option3
 }
 
-struct ExampleLetter {
+struct ExampleNotification {
     var info: Int
     var other: Float
 }
@@ -30,22 +30,22 @@ class ExampleRecipient {
 
     var testBlock: (() -> Void)?
 
-    func receiveWithAnySender(notification: ExampleLetter, sender: AnyObject?) {
+    func receiveWithAnySender(notification: ExampleNotification, sender: AnyObject?) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithOptSender(notification: ExampleLetter, sender: ExampleSender?) {
+    func receiveWithOptSender(notification: ExampleNotification, sender: ExampleSender?) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithSender(notification: ExampleLetter, sender: ExampleSender) {
+    func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithoutSender(notification: ExampleLetter) {
+    func receiveWithoutSender(notification: ExampleNotification) {
         count += 1
         testBlock?()
     }

@@ -3,45 +3,45 @@ import XCTest
 
 final class BranchTests: XCTestCase {
     func testSenderSubclass() throws {
-        class MyLetter {
+        class MyNote {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class MySubLetter: MyLetter { }
+        class MySubNote: MyNote { }
         class MySender { }
         class MySubSender: MySender { }
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: MyLetter, sender: MySender?) {
+            func receive(notification: MyNote, sender: MySender?) {
                 count += 1
             }
         }
 
-        let letter = MyLetter(13)
-        let subLetter = MySubLetter(12)
+        let note = MyNote(13)
+        let subNote = MySubNote(12)
         let subSender = MySubSender()
         let recipient = SpecificRecipient()
-        let postOffice = PostOfficeBranch<MyLetter, MySender>()
+        let postOffice = PostOfficeBranch<MyNote, MySender>()
 
-        postOffice.register(recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(letter, sender: subSender)
-        postOffice.post(subLetter, sender: subSender)
+        postOffice.register(recipient, SpecificRecipient.receive)
+        postOffice.post(note, sender: subSender)
+        postOffice.post(subNote, sender: subSender)
 
         XCTAssertEqual(recipient.count, 2)
     }
 
     func testSubscribeProtocol() throws {
-        class MyLetter: Mail {
+        class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class OtherLetter: Mail { }
+        class OtherNote: Mail { }
         class MySender { }
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: Mail, sender: MySender?) {
+            func receive(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -49,19 +49,19 @@ final class BranchTests: XCTestCase {
         let recipient = SpecificRecipient()
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
-        postOffice.register(recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(MyLetter(13), sender: MySender())
-        postOffice.post(OtherLetter(), sender: MySender())
+        postOffice.register(recipient, SpecificRecipient.receive)
+        postOffice.post(MyNote(13), sender: MySender())
+        postOffice.post(OtherNote(), sender: MySender())
 
         XCTAssertEqual(recipient.count, 2)
     }
 
     func testNilSender() throws {
-        class MyLetter: Mail {
+        class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class OtherLetter: Mail { }
+        class OtherNote: Mail { }
         class MySender { }
 
         class SpecificRecipient {
@@ -75,17 +75,17 @@ final class BranchTests: XCTestCase {
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
         postOffice.register(recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(MyLetter(13))
+        postOffice.post(MyNote(13))
 
         XCTAssertEqual(recipient.count, 1)
     }
 
     func testSpecificSender() throws {
-        class MyLetter: Mail {
+        class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class OtherLetter: Mail { }
+        class OtherNote: Mail { }
         class MySender { }
 
         class SpecificRecipient {
@@ -100,19 +100,19 @@ final class BranchTests: XCTestCase {
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
         postOffice.register(sender: sender, recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(MyLetter(13), sender: MySender())
-        postOffice.post(MyLetter(13), sender: sender)
-        postOffice.post(MyLetter(13))
+        postOffice.post(MyNote(13), sender: MySender())
+        postOffice.post(MyNote(13), sender: sender)
+        postOffice.post(MyNote(13))
 
         XCTAssertEqual(recipient.count, 1)
     }
 
     func testUnregister() {
-        class MyLetter: Mail {
+        class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
-        class OtherLetter: Mail { }
+        class OtherNote: Mail { }
         class MySender { }
 
         class SpecificRecipient {
@@ -127,9 +127,9 @@ final class BranchTests: XCTestCase {
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
         let id = postOffice.register(sender: sender, recipient, SpecificRecipient.receiveLetter)
-        postOffice.post(MyLetter(13), sender: sender)
+        postOffice.post(MyNote(13), sender: sender)
         postOffice.unregister(id)
-        postOffice.post(MyLetter(13), sender: sender)
+        postOffice.post(MyNote(13), sender: sender)
 
         XCTAssertEqual(recipient.count, 1)
     }

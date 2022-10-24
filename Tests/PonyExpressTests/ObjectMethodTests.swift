@@ -14,14 +14,14 @@ final class ObjectMethodTests: XCTestCase {
             recipient.testBlock = block
             postOffice.register(recipient, ExampleRecipient.receiveWithOptSender)
 
-            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15))
             postOffice.post(12)
 
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         postOffice.post(12)
 
         XCTAssertEqual(count, 1)
@@ -42,16 +42,16 @@ final class ObjectMethodTests: XCTestCase {
             recipient.testBlock = block
 
             postOffice.register(recipient, ExampleRecipient.receiveWithOptSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+            postOffice.post(ExampleNotification(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
             XCTAssertEqual(count, 2)
             XCTAssertEqual(postOffice.count, 1)
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
         XCTAssertEqual(count, 2)
         XCTAssertEqual(postOffice.count, 0)
     }
@@ -70,14 +70,14 @@ final class ObjectMethodTests: XCTestCase {
             recipient.testBlock = block
 
             postOffice.register(recipient, ExampleRecipient.receiveWithoutSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
+            postOffice.post(ExampleNotification(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
             XCTAssertEqual(count, 3)
             XCTAssertEqual(postOffice.count, 1)
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(count, 3)
         XCTAssertEqual(postOffice.count, 0)
     }
@@ -96,14 +96,14 @@ final class ObjectMethodTests: XCTestCase {
             recipient.testBlock = block
 
             postOffice.register(sender: sender1, recipient, ExampleRecipient.receiveWithSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+            postOffice.post(ExampleNotification(info: 12, other: 15))
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
@@ -122,14 +122,14 @@ final class ObjectMethodTests: XCTestCase {
             recipient.testBlock = block
 
             postOffice.register(sender: sender1, recipient, ExampleRecipient.receiveWithoutSender)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-            postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-            postOffice.post(ExampleLetter(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+            postOffice.post(ExampleNotification(info: 12, other: 15))
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
@@ -147,14 +147,14 @@ final class ObjectMethodTests: XCTestCase {
         recipient.testBlock = block
 
         let id = postOffice.register(sender: sender1, recipient, ExampleRecipient.receiveWithoutSender)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender2)
-        postOffice.post(ExampleLetter(info: 12, other: 15))
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 1)
         postOffice.unregister(id)
 
-        postOffice.post(ExampleLetter(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
