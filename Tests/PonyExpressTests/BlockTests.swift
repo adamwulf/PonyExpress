@@ -176,7 +176,7 @@ final class BlockTests: XCTestCase {
         var received = 0
 
         let exp = expectation(description: "wait for letter")
-        func listener(_ letter: ExampleLetter) {
+        func listener(_ notification: ExampleLetter) {
             XCTAssert(!Thread.isMainThread)
             received += 1
             exp.fulfill()
@@ -263,7 +263,7 @@ final class BlockTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: Mail, sender: MySender?) {
+            func receiveLetter(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }

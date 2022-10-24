@@ -68,7 +68,7 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     /// Register a block with the object as the single parameter:
     ///
     /// ```
-    /// PostOffice.default.register { (letter: MyNotification) in ... }
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
     /// ```
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
@@ -80,7 +80,7 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     /// Register a block with the object as the single parameter:
     ///
     /// ```
-    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// PostOffice.default.register { (notification: ExampleLetter) in ... }
     /// ```
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
@@ -96,11 +96,11 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
 
     // MARK: - Post
 
-    public func post(_ letter: Letter) {
-        mainBranch.post(letter)
+    public func post(_ notification: Letter) {
+        mainBranch.post(notification)
     }
 
-    public func post(_ letter: Letter, sender: Sender? = nil) {
-        mainBranch.post(letter, sender: sender)
+    public func post(_ notification: Letter, sender: Sender? = nil) {
+        mainBranch.post(notification, sender: sender)
     }
 }

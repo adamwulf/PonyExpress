@@ -30,22 +30,22 @@ class ExampleRecipient {
 
     var testBlock: (() -> Void)?
 
-    func receiveWithAnySender(letter: ExampleLetter, sender: AnyObject?) {
+    func receiveWithAnySender(notification: ExampleLetter, sender: AnyObject?) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithOptSender(letter: ExampleLetter, sender: ExampleSender?) {
+    func receiveWithOptSender(notification: ExampleLetter, sender: ExampleSender?) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithSender(letter: ExampleLetter, sender: ExampleSender) {
+    func receiveWithSender(notification: ExampleLetter, sender: ExampleSender) {
         count += 1
         testBlock?()
     }
 
-    func receiveWithoutSender(letter: ExampleLetter) {
+    func receiveWithoutSender(notification: ExampleLetter) {
         count += 1
         testBlock?()
     }

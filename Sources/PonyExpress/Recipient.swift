@@ -14,7 +14,7 @@ internal class AnyRecipient {
         return _canCollect()
     }
 
-    init<U, S: AnyObject>(_ block: @escaping (_ letter: U, _ sender: S?) -> Void) {
+    init<U, S: AnyObject>(_ block: @escaping (_ notification: U, _ sender: S?) -> Void) {
         _canCollect = { return false }
         self.block = { letter, sender in
             guard let letter = letter as? U else { return }
@@ -27,7 +27,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: S?) -> Void) {
+    init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U, _ sender: S?) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }
@@ -45,7 +45,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U, _ sender: S) -> Void) {
+    init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U, _ sender: S) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }
@@ -60,7 +60,7 @@ internal class AnyRecipient {
         }
     }
 
-    init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ letter: U) -> Void) {
+    init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
             guard let _ = weakRecipient else { return true }

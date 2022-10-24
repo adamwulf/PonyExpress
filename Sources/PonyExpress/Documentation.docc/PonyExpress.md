@@ -3,10 +3,41 @@
 `PonyExpress` provides a type-safe alternative to `NotificationCenter`. Inspired by
 https://en.wikipedia.org/wiki/Pony_Express.
 
-## Overview
+## The Problem
+
+When sending a notification with `NotificationCenter`, all information needs to be encoded
+into a `[String: Any]` `userInfo` object attached to the notification. Sending all data through
+arbitrary string keys presents a few problems:
+
+1. There’s no compiler support to help catch mistakes or typos in a `String` key name
+2. A wrongly typed object for a key will either silently fail at runtime if checked with `as? MyType`,
+3. or, the above will crash at runtime when using `as! MyType`. Either way, there is no compile-time
+support for notification types
+
+All of these problems are from the observer silently failing at runtime, instead of loudly failing
+at compile-time.
+
+
+## The Solution
 
 With `PonyExpress`, the notification is type-safe and guaranteed at compile-time to
 match the observer site.
+
+Instead of observing with a type-erased `#selector`, all observers in PonyExpress are strongly
+typed. The example below registers a method to listen for MyNotification objects:
+
+```
+class ExampleRecipient {
+    init {
+        PostOffice.default.register(self, ExampleRecipient.receiveNotification)
+    }
+
+    func receiveNotification(notification: ExampleLetter) {
+        count += 1
+        testBlock?()
+    }
+}
+```
 
 When sending notifications, `NotificationCenter` only provides an optional `[AnyHashable: Any]?`
 `userInfo` object for the `Notification`. Unfortunately, this requires casting at the
@@ -34,7 +65,7 @@ struct MyImportantNotification: Letter {
 }
 
 // Listen for a `MyImportantNotification`
-postOffice.register({ (letter: MyImportantNotification) in
+postOffice.register({ (notification: MyImportantNotification) in
     print("received: \(letter.fumble)")
 })
 
@@ -49,7 +80,7 @@ For convenience, any type can be wrapped in a ``Package`` and sent through a ``P
 let postOffice = PostOffice()
 
 // Listen for packages
-postOffice.register({ (letter: Package<Int>) in
+postOffice.register({ (notification: Package<Int>) in
     print("received: \(letter.contents)")
 })
 

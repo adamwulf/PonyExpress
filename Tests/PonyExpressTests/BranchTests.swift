@@ -13,7 +13,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: MyLetter, sender: MySender?) {
+            func receiveLetter(notification: MyLetter, sender: MySender?) {
                 count += 1
             }
         }
@@ -41,7 +41,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: Mail, sender: MySender?) {
+            func receiveLetter(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -66,7 +66,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: Mail, sender: MySender?) {
+            func receiveLetter(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -90,7 +90,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: Mail, sender: MySender?) {
+            func receiveLetter(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -117,7 +117,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(letter: Mail, sender: MySender?) {
+            func receiveLetter(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }

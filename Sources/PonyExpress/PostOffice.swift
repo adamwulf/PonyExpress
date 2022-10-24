@@ -223,7 +223,7 @@ public class PostOffice {
     ///
     /// Example registration code:
     /// ```
-    /// PostOffice.default.register { (letter: MyNotification, sender: MySender?) in ... }
+    /// PostOffice.default.register { (notification: MyNotification, sender: MySender?) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -249,7 +249,7 @@ public class PostOffice {
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
-    /// PostOffice.default.register { (letter: MyNotification, sender: MySender) in ... }
+    /// PostOffice.default.register { (notification: MyNotification, sender: MySender) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
@@ -279,14 +279,14 @@ public class PostOffice {
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
-    /// PostOffice.default.register { (letter: MyNotification) in ... }
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
     /// ```
     @discardableResult
     public func register<U, S: AnyObject>(queue: DispatchQueue? = nil,
                                           sender: S?,
                                           _ block: @escaping (U) -> Void) -> RecipientId {
-        return register(queue: queue, sender: sender, { (letter: U, _: S?) in
-            block(letter)
+        return register(queue: queue, sender: sender, { (notification: U, _: S?) in
+            block(notification)
         })
     }
 
@@ -298,7 +298,7 @@ public class PostOffice {
     /// on the queue of the sender.
     /// - parameter block: The block that will receive the posted notification.
     /// ```
-    /// PostOffice.default.register { (letter: ExampleLetter) in ... }
+    /// PostOffice.default.register { (notification: ExampleLetter) in ... }
     /// ```
     @discardableResult
     public func register<U>(queue: DispatchQueue? = nil,
