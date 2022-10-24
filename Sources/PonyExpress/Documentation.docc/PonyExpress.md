@@ -3,87 +3,137 @@
 `PonyExpress` provides a type-safe alternative to `NotificationCenter`. Inspired by
 https://en.wikipedia.org/wiki/Pony_Express.
 
-## The Problem
+## Quick Start
 
-When sending a notification with `NotificationCenter`, all information needs to be encoded
-into a `[String: Any]` `userInfo` object attached to the notification. Sending all data through
-arbitrary string keys presents a few problems:
+Any object or value can be sent as a notification. The observer registers a handler
+method for the type of object to receive.
 
-1. There’s no compiler support to help catch mistakes or typos in a `String` key name
-2. A wrongly typed object for a key will either silently fail at runtime if checked with `as? MyType`,
-3. or, the above will crash at runtime when using `as! MyType`. Either way, there is no compile-time
-support for notification types
+An example:
 
-All of these problems are from the observer silently failing at runtime, instead of loudly failing
-at compile-time.
+```swift
+struct ExampleNotification {
+    var info: Int
+    var other: Float
+}
 
-
-## The Solution
-
-With `PonyExpress`, the notification is type-safe and guaranteed at compile-time to
-match the observer site.
-
-Instead of observing with a type-erased `#selector`, all observers in PonyExpress are strongly
-typed. The example below registers a method to listen for MyNotification objects:
-
-```
 class ExampleRecipient {
-    init {
-        PostOffice.default.register(self, ExampleRecipient.receiveNotification)
+    init() {
+        PostOffice.default.register(self, ExampleRecipient.receive)
     }
 
-    func receiveNotification(notification: ExampleNotification) {
-        count += 1
-        testBlock?()
+    func receive(notification: ExampleNotification) {
+        // ... process the notification
+    }
+}
+
+// Send the notification ...
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
+```
+
+## Observing notifications
+
+There are multiple ways to receive notifications.
+
+### Option 1: Register an object and method
+
+Just as in `NotificationCenter`, the object is held weakly, and does not need to
+be explicitly unregistered when the object deallocs. 
+
+```swift
+class MyClass {
+    func init() {
+        PostOffice.default.register(self, MyClass.receive) 
+    }
+    
+    func receive(notification: ExampleNotification) {
+        // process the notification
     }
 }
 ```
 
-When sending notifications, `NotificationCenter` only provides an optional `[AnyHashable: Any]?`
-`userInfo` object for the `Notification`. Unfortunately, this requires casting at the
-observer site. If the `userInfo` format ever changes for a notification, there is no
-compile-time check that all observers expect the new format.
+### Option 2: Register a block
 
-### Send Anything
-
-Anything can be sent as a 
-
-### Example
-
-The following snippet shows how to initialize a <doc:PonyExpress/PostOffice> to send an `Int`
-along with each notification. An observer block is added, and finally a notification
-is sent with the ``PonyExpress/PonyExpress/post(_:sender:contents:)`` method.
-
-Below is an example of creating a custom notification type, listening for and then sending
-that type.
+A block or method can be passed into the ``PostOffice`` to observe notifications. Blocks
+are held strongly inside the ``PostOffice``, and must be unregistered explicitly.
 
 ```swift
-// Define a notification that we can send
-struct MyImportantNotification {
-    let fumble: Int
-    let bumble: Float
+class MyClass {
+    var token: RecipientId? 
+    
+    func init() {
+        PostOffice.default.register { [weak self] (notification: ExampleNotification) in
+            // process the notification
+        }
+    }
 }
-
-// Listen for a `MyImportantNotification`
-postOffice.register({ (notification: MyImportantNotification) in
-    // process notification
-})
-
-// Send a MyImportantNotification
-postOffice.post(MyImportantNotification(fumble: 12, bumble: 14))
 ```
 
-For convenience, any type can be wrapped in a ``Package`` and sent through a ``PostOffice``
+## Unregistering
+
+Every `register()` method will return a `RecipientId`, which can be used to unregister the
+recipient.
+
 
 ```swift
-// Create a `PostOffice`
-let postOffice = PostOffice()
+let recipient = ExampleRecipient()
+let id = PostOffice.default.register(recipient)
+...
+PostOffice.default.unregister(id)
+```
 
-// Listen for packages
-postOffice.register({ (notification: Package<Int>) in
-    // process notification
-})
+## Senders
 
-// Send a notification
-postOffice.post(Package<Int>(contents: 12))
+Sending a notification can optionally include a `sender` as well. This is similar to `NotificationCenter`,
+where recipients can optionally register for notifications sent only from a specific sender. In PonyExpress,
+both the notification and sender are strongly typed.
+
+Recipients can choose to include or exclude the sender parameter from the receiving block or method.
+
+```swift
+class ExampleRecipient {
+    init() {
+        PostOffice.default.register(self, ExampleRecipient.receiveWithOptionalSender)
+        PostOffice.default.register(self, ExampleRecipient.receiveWithSender)
+        PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)
+    }
+
+    // An optional sender will require that the sender of the notification either
+    // a) match the type of the `sender`, or b) be `nil`
+    func receiveWithOptionalSender(notification: ExampleNotification, sender: ExampleSender?) {
+        // ... process the notification
+    }
+
+    // An non-optional sender will require that the sender of the notification either match
+    // the `sender` type
+    func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
+        // ... process the notification
+    }
+
+    // Omitting a `sender` parameter will receive notifications for senders of any type, even nil senders
+    func receiveWithoutSender(notification: ExampleNotification) {
+        // ... process the notification
+    }
+}
+
+// recipients can also register to receive notifications from a singular exact-match sender
+let sender = ExampleSender()
+let recipient = ExampleRecipient()
+PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithSender) 
+PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithoutSender) 
+```
+
+When posting a notification, a sender can optionally be provided.
+
+```swift
+PostOffice.default.post(ExampleNotification(info: 12, other: 15), sender: sender)
+```
+
+## DispatchQueues
+
+When registering with a ``PostOffice``, the recipient can choose which `DispatchQueue` to be notified on.
+If no queue is specified, the notificaiton is sent synchronously on the queue that posts the notification. If
+a queue is specified, the notification is sent asynchronously on that queue.
+
+```swift
+PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 
 ```
