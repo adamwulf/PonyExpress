@@ -8,13 +8,7 @@
 import Foundation
 import PonyExpress
 
-// Create a static shared PostOffice
-private let globalShared = PostOffice()
-public extension PostOffice {
-    static var shared: PostOffice {
-        return globalShared
-    }
-}
+protocol Mail { }
 
 enum MultipleChoice {
     case option1
