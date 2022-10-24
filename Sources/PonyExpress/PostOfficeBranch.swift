@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// Just like a ``PostOffice`` but also able to limit the types of posts and senders.
-class PostOfficeBranch<Notification, Sender: AnyObject> {
+/// Just like a ``PostOffice`` but also able to limit the types of posts and senders using generic types
+public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
 
