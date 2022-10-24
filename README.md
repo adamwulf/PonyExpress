@@ -60,7 +60,7 @@ class MyClass {
         PostOffice.default.register(self, MyClass.receive) 
     }
     
-    func receive(_ notification: ExampleNotification, _ sender: AnyObject?) {
+    func receive(notification: ExampleNotification) {
         // process the notification
     }
 }
@@ -76,7 +76,7 @@ class MyClass {
     var token: RecipientId? 
     
     func init() {
-        PostOffice.default.register { [weak self] (_ note: ExampleNotification, _ sender: AnyObject?) in
+        PostOffice.default.register { [weak self] (notification: ExampleNotification) in
             // process the notification
         }
     }
