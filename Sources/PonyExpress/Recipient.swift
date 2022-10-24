@@ -30,7 +30,7 @@ internal class AnyRecipient {
     init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U, _ sender: S?) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
-            guard let _ = weakRecipient else { return true }
+            guard weakRecipient != nil else { return true }
             return false
         }
         self.block = { notification, sender in
@@ -48,7 +48,7 @@ internal class AnyRecipient {
     init<T: AnyObject, U, S: AnyObject>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U, _ sender: S) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
-            guard let _ = weakRecipient else { return true }
+            guard weakRecipient != nil else { return true }
             return false
         }
         self.block = { notification, sender in
@@ -63,7 +63,7 @@ internal class AnyRecipient {
     init<T: AnyObject, U>(_ recipient: T, _ method: @escaping (T) -> (_ notification: U) -> Void) {
         weak var weakRecipient = recipient
         _canCollect = {
-            guard let _ = weakRecipient else { return true }
+            guard weakRecipient != nil else { return true }
             return false
         }
         self.block = { notification, _ in
