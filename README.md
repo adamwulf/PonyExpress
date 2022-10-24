@@ -115,18 +115,18 @@ class ExampleRecipient {
     // An optional sender will require that the sender of the notification either
     // a) match the type of the `sender`, or b) be `nil`
     func receiveWithOptionalSender(notification: ExampleNotification, sender: ExampleSender?) {
-        // ... process the Letter
+        // ... process the notification
     }
 
     // An non-optional sender will require that the sender of the notification either match
     // the `sender` type
     func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
-        // ... process the Letter
+        // ... process the notification
     }
 
     // Omitting a `sender` parameter will receive notifications for senders of any type, even nil senders
     func receiveWithoutSender(notification: ExampleNotification) {
-        // ... process the Letter
+        // ... process the notification
     }
 }
 
@@ -143,11 +143,11 @@ When posting a notification, a sender can optionally be provided.
 PostOffice.default.post(ExampleNotification(info: 12, other: 15), sender: sender)
 ```
 
-### DispatchQueue
+## DispatchQueues
 
-When registering with the ``PostOffice``, the recipient can choose which `DispatchQueue` to be notified on.
-If no queue is specified, the notificaiton is sent synchronously on the queue that posts the ``Letter``. If
-a queue is specified, the ``Letter`` is sent asynchronously on that queue.
+When registering with a ``PostOffice``, the recipient can choose which `DispatchQueue` to be notified on.
+If no queue is specified, the notificaiton is sent synchronously on the queue that posts the notification. If
+a queue is specified, the notification is sent asynchronously on that queue.
 
 ```swift
 PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 

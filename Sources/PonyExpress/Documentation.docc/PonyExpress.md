@@ -51,15 +51,15 @@ Anything can be sent as a
 ### Example
 
 The following snippet shows how to initialize a <doc:PonyExpress/PostOffice> to send an `Int`
-along with each ``Letter``. An observer block is added, and finally a ``Letter``
+along with each notification. An observer block is added, and finally a notification
 is sent with the ``PonyExpress/PonyExpress/post(_:sender:contents:)`` method.
 
 Below is an example of creating a custom notification type, listening for and then sending
 that type.
 
 ```swift
-// Define a Letter that we can send
-struct MyImportantNotification: Letter {
+// Define a notification that we can send
+struct MyImportantNotification {
     let fumble: Int
     let bumble: Float
 }
