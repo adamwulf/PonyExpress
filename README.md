@@ -96,34 +96,51 @@ let id = PostOffice.default.register(recipient)
 PostOffice.default.unregister(id)
 ```
 
-## Advanced Usage
+## Senders
 
-### Senders
-
-Sending a ``Letter`` can optionally include a `sender` as well. This is similar to `NotificationCenter`,
-where recipients can optionally register for notifications sent only from a specific sender.
+Sending a notification can optionally include a `sender` as well. This is similar to `NotificationCenter`,
+where recipients can optionally register for notifications sent only from a specific sender. In PonyExpress,
+both the notification and sender are strongly typed.
 
 Recipients can choose to include or exclude the sender parameter from the receiving block or method.
 
 ```swift
 class ExampleRecipient {
     init() {
+        PostOffice.default.register(self, ExampleRecipient.receiveWithOptionalSender)
         PostOffice.default.register(self, ExampleRecipient.receiveWithSender)
         PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)
     }
 
-    func receiveWithSender(notification: ExampleNotification, sender: AnyObject?) {
+    // An optional sender will require that the sender of the notification either
+    // a) match the type of the `sender`, or b) be `nil`
+    func receiveWithOptionalSender(notification: ExampleNotification, sender: ExampleSender?) {
         // ... process the Letter
     }
 
+    // An non-optional sender will require that the sender of the notification either match
+    // the `sender` type
+    func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
+        // ... process the Letter
+    }
+
+    // Omitting a `sender` parameter will receive notifications for senders of any type, even nil senders
     func receiveWithoutSender(notification: ExampleNotification) {
         // ... process the Letter
     }
 }
 
+// recipients can also register to receive notifications from a singular exact-match sender
+let sender = ExampleSender()
 let recipient = ExampleRecipient()
-PostOffice.default.register(sender: someSender, recipient, ExampleRecipient.receiveWithSender) 
-PostOffice.default.register(sender: someSender, recipient, ExampleRecipient.receiveWithoutSender) 
+PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithSender) 
+PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithoutSender) 
+```
+
+When posting a notification, a sender can optionally be provided.
+
+```swift
+PostOffice.default.post(ExampleNotification(info: 12, other: 15), sender: sender)
 ```
 
 ### DispatchQueue
