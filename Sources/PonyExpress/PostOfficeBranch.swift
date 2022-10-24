@@ -8,7 +8,7 @@
 import Foundation
 
 /// Just like a ``PostOffice`` but also able to limit the types of posts and senders.
-class PostOfficeBranch<Letter, Sender: AnyObject> {
+class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
 
@@ -18,7 +18,7 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,
                                        sender: Sender? = nil,
                                        _ recipient: T,
-                                       _ method: @escaping (T) -> (Letter, Sender?) -> Void) -> RecipientId {
+                                       _ method: @escaping (T) -> (Notification, Sender?) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, recipient, method)
     }
 
@@ -26,7 +26,7 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,
                                        sender: Sender? = nil,
                                        _ recipient: T,
-                                       _ method: @escaping (T) -> (Letter, Sender) -> Void) -> RecipientId {
+                                       _ method: @escaping (T) -> (Notification, Sender) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, recipient, method)
     }
 
@@ -36,14 +36,14 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,
                                        sender: Sender,
                                        _ recipient: T,
-                                       _ method: @escaping (T) -> (Letter) -> Void) -> RecipientId {
+                                       _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, recipient, method)
     }
 
     @discardableResult
     public func register<T: AnyObject>(queue: DispatchQueue? = nil,
                                        _ recipient: T,
-                                       _ method: @escaping (T) -> (Letter) -> Void) -> RecipientId {
+                                       _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, recipient, method)
     }
 
@@ -52,14 +52,14 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
                          sender: Sender? = nil,
-                         _ block: @escaping (Letter, Sender?) -> Void) -> RecipientId {
+                         _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, block)
     }
 
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
                          sender: Sender? = nil,
-                         _ block: @escaping (Letter, Sender) -> Void) -> RecipientId {
+                         _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, block)
     }
 
@@ -73,18 +73,18 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
                          sender: Sender?,
-                         _ block: @escaping (Letter) -> Void) -> RecipientId {
+                         _ block: @escaping (Notification) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, sender: sender, block)
     }
 
     /// Register a block with the object as the single parameter:
     ///
     /// ```
-    /// PostOffice.default.register { (notification: ExampleLetter) in ... }
+    /// PostOffice.default.register { (notification: ExampleNotification) in ... }
     /// ```
     @discardableResult
     public func register(queue: DispatchQueue? = nil,
-                         _ block: @escaping (Letter) -> Void) -> RecipientId {
+                         _ block: @escaping (Notification) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, block)
     }
 
@@ -96,11 +96,11 @@ class PostOfficeBranch<Letter, Sender: AnyObject> {
 
     // MARK: - Post
 
-    public func post(_ notification: Letter) {
+    public func post(_ notification: Notification) {
         mainBranch.post(notification)
     }
 
-    public func post(_ notification: Letter, sender: Sender? = nil) {
+    public func post(_ notification: Notification, sender: Sender? = nil) {
         mainBranch.post(notification, sender: sender)
     }
 }

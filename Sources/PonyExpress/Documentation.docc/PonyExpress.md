@@ -32,7 +32,7 @@ class ExampleRecipient {
         PostOffice.default.register(self, ExampleRecipient.receiveNotification)
     }
 
-    func receiveNotification(notification: ExampleLetter) {
+    func receiveNotification(notification: ExampleNotification) {
         count += 1
         testBlock?()
     }

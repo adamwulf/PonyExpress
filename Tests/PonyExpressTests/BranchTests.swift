@@ -66,7 +66,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: Mail, sender: MySender?) {
+            func receiveNotification(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -74,7 +74,7 @@ final class BranchTests: XCTestCase {
         let recipient = SpecificRecipient()
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
-        postOffice.register(recipient, SpecificRecipient.receiveLetter)
+        postOffice.register(recipient, SpecificRecipient.receiveNotification)
         postOffice.post(MyNote(13))
 
         XCTAssertEqual(recipient.count, 1)
@@ -90,7 +90,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: Mail, sender: MySender?) {
+            func receiveNotification(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -99,7 +99,7 @@ final class BranchTests: XCTestCase {
         let recipient = SpecificRecipient()
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveLetter)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveNotification)
         postOffice.post(MyNote(13), sender: MySender())
         postOffice.post(MyNote(13), sender: sender)
         postOffice.post(MyNote(13))
@@ -117,7 +117,7 @@ final class BranchTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: Mail, sender: MySender?) {
+            func receiveNotification(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -126,7 +126,7 @@ final class BranchTests: XCTestCase {
         let recipient = SpecificRecipient()
         let postOffice = PostOfficeBranch<Mail, MySender>()
 
-        let id = postOffice.register(sender: sender, recipient, SpecificRecipient.receiveLetter)
+        let id = postOffice.register(sender: sender, recipient, SpecificRecipient.receiveNotification)
         postOffice.post(MyNote(13), sender: sender)
         postOffice.unregister(id)
         postOffice.post(MyNote(13), sender: sender)

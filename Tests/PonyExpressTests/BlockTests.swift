@@ -217,7 +217,7 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(received, 3)
     }
 
-    func testEnumLetter() throws {
+    func testEnumNotification() throws {
         let postOffice = PostOffice()
         var received = 0
 
@@ -231,23 +231,23 @@ final class BlockTests: XCTestCase {
     }
 
     func testRegisterSubclass() throws {
-        class ExampleObjectLetter { }
-        class ExampleSubObjectLetter: ExampleObjectLetter { }
+        class ExampleObjectNotification { }
+        class ExampleSubObjectNotification: ExampleObjectNotification { }
 
         let sender = NSObject()
         let postOffice = PostOffice()
         var objectReceived = 0
         var subObjectReceived = 0
 
-        postOffice.register { (_: ExampleObjectLetter) -> Void in
+        postOffice.register { (_: ExampleObjectNotification) -> Void in
             objectReceived += 1
         }
-        postOffice.register { (_: ExampleSubObjectLetter) -> Void in
+        postOffice.register { (_: ExampleSubObjectNotification) -> Void in
             subObjectReceived += 1
         }
 
-        postOffice.post(ExampleObjectLetter(), sender: sender)
-        postOffice.post(ExampleSubObjectLetter(), sender: sender)
+        postOffice.post(ExampleObjectNotification(), sender: sender)
+        postOffice.post(ExampleSubObjectNotification(), sender: sender)
         XCTAssertEqual(objectReceived, 2)
         XCTAssertEqual(subObjectReceived, 1)
     }
@@ -263,7 +263,7 @@ final class BlockTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receiveLetter(notification: Mail, sender: MySender?) {
+            func receiveNotification(notification: Mail, sender: MySender?) {
                 count += 1
             }
         }
@@ -271,7 +271,7 @@ final class BlockTests: XCTestCase {
         let recipient = SpecificRecipient()
         let postOffice = PostOffice()
 
-        postOffice.register(recipient, SpecificRecipient.receiveLetter)
+        postOffice.register(recipient, SpecificRecipient.receiveNotification)
         postOffice.post(MyNote(13), sender: MySender())
         postOffice.post(OtherNote(), sender: MySender())
         postOffice.post(OtherThing(), sender: MySender())

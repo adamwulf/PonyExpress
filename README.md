@@ -112,11 +112,11 @@ class ExampleRecipient {
         PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)
     }
 
-    func receiveWithSender(notification: ExampleLetter, sender: AnyObject?) {
+    func receiveWithSender(notification: ExampleNotification, sender: AnyObject?) {
         // ... process the Letter
     }
 
-    func receiveWithoutSender(notification: ExampleLetter) {
+    func receiveWithoutSender(notification: ExampleNotification) {
         // ... process the Letter
     }
 }

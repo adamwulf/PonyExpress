@@ -298,7 +298,7 @@ public class PostOffice {
     /// on the queue of the sender.
     /// - parameter block: The block that will receive the posted notification.
     /// ```
-    /// PostOffice.default.register { (notification: ExampleLetter) in ... }
+    /// PostOffice.default.register { (notification: ExampleNotification) in ... }
     /// ```
     @discardableResult
     public func register<U>(queue: DispatchQueue? = nil,
