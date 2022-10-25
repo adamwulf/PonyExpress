@@ -5,7 +5,7 @@ https://en.wikipedia.org/wiki/Pony_Express.
 
 ## Quick Start
 
-Any object or value can be sent as a notification. The observer registers a handler
+Any object or value can be sent as a notification. The recipient registers a handler
 method for the type of object to receive.
 
 An example:
@@ -30,9 +30,37 @@ class ExampleRecipient {
 PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
+## Posting notifications
+
+Any object can be sent as a notification, and only recipients registered for that notification type
+will receive it.
+
+```swift
+// Send a struct
+struct ExampleNotification {
+    var info: Int
+    var other: Float
+}
+
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
+
+
+// or an enum
+enum ExampleEnum {
+    case fumble
+    case mumble(bumble: Int)
+}
+
+PostOffice.default.post(ExampleEnum.mumble(bumble: 12))
+
+// or anything at all
+PostOffice.default.post("Just a String")
+```
+
 ## Observing notifications
 
-There are multiple ways to receive notifications.
+There are multiple ways to receive notifications. All observers define the type of notification and sender
+that they want to receive, and only notifications and senders matching those types will be received.
 
 ### Option 1: Register an object and method
 
@@ -136,4 +164,20 @@ a queue is specified, the notification is sent asynchronously on that queue.
 
 ```swift
 PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 
+```
+
+## Advanced
+
+A `PostOfficeBranch` can be defined to restrict the types of notifications and senders that can be used.
+The standard `PostOffice` already type-restricts the recipients of notifications, and this helps to also
+type-restricts the notifications themselves. This can help prevent using the wrong object as the notification
+or sender due to a typo or other small mistake.
+
+```swift
+let postOffice = PostOfficeBranch<Mail, MySender>()
+let mail = Mail()
+let mall = ShoppingMall()
+
+postOffice.post(mail) // ok
+postOffice.post(mall) // compiler error
 ```

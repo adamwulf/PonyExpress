@@ -6,7 +6,12 @@
 
 ## Documentation
 
-[View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`.
+[View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`. Documentation for Xcode
+can be built with the included `builddocs.sh` script.
+
+```bash
+$ ./builddocs.sh
+```
 
 ## Installation
 
@@ -20,7 +25,7 @@ https://github.com/adamwulf/PonyExpress.git
 
 ## Quick Start
 
-Any object or value can be sent as a notification. The observer registers a handler
+Any object or value can be sent as a notification. The recipient registers a handler
 method for the type of object to receive.
 
 An example:
@@ -45,9 +50,37 @@ class ExampleRecipient {
 PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
+## Posting notifications
+
+Any object can be sent as a notification, and only recipients registered for that notification type
+will receive it.
+
+```swift
+// Send a struct
+struct ExampleNotification {
+    var info: Int
+    var other: Float
+}
+
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
+
+
+// or an enum
+enum ExampleEnum {
+    case fumble
+    case mumble(bumble: Int)
+}
+
+PostOffice.default.post(ExampleEnum.mumble(bumble: 12))
+
+// or anything at all
+PostOffice.default.post("Just a String")
+```
+
 ## Observing notifications
 
-There are multiple ways to receive notifications.
+There are multiple ways to receive notifications. All observers define the type of notification and sender
+that they want to receive, and only notifications and senders matching those types will be received.
 
 ### Option 1: Register an object and method
 
@@ -152,3 +185,42 @@ a queue is specified, the notification is sent asynchronously on that queue.
 ```swift
 PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 
 ```
+
+## Advanced
+
+A `PostOfficeBranch` can be defined to restrict the types of notifications and senders that can be used.
+The standard `PostOffice` already type-restricts the recipients of notifications, and this helps to also
+type-restricts the notifications themselves. This can help prevent using the wrong object as the notification
+or sender due to a typo or other small mistake.
+
+```swift
+let postOffice = PostOfficeBranch<Mail, MySender>()
+let mail = Mail()
+let mall = ShoppingMall()
+
+postOffice.post(mail) // ok
+postOffice.post(mall) // compiler error
+```
+
+## Motivation
+
+Notifications using `NotificationCenter` are sent through a `[String: Any]` `userInfo` property of the 
+notification. This means that any observesr for that notification need to decode the userInfo using
+something like `guard let myStuff = notification.userInfo["someProperty"] as? MyStuff`.
+
+This provides a number of problems:
+
+- `"someProperty"` could contain a typo. Using a constant is susceptible to copy/paste errors.
+- Notifications are verbose - they require a notification name, the `userInfo` keys, and the actual values
+- Values are not typesafe. Sending a `Float` and attempting to decoding a `CGFloat` will silently fail (or runtime error).
+- When recieving unexpected data, observers either siliently fail or crash at runtime.
+
+In `PonyExpress`, the goal is to reduce verbosity and move errors from runtime to compile time.
+
+- Observers always receive the exact types they expect
+- Any errors are provided at compile time, guaranteeing runtime type safety
+- No extra `String` names or keys - only the actual data is sent without any extra boiler plate
+
+## Thanks! ❤️
+
+Enjoying `PonyExpress`? [Say thanks](https://github.com/sponsors/adamwulf) and buy me a coffee ☕️!

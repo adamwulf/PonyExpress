@@ -4,7 +4,6 @@
 //
 //  Created by Adam Wulf on 08.27.22.
 //
-//
 
 import Foundation
 import Locks
@@ -22,6 +21,14 @@ public struct RecipientId: Hashable {
     }
 }
 
+/// A `PostOffice` is able to send strongly-typed notifications from any strongly-typed sender, and will
+/// relay them to all registered recipients appropriately.
+///
+/// A ``default`` `PostOffice` is provided. To send a notification:
+///
+/// ```swift
+/// PostOffice.default.post(yourNotification, sender: yourSender)
+/// ```
 public class PostOffice {
 
     // MARK: - Public
@@ -84,6 +91,8 @@ public class PostOffice {
 
     // MARK: - Initializer
 
+    /// A default `PostOffice` is already provided at `PostOffice.default`. If more than one `PostOffice` is required,
+    /// one can be built with `PostOffice()`.
     public init() {
         // noop
     }
@@ -128,7 +137,7 @@ public class PostOffice {
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
-    /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
+    /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
     /// types match.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
@@ -157,7 +166,7 @@ public class PostOffice {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter sender: Limits the received notifications to only those sent by the `sender`.
+    /// - parameter sender: Optional. Limits the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
@@ -169,7 +178,7 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
-                                                        sender: S,
+                                                        sender: S?,
                                                         _ recipient: T,
                                                         _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
@@ -270,7 +279,7 @@ public class PostOffice {
 
     // MARK: - Register Block without Sender
 
-    /// Register a block with the object as the single parameter:
+    /// Register a block from an optional `sender` with the notification as the single parameter.
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
@@ -290,7 +299,7 @@ public class PostOffice {
         })
     }
 
-    /// Register a block with the object as the single parameter:
+    /// Register a block with the notification as the single parameter:
     ///
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
