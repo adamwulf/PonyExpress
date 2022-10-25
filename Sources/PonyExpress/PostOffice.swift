@@ -279,7 +279,7 @@ public class PostOffice {
 
     // MARK: - Register Block without Sender
 
-    /// Register a block with the object as the single parameter:
+    /// Register a block from an optional `sender` with the notification as the single parameter.
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
@@ -299,7 +299,7 @@ public class PostOffice {
         })
     }
 
-    /// Register a block with the object as the single parameter:
+    /// Register a block with the notification as the single parameter:
     ///
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
