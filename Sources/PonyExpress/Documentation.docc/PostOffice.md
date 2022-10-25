@@ -1,17 +1,5 @@
 # ``PonyExpress/PostOffice``
 
-A `PostOffice` is able to send strongly-typed notifications from any strongly-typed sender, and will
-relay them to all registered recipients appropriately.
-
-## Overview
-
-A ``default`` `PostOffice` is provided. To send a notification:
-
-```swift
-PostOffice.default.post(yourNotification, sender: yourSender)
-```
-
-
 ## Topics
 
 ### Getting the Default Notification Center
