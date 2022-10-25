@@ -20,7 +20,7 @@ https://github.com/adamwulf/PonyExpress.git
 
 ## Quick Start
 
-Any object or value can be sent as a notification. The observer registers a handler
+Any object or value can be sent as a notification. The recipient registers a handler
 method for the type of object to receive.
 
 An example:

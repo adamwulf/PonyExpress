@@ -21,6 +21,14 @@ public struct RecipientId: Hashable {
     }
 }
 
+/// A `PostOffice` is able to send strongly-typed notifications from any strongly-typed sender, and will
+/// relay them to all registered recipients appropriately.
+///
+/// A ``default`` `PostOffice` is provided. To send a notification:
+///
+/// ```swift
+/// PostOffice.default.post(yourNotification, sender: yourSender)
+/// ```
 public class PostOffice {
 
     // MARK: - Public

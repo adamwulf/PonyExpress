@@ -8,6 +8,18 @@
 import Foundation
 
 /// Just like a ``PostOffice`` but also able to limit the types of posts and senders using generic types
+/// - note: All notifications sent through this `PostOfficeBranch` must conform to `Notification`,
+/// and all senders using this `PostOfficeBranch` must conform to `Sender`.
+///
+/// Define a `PostOfficeBranch` to more narrowly define what types of notifications can be sent from
+/// specific types of senders. While observers are strictly typed in ``PostOffice``, the sent notifications
+/// and senders are not type constrained. Using a `PostOfficeBranch` can add constraints to the
+/// notifications and senders, which helps prevent sending incorrect notification objects or senders due to
+/// typos or other common coding mistakes.
+///
+/// ```swift
+/// let myBranch = PostOfficeBranch<MySpecificEvents, MySender>()
+/// ```
 public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
