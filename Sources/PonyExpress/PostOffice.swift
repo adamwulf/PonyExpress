@@ -135,7 +135,7 @@ public class PostOffice {
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
-    /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
+    /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
     /// types match.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
