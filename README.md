@@ -6,7 +6,12 @@
 
 ## Documentation
 
-[View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`.
+[View the documentation](https://adamwulf.github.io/PonyExpress/documentation/ponyexpress/) for `PonyExpress`. Documentation for Xcode
+can be built with the included `builddocs.sh` script.
+
+```bash
+$ ./builddocs.sh
+```
 
 ## Installation
 
