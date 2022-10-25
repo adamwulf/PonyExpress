@@ -166,7 +166,7 @@ public class PostOffice {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter sender: Limits the received notifications to only those sent by the `sender`.
+    /// - parameter sender: Optional. Limits the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
@@ -178,7 +178,7 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, U, S: AnyObject>(queue: DispatchQueue? = nil,
-                                                        sender: S,
+                                                        sender: S?,
                                                         _ recipient: T,
                                                         _ method: @escaping (T) -> (U) -> Void) -> RecipientId {
         lock.lock()
