@@ -9,7 +9,7 @@
 ### Adding Method Recipients
 
 - ``register(queue:_:_:)``
-- ``register(queue:sender:_:_:)-4f4dk``
+- ``register(queue:sender:_:_:)-6sfpl``
 - ``register(queue:sender:_:_:)-99zke``
 - ``register(queue:sender:_:_:)-17mq5``
 
