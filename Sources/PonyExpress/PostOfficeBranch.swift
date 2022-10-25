@@ -35,7 +35,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
-    /// types match, or if the notification type matches and the `sender` is `nil`.
+    /// types match, or if the notification type matches and the `sender` is `nil`. The method arguments must conform to `PostOfficeBranch`
+    /// generic constraints `Notification` and `Sender`. Parameter names in the method are ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -59,7 +60,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
-    /// types match.
+    /// types match.  The method arguments must conform to `PostOfficeBranch` generic constraints `Notification`
+    /// and `Sender`. Parameter names in the method are ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -84,7 +86,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// - parameter sender: Limits the received notifications to only those sent by the `sender`.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
-    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type. The method argument
+    /// must conform to `PostOfficeBranch` generic constraint `Notification`. The parameter name in the method is ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -106,7 +109,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// on the queue of the sender.
     /// - parameter recipient: The object that will receive the posted notification.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
-    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type. The method argument
+    /// must conform to `PostOfficeBranch` generic constraint `Notification`. The parameter name in the method is ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -129,7 +133,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
     /// - parameter block: The block that will receive the posted notification and sender, if any. Posted notifications
-    /// that are sent with a `nil` sender will be passed to this block as well
+    /// that are sent with a `nil` sender will be passed to this block as well. The block arguments must conform to `PostOfficeBranch`
+    /// generic constraints `Notification` and `Sender`. The parameter names in the block are ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
@@ -150,7 +155,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted notification and sender.
+    /// - parameter block: The block that will receive the posted notification and sender. The block arguments must conform to
+    /// `PostOfficeBranch` generic constraints `Notification` and `Sender`. The parameter names in the block are ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
@@ -170,7 +176,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted notification.
+    /// - parameter block: The block that will receive the posted notification. The block argument must conform to
+    /// `PostOfficeBranch` generic constraint `Notification`. The parameter name in the block is ignored.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
@@ -189,7 +196,8 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter block: The block that will receive the posted notification.
+    /// - parameter block: The block that will receive the posted notification. The block argument must conform to
+    /// `PostOfficeBranch` generic constraint `Notification`. The parameter name in the block is ignored.
     /// ```
     /// PostOffice.default.register { (notification: ExampleNotification) in ... }
     /// ```
@@ -203,6 +211,7 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
 
     /// Stops any future notifications from being sent to the recipient method or block that was registered with this ``RecipientId``.
     /// - parameter recipient: The ``RecipientId`` that was returned from a registration method.
+    /// - note: Calling this method with an already unregistered `RecipientId` does nothing.
     public func unregister(_ recipient: RecipientId) {
         mainBranch.unregister(recipient)
     }
@@ -210,8 +219,9 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     // MARK: - Post
 
     /// Sends the notification to all recipients that match the notification's type.
-    /// - parameter notification: The notification object to send.
-    /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
+    /// - parameter notification: The notification object to send. Must conform to `PostOfficeBranch` generic `Notification` parameter.
+    /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification. Must conform
+    /// to `PostOfficeBranch` generic `Sender` parameter.
     public func post(_ notification: Notification, sender: Sender? = nil) {
         mainBranch.post(notification, sender: sender)
     }
