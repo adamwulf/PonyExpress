@@ -5,4 +5,6 @@ mkdir .build
 mv PonyExpress.doccarchive .build/PonyExpress.doccarchive
 open .build/PonyExpress.doccarchive
 
+find docs -name *.json -exec bash -c 'jq -M --sort-keys . < "{}" > "{}.temp"; mv "{}.temp" "{}"' \;
+
 printf "// swift-tools-version: 5.7\n// The swift-tools-version declares the minimum version of Swift required to build this package.\n\nimport PackageDescription\n\nlet package = Package()\n" > docs/Package.swift
