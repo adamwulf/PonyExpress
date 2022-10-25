@@ -91,6 +91,8 @@ public class PostOffice {
 
     // MARK: - Initializer
 
+    /// A default `PostOffice` is already provided at `PostOffice.default`. If more than one `PostOffice` is required,
+    /// one can be built with `PostOffice()`.
     public init() {
         // noop
     }
