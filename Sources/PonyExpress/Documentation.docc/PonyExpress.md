@@ -137,3 +137,19 @@ a queue is specified, the notification is sent asynchronously on that queue.
 ```swift
 PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 
 ```
+
+## Advanced
+
+A `PostOfficeBranch` can be defined to restrict the types of notifications and senders that can be used.
+The standard `PostOffice` already type-restricts the recipients of notifications, and this helps to also
+type-restricts the notifications themselves. This can help prevent using the wrong object as the notification
+or sender due to a typo or other small mistake.
+
+```swift
+let postOffice = PostOfficeBranch<Mail, MySender>()
+let mail = Mail()
+let mall = ShoppingMall()
+
+postOffice.post(mail) // ok
+postOffice.post(mall) // compiler error
+```

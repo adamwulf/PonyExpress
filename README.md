@@ -152,3 +152,40 @@ a queue is specified, the notification is sent asynchronously on that queue.
 ```swift
 PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) 
 ```
+
+## Advanced
+
+A `PostOfficeBranch` can be defined to restrict the types of notifications and senders that can be used.
+The standard `PostOffice` already type-restricts the recipients of notifications, and this helps to also
+type-restricts the notifications themselves. This can help prevent using the wrong object as the notification
+or sender due to a typo or other small mistake.
+
+```swift
+let postOffice = PostOfficeBranch<Mail, MySender>()
+let mail = Mail()
+let mall = ShoppingMall()
+
+postOffice.post(mail) // ok
+postOffice.post(mall) // compiler error
+```
+
+## Motivation
+
+Notifications using `NotificationCenter` are sent through a `[String: Any]` `userInfo` property of the 
+notification. This means that any observesr for that notification need to decode the userInfo using
+something like `guard let myStuff = notification.userInfo["someProperty"] as? MyStuff`.
+
+This provides a number of problems:
+
+- `"someProperty"` could contain a typo. Using a constant is susceptible to copy/paste errors.
+- Notifications are verbose - they require a notification name, the `userInfo` keys, and the actual values
+- Values are not typesafe. Sending a `Float` and attempting to decoding a `CGFloat` will silently fail (or runtime error).
+- When recieving unexpected data, observers either siliently fail or crash at runtime.
+
+In `PonyExpress`, the goal is to reduce verbosity and move errors from runtime to compile time.
+
+- Observers always receive the exact types they expect
+- Any errors are provided at compile time, guaranteeing runtime type safety
+- No extra `String` names or keys - only the actual data is sent without any extra boiler plate
+
+## Thanks!
