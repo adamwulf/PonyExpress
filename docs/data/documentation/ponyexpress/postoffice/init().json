@@ -1,1 +1,185 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"init"},{"kind":"text","text":"()"}],"languages":["swift"],"platforms":["iOS"]}]}],"schemaVersion":{"major":0,"minor":3,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/ponyexpress\/postoffice\/init()"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice\/init()","interfaceLanguage":"swift"},"kind":"symbol","metadata":{"fragments":[{"kind":"identifier","text":"init"},{"kind":"text","text":"()"}],"title":"init()","roleHeading":"Initializer","role":"symbol","symbolKind":"init","externalID":"s:11PonyExpress10PostOfficeCACycfc","modules":[{"name":"PonyExpress"}]},"hierarchy":{"paths":[["doc:\/\/PonyExpress\/documentation\/PonyExpress","doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"]]},"references":{"doc://PonyExpress/documentation/PonyExpress/PostOffice/init()":{"role":"symbol","title":"init()","fragments":[{"kind":"identifier","text":"init"},{"kind":"text","text":"()"}],"abstract":[],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice\/init()","kind":"symbol","type":"topic","url":"\/documentation\/ponyexpress\/postoffice\/init()"},"doc://PonyExpress/documentation/PonyExpress/PostOffice":{"role":"symbol","title":"PostOffice","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"PostOffice"}],"abstract":[{"type":"text","text":"A "},{"type":"codeVoice","code":"PostOffice"},{"type":"text","text":" is able to send strongly-typed notifications from any strongly-typed sender, and will"},{"type":"text","text":" "},{"type":"text","text":"relay them to all registered recipients appropriately."}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"PostOffice"}],"url":"\/documentation\/ponyexpress\/postoffice"},"doc://PonyExpress/documentation/PonyExpress":{"role":"collection","title":"PonyExpress","abstract":[{"type":"codeVoice","code":"PonyExpress"},{"type":"text","text":" provides a type-safe alternative to "},{"type":"codeVoice","code":"NotificationCenter"},{"type":"text","text":". Inspired by"},{"type":"text","text":" "},{"type":"text","text":"https:\/\/en.wikipedia.org\/wiki\/Pony_Express."}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress","kind":"symbol","type":"topic","url":"\/documentation\/ponyexpress"}}}
+{
+  "hierarchy": {
+    "paths": [
+      [
+        "doc://PonyExpress/documentation/PonyExpress",
+        "doc://PonyExpress/documentation/PonyExpress/PostOffice"
+      ]
+    ]
+  },
+  "identifier": {
+    "interfaceLanguage": "swift",
+    "url": "doc://PonyExpress/documentation/PonyExpress/PostOffice/init()"
+  },
+  "kind": "symbol",
+  "metadata": {
+    "externalID": "s:11PonyExpress10PostOfficeCACycfc",
+    "fragments": [
+      {
+        "kind": "identifier",
+        "text": "init"
+      },
+      {
+        "kind": "text",
+        "text": "()"
+      }
+    ],
+    "modules": [
+      {
+        "name": "PonyExpress"
+      }
+    ],
+    "role": "symbol",
+    "roleHeading": "Initializer",
+    "symbolKind": "init",
+    "title": "init()"
+  },
+  "primaryContentSections": [
+    {
+      "declarations": [
+        {
+          "languages": [
+            "swift"
+          ],
+          "platforms": [
+            "iOS"
+          ],
+          "tokens": [
+            {
+              "kind": "keyword",
+              "text": "init"
+            },
+            {
+              "kind": "text",
+              "text": "()"
+            }
+          ]
+        }
+      ],
+      "kind": "declarations"
+    }
+  ],
+  "references": {
+    "doc://PonyExpress/documentation/PonyExpress": {
+      "abstract": [
+        {
+          "code": "PonyExpress",
+          "type": "codeVoice"
+        },
+        {
+          "text": " provides a type-safe alternative to ",
+          "type": "text"
+        },
+        {
+          "code": "NotificationCenter",
+          "type": "codeVoice"
+        },
+        {
+          "text": ". Inspired by",
+          "type": "text"
+        },
+        {
+          "text": " ",
+          "type": "text"
+        },
+        {
+          "text": "https://en.wikipedia.org/wiki/Pony_Express.",
+          "type": "text"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress",
+      "kind": "symbol",
+      "role": "collection",
+      "title": "PonyExpress",
+      "type": "topic",
+      "url": "/documentation/ponyexpress"
+    },
+    "doc://PonyExpress/documentation/PonyExpress/PostOffice": {
+      "abstract": [
+        {
+          "text": "A ",
+          "type": "text"
+        },
+        {
+          "code": "PostOffice",
+          "type": "codeVoice"
+        },
+        {
+          "text": " is able to send strongly-typed notifications from any strongly-typed sender, and will",
+          "type": "text"
+        },
+        {
+          "text": " ",
+          "type": "text"
+        },
+        {
+          "text": "relay them to all registered recipients appropriately.",
+          "type": "text"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "keyword",
+          "text": "class"
+        },
+        {
+          "kind": "text",
+          "text": " "
+        },
+        {
+          "kind": "identifier",
+          "text": "PostOffice"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+      "kind": "symbol",
+      "navigatorTitle": [
+        {
+          "kind": "identifier",
+          "text": "PostOffice"
+        }
+      ],
+      "role": "symbol",
+      "title": "PostOffice",
+      "type": "topic",
+      "url": "/documentation/ponyexpress/postoffice"
+    },
+    "doc://PonyExpress/documentation/PonyExpress/PostOffice/init()": {
+      "abstract": [],
+      "fragments": [
+        {
+          "kind": "identifier",
+          "text": "init"
+        },
+        {
+          "kind": "text",
+          "text": "()"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice/init()",
+      "kind": "symbol",
+      "role": "symbol",
+      "title": "init()",
+      "type": "topic",
+      "url": "/documentation/ponyexpress/postoffice/init()"
+    }
+  },
+  "schemaVersion": {
+    "major": 0,
+    "minor": 3,
+    "patch": 0
+  },
+  "sections": [],
+  "variants": [
+    {
+      "paths": [
+        "/documentation/ponyexpress/postoffice/init()"
+      ],
+      "traits": [
+        {
+          "interfaceLanguage": "swift"
+        }
+      ]
+    }
+  ]
+}

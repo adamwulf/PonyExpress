@@ -1,1 +1,646 @@
-{"primaryContentSections":[{"kind":"content","content":[{"anchor":"Quick-Start","level":2,"type":"heading","text":"Quick Start"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Any object or value can be sent as a notification. The recipient registers a handler"},{"type":"text","text":" "},{"type":"text","text":"method for the type of object to receive."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"An example:"}]},{"type":"codeListing","syntax":"swift","code":["struct ExampleNotification {","    var info: Int","    var other: Float","}","","class ExampleRecipient {","    init() {","        PostOffice.default.register(self, ExampleRecipient.receive)","    }","","    func receive(notification: ExampleNotification) {","        \/\/ ... process the notification","    }","}","","\/\/ Send the notification ...","PostOffice.default.post(ExampleNotification(info: 12, other: 15))"]},{"anchor":"Observing-notifications","level":2,"type":"heading","text":"Observing notifications"},{"type":"paragraph","inlineContent":[{"type":"text","text":"There are multiple ways to receive notifications."}]},{"anchor":"Option-1-Register-an-object-and-method","level":3,"type":"heading","text":"Option 1: Register an object and method"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Just as in "},{"type":"codeVoice","code":"NotificationCenter"},{"type":"text","text":", the object is held weakly, and does not need to"},{"type":"text","text":" "},{"type":"text","text":"be explicitly unregistered when the object deallocs."}]},{"type":"codeListing","syntax":"swift","code":["class MyClass {","    func init() {","        PostOffice.default.register(self, MyClass.receive) ","    }","    ","    func receive(notification: ExampleNotification) {","        \/\/ process the notification","    }","}"]},{"anchor":"Option-2-Register-a-block","level":3,"type":"heading","text":"Option 2: Register a block"},{"type":"paragraph","inlineContent":[{"type":"text","text":"A block or method can be passed into the "},{"type":"reference","isActive":true,"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"},{"type":"text","text":" to observe notifications. Blocks"},{"type":"text","text":" "},{"type":"text","text":"are held strongly inside the "},{"type":"reference","isActive":true,"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"},{"type":"text","text":", and must be unregistered explicitly."}]},{"type":"codeListing","syntax":"swift","code":["class MyClass {","    var token: RecipientId? ","    ","    func init() {","        PostOffice.default.register { [weak self] (notification: ExampleNotification) in","            \/\/ process the notification","        }","    }","}"]},{"anchor":"Unregistering","level":2,"type":"heading","text":"Unregistering"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Every "},{"type":"codeVoice","code":"register()"},{"type":"text","text":" method will return a "},{"type":"codeVoice","code":"RecipientId"},{"type":"text","text":", which can be used to unregister the"},{"type":"text","text":" "},{"type":"text","text":"recipient."}]},{"type":"codeListing","syntax":"swift","code":["let recipient = ExampleRecipient()","let id = PostOffice.default.register(recipient)","...","PostOffice.default.unregister(id)"]},{"anchor":"Senders","level":2,"type":"heading","text":"Senders"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Sending a notification can optionally include a "},{"type":"codeVoice","code":"sender"},{"type":"text","text":" as well. This is similar to "},{"type":"codeVoice","code":"NotificationCenter"},{"type":"text","text":","},{"type":"text","text":" "},{"type":"text","text":"where recipients can optionally register for notifications sent only from a specific sender. In PonyExpress,"},{"type":"text","text":" "},{"type":"text","text":"both the notification and sender are strongly typed."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Recipients can choose to include or exclude the sender parameter from the receiving block or method."}]},{"type":"codeListing","syntax":"swift","code":["class ExampleRecipient {","    init() {","        PostOffice.default.register(self, ExampleRecipient.receiveWithOptionalSender)","        PostOffice.default.register(self, ExampleRecipient.receiveWithSender)","        PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)","    }","","    \/\/ An optional sender will require that the sender of the notification either","    \/\/ a) match the type of the `sender`, or b) be `nil`","    func receiveWithOptionalSender(notification: ExampleNotification, sender: ExampleSender?) {","        \/\/ ... process the notification","    }","","    \/\/ An non-optional sender will require that the sender of the notification either match","    \/\/ the `sender` type","    func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {","        \/\/ ... process the notification","    }","","    \/\/ Omitting a `sender` parameter will receive notifications for senders of any type, even nil senders","    func receiveWithoutSender(notification: ExampleNotification) {","        \/\/ ... process the notification","    }","}","","\/\/ recipients can also register to receive notifications from a singular exact-match sender","let sender = ExampleSender()","let recipient = ExampleRecipient()","PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithSender) ","PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithoutSender) "]},{"type":"paragraph","inlineContent":[{"type":"text","text":"When posting a notification, a sender can optionally be provided."}]},{"type":"codeListing","syntax":"swift","code":["PostOffice.default.post(ExampleNotification(info: 12, other: 15), sender: sender)"]},{"anchor":"DispatchQueues","level":2,"type":"heading","text":"DispatchQueues"},{"type":"paragraph","inlineContent":[{"type":"text","text":"When registering with a "},{"type":"reference","isActive":true,"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"},{"type":"text","text":", the recipient can choose which "},{"type":"codeVoice","code":"DispatchQueue"},{"type":"text","text":" to be notified on."},{"type":"text","text":" "},{"type":"text","text":"If no queue is specified, the notificaiton is sent synchronously on the queue that posts the notification. If"},{"type":"text","text":" "},{"type":"text","text":"a queue is specified, the notification is sent asynchronously on that queue."}]},{"type":"codeListing","syntax":"swift","code":["PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) "]}]}],"schemaVersion":{"major":0,"minor":3,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/ponyexpress"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/PonyExpress\/documentation\/PonyExpress","interfaceLanguage":"swift"},"abstract":[{"type":"codeVoice","code":"PonyExpress"},{"type":"text","text":" provides a type-safe alternative to "},{"type":"codeVoice","code":"NotificationCenter"},{"type":"text","text":". Inspired by"},{"type":"text","text":" "},{"type":"text","text":"https:\/\/en.wikipedia.org\/wiki\/Pony_Express."}],"kind":"symbol","metadata":{"roleHeading":"Framework","externalID":"PonyExpress","title":"PonyExpress","symbolKind":"module","role":"collection","modules":[{"name":"PonyExpress"}]},"hierarchy":{"paths":[[]]},"topicSections":[{"title":"Classes","identifiers":["doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice","doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOfficeBranch"]},{"title":"Structures","identifiers":["doc:\/\/PonyExpress\/documentation\/PonyExpress\/RecipientId"]}],"references":{"doc://PonyExpress/documentation/PonyExpress/PostOfficeBranch":{"role":"symbol","title":"PostOfficeBranch","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"PostOfficeBranch"}],"abstract":[{"type":"text","text":"Just like a "},{"type":"reference","isActive":true,"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"},{"type":"text","text":" but also able to limit the types of posts and senders using generic types"}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOfficeBranch","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"PostOfficeBranch"}],"url":"\/documentation\/ponyexpress\/postofficebranch"},"doc://PonyExpress/documentation/PonyExpress/PostOffice":{"role":"symbol","title":"PostOffice","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"PostOffice"}],"abstract":[{"type":"text","text":"A "},{"type":"codeVoice","code":"PostOffice"},{"type":"text","text":" is able to send strongly-typed notifications from any strongly-typed sender, and will"},{"type":"text","text":" "},{"type":"text","text":"relay them to all registered recipients appropriately."}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"PostOffice"}],"url":"\/documentation\/ponyexpress\/postoffice"},"doc://PonyExpress/documentation/PonyExpress":{"role":"collection","title":"PonyExpress","abstract":[{"type":"codeVoice","code":"PonyExpress"},{"type":"text","text":" provides a type-safe alternative to "},{"type":"codeVoice","code":"NotificationCenter"},{"type":"text","text":". Inspired by"},{"type":"text","text":" "},{"type":"text","text":"https:\/\/en.wikipedia.org\/wiki\/Pony_Express."}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress","kind":"symbol","type":"topic","url":"\/documentation\/ponyexpress"},"doc://PonyExpress/documentation/PonyExpress/RecipientId":{"role":"symbol","title":"RecipientId","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"RecipientId"}],"abstract":[{"type":"text","text":"An opaque value that represents a specific recipient registered at a "},{"type":"reference","isActive":true,"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/PostOffice"},{"type":"text","text":"."}],"identifier":"doc:\/\/PonyExpress\/documentation\/PonyExpress\/RecipientId","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"RecipientId"}],"url":"\/documentation\/ponyexpress\/recipientid"}}}
+{
+  "abstract": [
+    {
+      "code": "PonyExpress",
+      "type": "codeVoice"
+    },
+    {
+      "text": " provides a type-safe alternative to ",
+      "type": "text"
+    },
+    {
+      "code": "NotificationCenter",
+      "type": "codeVoice"
+    },
+    {
+      "text": ". Inspired by",
+      "type": "text"
+    },
+    {
+      "text": " ",
+      "type": "text"
+    },
+    {
+      "text": "https://en.wikipedia.org/wiki/Pony_Express.",
+      "type": "text"
+    }
+  ],
+  "hierarchy": {
+    "paths": [
+      []
+    ]
+  },
+  "identifier": {
+    "interfaceLanguage": "swift",
+    "url": "doc://PonyExpress/documentation/PonyExpress"
+  },
+  "kind": "symbol",
+  "metadata": {
+    "externalID": "PonyExpress",
+    "modules": [
+      {
+        "name": "PonyExpress"
+      }
+    ],
+    "role": "collection",
+    "roleHeading": "Framework",
+    "symbolKind": "module",
+    "title": "PonyExpress"
+  },
+  "primaryContentSections": [
+    {
+      "content": [
+        {
+          "anchor": "Quick-Start",
+          "level": 2,
+          "text": "Quick Start",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "Any object or value can be sent as a notification. The recipient registers a handler",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "method for the type of object to receive.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "An example:",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "struct ExampleNotification {",
+            "    var info: Int",
+            "    var other: Float",
+            "}",
+            "",
+            "class ExampleRecipient {",
+            "    init() {",
+            "        PostOffice.default.register(self, ExampleRecipient.receive)",
+            "    }",
+            "",
+            "    func receive(notification: ExampleNotification) {",
+            "        // ... process the notification",
+            "    }",
+            "}",
+            "",
+            "// Send the notification ...",
+            "PostOffice.default.post(ExampleNotification(info: 12, other: 15))"
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "anchor": "Observing-notifications",
+          "level": 2,
+          "text": "Observing notifications",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "There are multiple ways to receive notifications.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "anchor": "Option-1-Register-an-object-and-method",
+          "level": 3,
+          "text": "Option 1: Register an object and method",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "Just as in ",
+              "type": "text"
+            },
+            {
+              "code": "NotificationCenter",
+              "type": "codeVoice"
+            },
+            {
+              "text": ", the object is held weakly, and does not need to",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "be explicitly unregistered when the object deallocs.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "class MyClass {",
+            "    func init() {",
+            "        PostOffice.default.register(self, MyClass.receive) ",
+            "    }",
+            "    ",
+            "    func receive(notification: ExampleNotification) {",
+            "        // process the notification",
+            "    }",
+            "}"
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "anchor": "Option-2-Register-a-block",
+          "level": 3,
+          "text": "Option 2: Register a block",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "A block or method can be passed into the ",
+              "type": "text"
+            },
+            {
+              "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+              "isActive": true,
+              "type": "reference"
+            },
+            {
+              "text": " to observe notifications. Blocks",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "are held strongly inside the ",
+              "type": "text"
+            },
+            {
+              "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+              "isActive": true,
+              "type": "reference"
+            },
+            {
+              "text": ", and must be unregistered explicitly.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "class MyClass {",
+            "    var token: RecipientId? ",
+            "    ",
+            "    func init() {",
+            "        PostOffice.default.register { [weak self] (notification: ExampleNotification) in",
+            "            // process the notification",
+            "        }",
+            "    }",
+            "}"
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "anchor": "Unregistering",
+          "level": 2,
+          "text": "Unregistering",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "Every ",
+              "type": "text"
+            },
+            {
+              "code": "register()",
+              "type": "codeVoice"
+            },
+            {
+              "text": " method will return a ",
+              "type": "text"
+            },
+            {
+              "code": "RecipientId",
+              "type": "codeVoice"
+            },
+            {
+              "text": ", which can be used to unregister the",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "recipient.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "let recipient = ExampleRecipient()",
+            "let id = PostOffice.default.register(recipient)",
+            "...",
+            "PostOffice.default.unregister(id)"
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "anchor": "Senders",
+          "level": 2,
+          "text": "Senders",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "Sending a notification can optionally include a ",
+              "type": "text"
+            },
+            {
+              "code": "sender",
+              "type": "codeVoice"
+            },
+            {
+              "text": " as well. This is similar to ",
+              "type": "text"
+            },
+            {
+              "code": "NotificationCenter",
+              "type": "codeVoice"
+            },
+            {
+              "text": ",",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "where recipients can optionally register for notifications sent only from a specific sender. In PonyExpress,",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "both the notification and sender are strongly typed.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "Recipients can choose to include or exclude the sender parameter from the receiving block or method.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "class ExampleRecipient {",
+            "    init() {",
+            "        PostOffice.default.register(self, ExampleRecipient.receiveWithOptionalSender)",
+            "        PostOffice.default.register(self, ExampleRecipient.receiveWithSender)",
+            "        PostOffice.default.register(self, ExampleRecipient.receiveWithoutSender)",
+            "    }",
+            "",
+            "    // An optional sender will require that the sender of the notification either",
+            "    // a) match the type of the `sender`, or b) be `nil`",
+            "    func receiveWithOptionalSender(notification: ExampleNotification, sender: ExampleSender?) {",
+            "        // ... process the notification",
+            "    }",
+            "",
+            "    // An non-optional sender will require that the sender of the notification either match",
+            "    // the `sender` type",
+            "    func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {",
+            "        // ... process the notification",
+            "    }",
+            "",
+            "    // Omitting a `sender` parameter will receive notifications for senders of any type, even nil senders",
+            "    func receiveWithoutSender(notification: ExampleNotification) {",
+            "        // ... process the notification",
+            "    }",
+            "}",
+            "",
+            "// recipients can also register to receive notifications from a singular exact-match sender",
+            "let sender = ExampleSender()",
+            "let recipient = ExampleRecipient()",
+            "PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithSender) ",
+            "PostOffice.default.register(sender: sender, recipient, ExampleRecipient.receiveWithoutSender) "
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "When posting a notification, a sender can optionally be provided.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "PostOffice.default.post(ExampleNotification(info: 12, other: 15), sender: sender)"
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        },
+        {
+          "anchor": "DispatchQueues",
+          "level": 2,
+          "text": "DispatchQueues",
+          "type": "heading"
+        },
+        {
+          "inlineContent": [
+            {
+              "text": "When registering with a ",
+              "type": "text"
+            },
+            {
+              "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+              "isActive": true,
+              "type": "reference"
+            },
+            {
+              "text": ", the recipient can choose which ",
+              "type": "text"
+            },
+            {
+              "code": "DispatchQueue",
+              "type": "codeVoice"
+            },
+            {
+              "text": " to be notified on.",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "If no queue is specified, the notificaiton is sent synchronously on the queue that posts the notification. If",
+              "type": "text"
+            },
+            {
+              "text": " ",
+              "type": "text"
+            },
+            {
+              "text": "a queue is specified, the notification is sent asynchronously on that queue.",
+              "type": "text"
+            }
+          ],
+          "type": "paragraph"
+        },
+        {
+          "code": [
+            "PostOffice.default.register(queue: myDispatchQueue, recipient, MyClass.receive) "
+          ],
+          "syntax": "swift",
+          "type": "codeListing"
+        }
+      ],
+      "kind": "content"
+    }
+  ],
+  "references": {
+    "doc://PonyExpress/documentation/PonyExpress": {
+      "abstract": [
+        {
+          "code": "PonyExpress",
+          "type": "codeVoice"
+        },
+        {
+          "text": " provides a type-safe alternative to ",
+          "type": "text"
+        },
+        {
+          "code": "NotificationCenter",
+          "type": "codeVoice"
+        },
+        {
+          "text": ". Inspired by",
+          "type": "text"
+        },
+        {
+          "text": " ",
+          "type": "text"
+        },
+        {
+          "text": "https://en.wikipedia.org/wiki/Pony_Express.",
+          "type": "text"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress",
+      "kind": "symbol",
+      "role": "collection",
+      "title": "PonyExpress",
+      "type": "topic",
+      "url": "/documentation/ponyexpress"
+    },
+    "doc://PonyExpress/documentation/PonyExpress/PostOffice": {
+      "abstract": [
+        {
+          "text": "A ",
+          "type": "text"
+        },
+        {
+          "code": "PostOffice",
+          "type": "codeVoice"
+        },
+        {
+          "text": " is able to send strongly-typed notifications from any strongly-typed sender, and will",
+          "type": "text"
+        },
+        {
+          "text": " ",
+          "type": "text"
+        },
+        {
+          "text": "relay them to all registered recipients appropriately.",
+          "type": "text"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "keyword",
+          "text": "class"
+        },
+        {
+          "kind": "text",
+          "text": " "
+        },
+        {
+          "kind": "identifier",
+          "text": "PostOffice"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+      "kind": "symbol",
+      "navigatorTitle": [
+        {
+          "kind": "identifier",
+          "text": "PostOffice"
+        }
+      ],
+      "role": "symbol",
+      "title": "PostOffice",
+      "type": "topic",
+      "url": "/documentation/ponyexpress/postoffice"
+    },
+    "doc://PonyExpress/documentation/PonyExpress/PostOfficeBranch": {
+      "abstract": [
+        {
+          "text": "Just like a ",
+          "type": "text"
+        },
+        {
+          "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+          "isActive": true,
+          "type": "reference"
+        },
+        {
+          "text": " but also able to limit the types of posts and senders using generic types",
+          "type": "text"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "keyword",
+          "text": "class"
+        },
+        {
+          "kind": "text",
+          "text": " "
+        },
+        {
+          "kind": "identifier",
+          "text": "PostOfficeBranch"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOfficeBranch",
+      "kind": "symbol",
+      "navigatorTitle": [
+        {
+          "kind": "identifier",
+          "text": "PostOfficeBranch"
+        }
+      ],
+      "role": "symbol",
+      "title": "PostOfficeBranch",
+      "type": "topic",
+      "url": "/documentation/ponyexpress/postofficebranch"
+    },
+    "doc://PonyExpress/documentation/PonyExpress/RecipientId": {
+      "abstract": [
+        {
+          "text": "An opaque value that represents a specific recipient registered at a ",
+          "type": "text"
+        },
+        {
+          "identifier": "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+          "isActive": true,
+          "type": "reference"
+        },
+        {
+          "text": ".",
+          "type": "text"
+        }
+      ],
+      "fragments": [
+        {
+          "kind": "keyword",
+          "text": "struct"
+        },
+        {
+          "kind": "text",
+          "text": " "
+        },
+        {
+          "kind": "identifier",
+          "text": "RecipientId"
+        }
+      ],
+      "identifier": "doc://PonyExpress/documentation/PonyExpress/RecipientId",
+      "kind": "symbol",
+      "navigatorTitle": [
+        {
+          "kind": "identifier",
+          "text": "RecipientId"
+        }
+      ],
+      "role": "symbol",
+      "title": "RecipientId",
+      "type": "topic",
+      "url": "/documentation/ponyexpress/recipientid"
+    }
+  },
+  "schemaVersion": {
+    "major": 0,
+    "minor": 3,
+    "patch": 0
+  },
+  "sections": [],
+  "topicSections": [
+    {
+      "identifiers": [
+        "doc://PonyExpress/documentation/PonyExpress/PostOffice",
+        "doc://PonyExpress/documentation/PonyExpress/PostOfficeBranch"
+      ],
+      "title": "Classes"
+    },
+    {
+      "identifiers": [
+        "doc://PonyExpress/documentation/PonyExpress/RecipientId"
+      ],
+      "title": "Structures"
+    }
+  ],
+  "variants": [
+    {
+      "paths": [
+        "/documentation/ponyexpress"
+      ],
+      "traits": [
+        {
+          "interfaceLanguage": "swift"
+        }
+      ]
+    }
+  ]
+}

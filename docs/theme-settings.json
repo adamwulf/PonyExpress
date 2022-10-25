@@ -1,47 +1,50 @@
 {
+  "features": {
+    "docs": {}
+  },
   "meta": {},
   "theme": {
     "code": {
       "indentationWidth": 4
     },
     "colors": {
-      "text": "",
-      "text-background": "",
-      "grid": "",
       "article-background": "",
+      "button": {
+        "dark": {
+          "background": "",
+          "backgroundActive": "",
+          "backgroundHover": ""
+        },
+        "light": {
+          "background": "",
+          "backgroundActive": "",
+          "backgroundHover": ""
+        },
+        "text": ""
+      },
       "generic-modal-background": "",
-      "secondary-label": "",
+      "grid": "",
       "header-text": "",
+      "link": null,
+      "loading-placeholder": {
+        "background": ""
+      },
       "not-found": {
         "input-border": ""
       },
       "runtime-preview": {
         "text": ""
       },
+      "secondary-label": "",
+      "svg-icon": {
+        "fill-dark": "",
+        "fill-light": ""
+      },
       "tabnav-item": {
         "border-color": ""
       },
-      "svg-icon": {
-        "fill-light": "",
-        "fill-dark": ""
-      },
-      "loading-placeholder": {
-        "background": ""
-      },
-      "button": {
-        "text": "",
-        "light": {
-          "background": "",
-          "backgroundHover": "",
-          "backgroundActive": ""
-        },
-        "dark": {
-          "background": "",
-          "backgroundHover": "",
-          "backgroundActive": ""
-        }
-      },
-      "link": null
+      "text": "",
+      "text-background": ""
     },
     "style": {
       "button": {
@@ -50,10 +53,6 @@
     },
     "typography": {
       "html-font": ""
-    }
-  },
-  "features": {
-    "docs": {
     }
   }
 }
