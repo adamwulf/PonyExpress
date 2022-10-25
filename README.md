@@ -45,9 +45,37 @@ class ExampleRecipient {
 PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
+## Posting notifications
+
+Any object can be sent as a notification, and only recipients registered for that notification type
+will receive it.
+
+```swift
+// Send a struct
+struct ExampleNotification {
+    var info: Int
+    var other: Float
+}
+
+PostOffice.default.post(ExampleNotification(info: 12, other: 15))
+
+
+// or an enum
+enum ExampleEnum {
+    case fumble
+    case mumble(bumble: Int)
+}
+
+PostOffice.default.post(ExampleEnum.mumble(bumble: 12))
+
+// or anything at all
+PostOffice.default.post("Just a String")
+```
+
 ## Observing notifications
 
-There are multiple ways to receive notifications.
+There are multiple ways to receive notifications. All observers define the type of notification and sender
+that they want to receive, and only notifications and senders matching those types will be received.
 
 ### Option 1: Register an object and method
 
