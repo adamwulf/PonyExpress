@@ -188,4 +188,6 @@ In `PonyExpress`, the goal is to reduce verbosity and move errors from runtime t
 - Any errors are provided at compile time, guaranteeing runtime type safety
 - No extra `String` names or keys - only the actual data is sent without any extra boiler plate
 
-## Thanks!
+## Thanks! ❤️
+
+Enjoying `PonyExpress`? [Say thanks](https://github.com/sponsors/adamwulf) and buy me a coffee ☕️!
