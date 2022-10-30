@@ -7,6 +7,19 @@
 
 import Foundation
 
+/// An opaque value that represents a specific recipient registered at a ``PostOffice``.
+/// - SeeAlso: ``PostOffice/unregister(_:)``
+public struct RecipientId: Hashable {
+    static var nextIdentifier: UInt = 0
+
+    let value: UInt
+
+    init() {
+        self.value = Self.nextIdentifier
+        Self.nextIdentifier += 1
+    }
+}
+
 internal class AnyRecipient {
     var block: ((Any, AnyObject?) -> Void)?
     private let _canCollect: () -> Bool

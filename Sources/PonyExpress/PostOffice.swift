@@ -8,19 +8,6 @@
 import Foundation
 import Locks
 
-/// An opaque value that represents a specific recipient registered at a ``PostOffice``.
-/// - SeeAlso: ``PostOffice/unregister(_:)``
-public struct RecipientId: Hashable {
-    static var nextIdentifier: UInt = 0
-
-    let value: UInt
-
-    init() {
-        self.value = Self.nextIdentifier
-        Self.nextIdentifier += 1
-    }
-}
-
 /// A `PostOffice` is able to send strongly-typed notifications from any strongly-typed sender, and will
 /// relay them to all registered recipients appropriately.
 ///
