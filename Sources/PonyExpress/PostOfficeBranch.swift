@@ -118,9 +118,9 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
-    public func register<T: AnyObject>(queue: DispatchQueue? = nil,
-                                       _ recipient: T,
-                                       _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
+    public func register<T: AnyObject, N: Notification>(queue: DispatchQueue? = nil,
+                                                        _ recipient: T,
+                                                        _ method: @escaping (T) -> (N) -> Void) -> RecipientId {
         mainBranch.register(queue: queue, recipient, method)
     }
 
