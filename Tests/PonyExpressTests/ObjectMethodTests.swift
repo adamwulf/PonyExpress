@@ -159,7 +159,7 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testSpecificNotification() throws {
+    func testNotificationSubtype() throws {
         class MyNote: Mail {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
