@@ -133,4 +133,38 @@ final class BranchTests: XCTestCase {
 
         XCTAssertEqual(recipient.count, 1)
     }
+
+    func testNotificationSubtype() throws {
+        class MyNote: Mail {
+            var foo: Int
+            init(_ foo: Int) { self.foo = foo }
+        }
+        class OtherNote: Mail { }
+        class FakeNote { }
+        class MySender { }
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveMail(notification: Mail, sender: MySender?) {
+                count += 1
+            }
+            func receiveOtherNote(notification: OtherNote, sender: MySender?) {
+                count += 1
+            }
+            func receiveFakeNote(notification: FakeNote, sender: MySender?) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+        let postOffice = PostOfficeBranch<Mail, MySender>()
+
+        postOffice.register(recipient, SpecificRecipient.receiveMail)
+        postOffice.register(recipient, SpecificRecipient.receiveOtherNote)
+        postOffice.register(recipient, SpecificRecipient.receiveFakeNote)
+        postOffice.post(MyNote(12))
+        postOffice.post(OtherNote())
+
+        XCTAssertEqual(recipient.count, 3)
+    }
 }

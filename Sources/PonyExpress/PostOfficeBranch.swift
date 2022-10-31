@@ -24,6 +24,31 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
 
+    // MARK: - Runtime Checks
+
+    @discardableResult
+    public func register<T: AnyObject, N, S>(queue: DispatchQueue? = nil,
+                                       sender: Sender? = nil,
+                                       _ recipient: T,
+                                       _ method: @escaping (T) -> (N, S?) -> Void) -> RecipientId {
+        // The problem is that we allow the registrar to register a recipient+method with a type
+        // that doesn't conform to Notification. It correctly won't ever be called, and won't crash,
+        // but ideally we'd see a compile error when trying to register a method to an invalid type.
+        //
+        // something like:
+        // guard N is Notification else { fatalError() }
+        let block = { (_ arg1: Notification, _ arg2: Sender?) -> Void in
+            if let arg2 = arg2 {
+                guard let a = arg1 as? N, let b = arg2 as? S else { fatalError("types don't match") }
+                method(recipient)(a, b)
+            } else {
+                guard let a = arg1 as? N else { return }
+                method(recipient)(a, nil)
+            }
+        }
+        return register(queue: queue, sender: sender, block)
+    }
+
     // MARK: - Register Method with Sender
 
     /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
