@@ -106,7 +106,8 @@ public class PostOffice {
     public func register<T: AnyObject, Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
                                                                         sender: Sender? = nil,
                                                                         _ recipient: T,
-                                                                        _ method: @escaping (T) -> (Notification, Sender?) -> Void) -> RecipientId {
+                                                                        _ method: @escaping (T) -> (Notification, Sender?) -> Void)
+    -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -134,9 +135,10 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                        sender: Sender? = nil,
-                                                        _ recipient: T,
-                                                        _ method: @escaping (T) -> (Notification, Sender) -> Void) -> RecipientId {
+                                                                        sender: Sender? = nil,
+                                                                        _ recipient: T,
+                                                                        _ method: @escaping (T) -> (Notification, Sender) -> Void)
+    -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -165,9 +167,9 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                        sender: Sender?,
-                                                        _ recipient: T,
-                                                        _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
+                                                                        sender: Sender?,
+                                                                        _ recipient: T,
+                                                                        _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -193,8 +195,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<T: AnyObject, Notification>(queue: DispatchQueue? = nil,
-                                          _ recipient: T,
-                                          _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
+                                                     _ recipient: T,
+                                                     _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let sender: AnyObject? = nil
@@ -223,8 +225,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: Sender? = nil,
-                                          _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
+                                                          sender: Sender? = nil,
+                                                          _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -249,8 +251,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: Sender? = nil,
-                                          _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
+                                                          sender: Sender? = nil,
+                                                          _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -279,8 +281,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                          sender: Sender?,
-                                          _ block: @escaping (Notification) -> Void) -> RecipientId {
+                                                          sender: Sender?,
+                                                          _ block: @escaping (Notification) -> Void) -> RecipientId {
         return register(queue: queue, sender: sender, { (notification: Notification, _: Sender?) in
             block(notification)
         })
@@ -298,7 +300,7 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification>(queue: DispatchQueue? = nil,
-                            _ block: @escaping (Notification) -> Void) -> RecipientId {
+                                       _ block: @escaping (Notification) -> Void) -> RecipientId {
         let anySender: AnyObject? = nil
         return register(queue: queue, sender: anySender, { notification in
             block(notification)
