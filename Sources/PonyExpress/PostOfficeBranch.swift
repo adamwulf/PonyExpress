@@ -20,6 +20,19 @@ import Foundation
 /// ```swift
 /// let myBranch = PostOfficeBranch<MySpecificEvents, MySender>()
 /// ```
+///
+
+class Example<Generic1> {
+    func bumble<Generic2>(block: (Generic2) -> Void) {
+        if type(of: Generic2.self) == Generic1.self { print("ok") }
+        if Generic2.self is Generic1 { print("ok") }
+    }
+}
+protocol Mail { }
+struct Letter: Mail { }
+let example = Example<Mail>()
+example.bumble(block: { (_ letter: Letter) in print("\(letter)") })
+
 public class PostOfficeBranch<Notification, Sender: AnyObject> {
     /// The ``PostOffice`` used to send the posts
     private let mainBranch = PostOffice()
@@ -31,6 +44,10 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
                                        sender: Sender? = nil,
                                        _ recipient: T,
                                        _ method: @escaping (T) -> (N, S?) -> Void) -> RecipientId {
+        let str1 = String(describing: type(of: Notification.self))
+        let str2 = String(describing: type(of: N.self))
+        guard N.self == type(of: Notification.self) else { fatalError() }
+        weak var recipient = recipient
         // The problem is that we allow the registrar to register a recipient+method with a type
         // that doesn't conform to Notification. It correctly won't ever be called, and won't crash,
         // but ideally we'd see a compile error when trying to register a method to an invalid type.
@@ -38,6 +55,7 @@ public class PostOfficeBranch<Notification, Sender: AnyObject> {
         // something like:
         // guard N is Notification else { fatalError() }
         let block = { (_ arg1: Notification, _ arg2: Sender?) -> Void in
+            guard let recipient = recipient else { return }
             if let arg2 = arg2 {
                 guard let a = arg1 as? N, let b = arg2 as? S else { fatalError("types don't match") }
                 method(recipient)(a, b)
