@@ -151,7 +151,7 @@ class ExampleRecipient {
         // ... process the notification
     }
 
-    // An non-optional sender will require that the sender of the notification either match
+    // An non-optional sender will require that the sender of the notification match
     // the `sender` type
     func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
         // ... process the notification
