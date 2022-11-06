@@ -31,7 +31,7 @@ method for the type of object to receive.
 An example:
 
 ```swift
-struct ExampleNotification {
+struct ExampleNotification: Mail {
     var info: Int
     var other: Float
 }
@@ -57,7 +57,7 @@ will receive it.
 
 ```swift
 // Send a struct
-struct ExampleNotification {
+struct ExampleNotification: Mail {
     var info: Int
     var other: Float
 }
@@ -66,7 +66,7 @@ PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 
 
 // or an enum
-enum ExampleEnum {
+enum ExampleEnum: Mail {
     case fumble
     case mumble(bumble: Int)
 }
