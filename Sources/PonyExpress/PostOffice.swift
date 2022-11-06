@@ -92,8 +92,8 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter recipient: The object that will receive the posted notification.
-    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
+    /// - parameter recipient: The object that will receive the posted ``Mail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted ``Mail``. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
     /// types match, or if the notification type matches and the `sender` is `nil`.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
@@ -123,7 +123,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter recipient: The object that will receive the posted ``Mail``.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
     /// types match.
@@ -156,7 +156,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Limits the received notifications to only those sent by the `sender`.
-    /// - parameter recipient: The object that will receive the posted notification.
+    /// - parameter recipient: The object that will receive the posted ``Mail``.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
@@ -185,7 +185,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter recipient: The object that will receive the posted notification.
-    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// - parameter method: The method of the `recipient` that will be called with the posted ``Mail``. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
@@ -215,7 +215,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted notification and sender, if any. Posted notifications
+    /// - parameter block: The block that will receive the posted ``Mail`` and sender, if any. Posted notifications
     /// that are sent with a `nil` sender will be passed to this block as well
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
@@ -243,7 +243,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted notification and sender.
+    /// - parameter block: The block that will receive the posted ``Mail`` and sender.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
@@ -273,7 +273,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted notification.
+    /// - parameter block: The block that will receive the posted ``Mail``.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
@@ -294,7 +294,7 @@ public class PostOffice {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter block: The block that will receive the posted notification.
+    /// - parameter block: The block that will receive the posted ``Mail``.
     /// ```
     /// PostOffice.default.register { (notification: ExampleNotification) in ... }
     /// ```
@@ -321,7 +321,7 @@ public class PostOffice {
     // MARK: - Post
 
     /// Sends the notification to all recipients that match the notification's type.
-    /// - parameter notification: The notification object to send.
+    /// - parameter notification: The notification object to send, must conform to ``Mail``.
     /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
     public func post<S: AnyObject>(_ notification: Mail, sender: S? = nil) {
         lock.lock()
@@ -352,7 +352,7 @@ public class PostOffice {
     }
 
     /// Sends the notification to all recipients that match the notification's type.
-    /// - parameter notification: The notification object to send.
+    /// - parameter notification: The notification object to send, must conform to ``Mail``.
     public func post(_ notification: Mail) {
         let anySender: AnyObject? = nil
         post(notification, sender: anySender)
