@@ -166,10 +166,11 @@ public class PostOffice {
     /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
-    public func register<T: AnyObject, Notification: Mail, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                                              sender: Sender?,
-                                                                              _ recipient: T,
-                                                                              _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
+    public func register<T: AnyObject, Notification: Mail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender?,
+        _ recipient: T,
+        _ method: @escaping (T) -> (Notification) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
