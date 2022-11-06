@@ -15,14 +15,12 @@ final class ObjectMethodTests: XCTestCase {
             postOffice.register(recipient, ExampleRecipient.receiveWithOptSender)
 
             postOffice.post(ExampleNotification(info: 12, other: 15))
-            postOffice.post(12)
 
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
 
         postOffice.post(ExampleNotification(info: 12, other: 15))
-        postOffice.post(12)
 
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
@@ -160,19 +158,20 @@ final class ObjectMethodTests: XCTestCase {
     }
 
     func testNotificationSubtype() throws {
-        class MyNote: Mail {
+        class MyNote: OtherNote {
             var foo: Int
             init(_ foo: Int) { self.foo = foo }
         }
         class OtherNote: Mail { }
+        class SubNote: OtherNote { }
         class MySender { }
 
         class SpecificRecipient {
             var count = 0
-            func receiveMail(notification: Mail, sender: MySender?) {
+            func receiveMail(notification: OtherNote, sender: MySender?) {
                 count += 1
             }
-            func receiveOtherNote(notification: OtherNote, sender: MySender?) {
+            func receiveOtherNote(notification: SubNote, sender: MySender?) {
                 count += 1
             }
         }
@@ -183,7 +182,7 @@ final class ObjectMethodTests: XCTestCase {
         postOffice.register(recipient, SpecificRecipient.receiveMail)
         postOffice.register(recipient, SpecificRecipient.receiveOtherNote)
         postOffice.post(MyNote(12))
-        postOffice.post(OtherNote())
+        postOffice.post(SubNote())
 
         XCTAssertEqual(recipient.count, 3)
     }

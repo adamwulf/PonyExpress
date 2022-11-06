@@ -14,18 +14,6 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(received, 1)
     }
 
-    func testReceiveInts() throws {
-        let postOffice = PostOffice()
-        var count = 0
-
-        postOffice.register { (sent: Int) -> Void in
-            count = sent
-        }
-
-        postOffice.post(12)
-        XCTAssertEqual(count, 12)
-    }
-
     func testIgnoreSender() throws {
         let sender = NSObject()
         let postOffice = PostOffice()
@@ -231,7 +219,7 @@ final class BlockTests: XCTestCase {
     }
 
     func testRegisterSubclass() throws {
-        class ExampleObjectNotification { }
+        class ExampleObjectNotification: Mail { }
         class ExampleSubObjectNotification: ExampleObjectNotification { }
 
         let sender = NSObject()
@@ -258,12 +246,12 @@ final class BlockTests: XCTestCase {
             init(_ foo: Int) { self.foo = foo }
         }
         class OtherNote: Mail { }
-        class OtherThing { }
+        class OtherThing: OtherNote { }
         class MySender { }
 
         class SpecificRecipient {
             var count = 0
-            func receiveNotification(notification: Mail, sender: MySender?) {
+            func receiveNotification(notification: OtherNote, sender: MySender?) {
                 count += 1
             }
         }

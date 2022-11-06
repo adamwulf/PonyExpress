@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Adam Wulf on 8/27/22.
 //
@@ -8,15 +8,13 @@
 import Foundation
 import PonyExpress
 
-protocol Mail { }
-
-enum MultipleChoice {
+enum MultipleChoice: Mail {
     case option1
     case option2
     case option3
 }
 
-struct ExampleNotification {
+struct ExampleNotification: Mail {
     var info: Int
     var other: Float
 }
