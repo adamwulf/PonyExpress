@@ -1,9 +1,9 @@
 import UIKit
 
-/// This playground shows how I'd like to be able to restrict types both when building the ``PostOffice``
-/// by replacing the ``Mail`` type with some subtype, and also when registering a method or block.
-/// Unfortunately, it only seems possible to constrain types either in the ``PostOffice`` _or_ when
-/// registering, but not both.
+// This playground shows how I'd like to be able to restrict types both when building the ``PostOffice``
+// by replacing the ``Mail`` type with some subtype, and also when registering a method or block.
+// Unfortunately, it only seems possible to constrain types either in the ``PostOffice`` _or_ when
+// registering, but not both.
 
 // MARK: - Setup some helper types for notifications and recipients.
 
