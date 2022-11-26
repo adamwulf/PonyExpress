@@ -1,5 +1,7 @@
 import PonyExpress
 
+/// A small playground to validate the sample code that's displayed in the documentation.
+
 struct ExampleNotification: Mail {
     var info: Int
     var other: Float
