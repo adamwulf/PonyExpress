@@ -47,40 +47,34 @@ class ExampleRecipient {
 }
 
 // Send the notification ...
+let recipient = ExampleRecipient()
 PostOffice.default.post(ExampleNotification(info: 12, other: 15))
 ```
 
 ## Posting notifications
 
-Any object can be sent as a notification, and only recipients registered for that notification type
-will receive it.
+Any object that implements the empty ``Mail`` protocol can be sent as a notification, 
+and only recipients registered for that notification type will receive it.
 
 ```swift
-// Send a struct
-struct ExampleNotification: Mail {
-    var info: Int
-    var other: Float
-}
-
-PostOffice.default.post(ExampleNotification(info: 12, other: 15))
-
-
-// or an enum
+// Send a struct with the above example, or send an enum, or any other type.
 enum ExampleEnum: Mail {
     case fumble
     case mumble(bumble: Int)
 }
 
-PostOffice.default.post(ExampleEnum.mumble(bumble: 12))
+PostOffice.default.register { (mail: ExampleEnum) in
+    // ... process the notification
+}
 
-// or anything at all
-PostOffice.default.post("Just a String")
+PostOffice.default.post(ExampleEnum.mumble(bumble: 12))
 ```
 
 ## Observing notifications
 
-There are multiple ways to receive notifications. All observers define the type of notification and sender
-that they want to receive, and only notifications and senders matching those types will be received.
+There are multiple ways to receive notifications. All observers define the type of notification
+that they want to receive, and only notifications matching those types will be received. If a
+sender is specified, the type of that sender must also match.
 
 ### Option 1: Register an object and method
 
@@ -93,7 +87,7 @@ class MyClass {
         PostOffice.default.register(self, MyClass.receive) 
     }
     
-    func receive(notification: ExampleNotification) {
+    func receive(notification: ExampleNotification, sender: ExampleSender) {
         // process the notification
     }
 }
