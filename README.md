@@ -13,6 +13,12 @@ can be built with the included `builddocs.sh` script.
 $ ./builddocs.sh
 ```
 
+The `jq` tool is also needed to format the docc json files that are generated.
+
+```
+$ brew install jq
+```
+
 ## Installation
 
 `PonyExpress` is available as a Swift package.
