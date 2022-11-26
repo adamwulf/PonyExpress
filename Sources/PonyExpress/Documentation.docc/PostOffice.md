@@ -13,16 +13,16 @@
 ### Adding Method Recipients
 
 - ``register(queue:_:_:)``
-- ``register(queue:sender:_:_:)-8dzfj``
-- ``register(queue:sender:_:_:)-50a9``
-- ``register(queue:sender:_:_:)-219pn``
+- ``register(queue:sender:_:_:)-prh5``
+- ``register(queue:sender:_:_:)-6pogj``
+- ``register(queue:sender:_:_:)-616r9``
 
 ### Adding Block Recipients
 
 - ``register(queue:_:)``
-- ``register(queue:sender:_:)-6ng6s``
-- ``register(queue:sender:_:)-7ykza``
-- ``register(queue:sender:_:)-9pszg``
+- ``register(queue:sender:_:)-7hry8``
+- ``register(queue:sender:_:)-5spta``
+- ``register(queue:sender:_:)-bd5w``
 
 ### Removing Recipients
 

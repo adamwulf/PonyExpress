@@ -70,7 +70,7 @@ public class PostOffice {
     // MARK: - Internal
 
     /// The number of listeners for all registered types. Used for testing only.
-    var count: Int {
+    internal var count: Int {
         lock.lock()
         defer { lock.unlock() }
         return listeners.reduce(0, { $0 + $1.value.count })
@@ -328,7 +328,7 @@ public class PostOffice {
     /// Sends the notification to all recipients that match the notification's type.
     /// - parameter notification: The notification object to send, must conform to ``Mail``.
     /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
-    public func post<S: AnyObject>(_ notification: Mail, sender: S? = nil) {
+    public func post<Sender: AnyObject>(_ notification: Mail, sender: Sender? = nil) {
         lock.lock()
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {
@@ -358,6 +358,8 @@ public class PostOffice {
 
     /// Sends the notification to all recipients that match the notification's type.
     /// - parameter notification: The notification object to send, must conform to ``Mail``.
+    ///
+    /// This notification will arrive for all recipients registered without a specfiic `sender` or with a `nil` `sender`.
     public func post(_ notification: Mail) {
         let anySender: AnyObject? = nil
         post(notification, sender: anySender)
