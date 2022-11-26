@@ -2,6 +2,62 @@ import XCTest
 @testable import PonyExpress
 
 final class ObjectMethodTests: XCTestCase {
+    func testNotificationSubtype() throws {
+        class MyNote: OtherNote {
+            var foo: Int
+            init(_ foo: Int) { self.foo = foo }
+        }
+        class OtherNote: Mail { }
+        class SubNote: OtherNote { }
+        class MySender { }
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveMail(notification: OtherNote, sender: MySender?) {
+                count += 1
+            }
+            func receiveOtherNote(notification: SubNote, sender: MySender?) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+        let postOffice = PostOffice()
+
+        postOffice.register(recipient, SpecificRecipient.receiveMail)
+        postOffice.register(recipient, SpecificRecipient.receiveOtherNote)
+        postOffice.post(MyNote(12))
+        postOffice.post(SubNote())
+
+        XCTAssertEqual(recipient.count, 3)
+    }
+
+    func testSubscribeProtocol() throws {
+        class MyNote: Mail {
+            var foo: Int
+            init(_ foo: Int) { self.foo = foo }
+        }
+        class OtherNote: Mail { }
+        class OtherThing: OtherNote { }
+        class MySender { }
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveNotification(notification: OtherNote, sender: MySender?) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+        let postOffice = PostOffice()
+
+        postOffice.register(recipient, SpecificRecipient.receiveNotification)
+        postOffice.post(MyNote(13), sender: MySender())
+        postOffice.post(OtherNote(), sender: MySender())
+        postOffice.post(OtherThing(), sender: MySender())
+
+        XCTAssertEqual(recipient.count, 2)
+    }
 
     func testObjectHeldWeakly() throws {
         let postOffice = PostOffice()
@@ -51,32 +107,6 @@ final class ObjectMethodTests: XCTestCase {
         postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
         postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
         XCTAssertEqual(count, 2)
-        XCTAssertEqual(postOffice.count, 0)
-    }
-
-    func testRegisterMethodWithoutSender() {
-        let sender1 = ExampleSender()
-        let sender2 = SomeSender()
-        let postOffice = PostOffice()
-        var count = 0
-        let block = {
-            count += 1
-        }
-
-        autoreleasepool {
-            let recipient = ExampleRecipient()
-            recipient.testBlock = block
-
-            postOffice.register(recipient, ExampleRecipient.receiveWithoutSender)
-            postOffice.post(ExampleNotification(info: 12, other: 15))
-            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
-            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
-            XCTAssertEqual(count, 3)
-            XCTAssertEqual(postOffice.count, 1)
-        }
-
-        postOffice.post(ExampleNotification(info: 12, other: 15))
-        XCTAssertEqual(count, 3)
         XCTAssertEqual(postOffice.count, 0)
     }
 
@@ -157,33 +187,29 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testNotificationSubtype() throws {
-        class MyNote: OtherNote {
-            var foo: Int
-            init(_ foo: Int) { self.foo = foo }
-        }
-        class OtherNote: Mail { }
-        class SubNote: OtherNote { }
-        class MySender { }
-
-        class SpecificRecipient {
-            var count = 0
-            func receiveMail(notification: OtherNote, sender: MySender?) {
-                count += 1
-            }
-            func receiveOtherNote(notification: SubNote, sender: MySender?) {
-                count += 1
-            }
-        }
-
-        let recipient = SpecificRecipient()
+    func testRegisterMethodWithoutSender() {
+        let sender1 = ExampleSender()
+        let sender2 = SomeSender()
         let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
 
-        postOffice.register(recipient, SpecificRecipient.receiveMail)
-        postOffice.register(recipient, SpecificRecipient.receiveOtherNote)
-        postOffice.post(MyNote(12))
-        postOffice.post(SubNote())
+        autoreleasepool {
+            let recipient = ExampleRecipient()
+            recipient.testBlock = block
 
-        XCTAssertEqual(recipient.count, 3)
+            postOffice.register(recipient, ExampleRecipient.receiveWithoutSender)
+            postOffice.post(ExampleNotification(info: 12, other: 15))
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+            XCTAssertEqual(count, 3)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        postOffice.post(ExampleNotification(info: 12, other: 15))
+        XCTAssertEqual(count, 3)
+        XCTAssertEqual(postOffice.count, 0)
     }
 }
