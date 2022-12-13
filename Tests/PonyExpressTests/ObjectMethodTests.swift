@@ -288,4 +288,26 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(count, 1)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testDeallocSender() {
+        let postOffice = PostOffice()
+
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        let recipient1 = ExampleRecipient()
+        recipient1.testBlock = block
+
+        autoreleasepool {
+            let sender = ExampleSender()
+            postOffice.register(sender: sender, recipient1, ExampleRecipient.receiveWithoutSender)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender)
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        XCTAssertEqual(postOffice.count, 0)
+    }
 }
