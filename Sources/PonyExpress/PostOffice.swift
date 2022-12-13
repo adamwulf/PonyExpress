@@ -324,7 +324,7 @@ public class PostOffice {
     }
 
     /// Stops any future notifications from being sent to the `recipient`.
-    /// - parameter recipient: The recipient object registered through ``register(_:_:)`` or related methods
+    /// - parameter recipient: The recipient object registered through ``register(queue:sender:_:_:)`` or related methods
     public func unregister(_ recipient: AnyObject) {
         lock.lock()
         defer { lock.unlock() }
