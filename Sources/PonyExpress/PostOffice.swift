@@ -323,6 +323,16 @@ public class PostOffice {
         listeners[name]?.removeAll(where: { $0.id == recipient })
     }
 
+    /// Stops any future notifications from being sent to the `recipient`.
+    /// - parameter recipient: The recipient object registered through ``register(_:_:)`` or related methods
+    public func unregister(_ recipient: AnyObject) {
+        lock.lock()
+        defer { lock.unlock() }
+        for key in listeners.keys {
+            listeners[key] = listeners[key]?.filter({ $0.recipient !== recipient })
+        }
+    }
+
     // MARK: - Post
 
     /// Sends the notification to all recipients that match the notification's type.
