@@ -187,6 +187,35 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
+    func testUnregisterObject() {
+        let postOffice = PostOffice()
+        let sender1 = ExampleSender()
+        let sender2 = ExampleSender()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        let recipient1 = ExampleRecipient()
+        recipient1.testBlock = block
+        let recipient2 = ExampleRecipient()
+        recipient2.testBlock = block
+
+        postOffice.register(sender: sender1, recipient1, ExampleRecipient.receiveWithoutSender)
+        postOffice.register(sender: sender1, recipient2, ExampleRecipient.receiveWithoutSender)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender2)
+        postOffice.post(ExampleNotification(info: 12, other: 15))
+        XCTAssertEqual(count, 2)
+        XCTAssertEqual(postOffice.count, 2)
+        postOffice.unregister(recipient1)
+        XCTAssertEqual(postOffice.count, 1)
+
+        postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+        XCTAssertEqual(count, 3)
+        XCTAssertEqual(postOffice.count, 1)
+    }
+
     func testRegisterNilSender() {
         let postOffice = PostOffice()
         let sender1: ExampleSender? = nil

@@ -27,9 +27,15 @@ internal class AnyRecipient {
     var canCollect: Bool {
         return _canCollect()
     }
+    private var matchesObject: ((AnyObject) -> Bool)
+
+    func matches(_ anObject: AnyObject) -> Bool {
+        return matchesObject(anObject)
+    }
 
     init<U, S: AnyObject>(_ block: @escaping (_ notification: U, _ sender: S?) -> Void) {
         _canCollect = { return false }
+        self.matchesObject = { _ in return false }
         self.block = { notification, sender in
             guard let notification = notification as? U else { return }
             if sender == nil {
@@ -47,6 +53,7 @@ internal class AnyRecipient {
             guard weakRecipient != nil else { return true }
             return false
         }
+        self.matchesObject = { obj in weakRecipient === obj }
         self.block = { notification, sender in
             guard let strongRecipient = weakRecipient else { return }
             guard let notification = notification as? U else { return }
@@ -65,6 +72,7 @@ internal class AnyRecipient {
             guard weakRecipient != nil else { return true }
             return false
         }
+        self.matchesObject = { obj in weakRecipient === obj }
         self.block = { notification, sender in
             guard let strongRecipient = weakRecipient else { return }
             guard let notification = notification as? U else { return }
@@ -80,6 +88,7 @@ internal class AnyRecipient {
             guard weakRecipient != nil else { return true }
             return false
         }
+        self.matchesObject = { obj in weakRecipient === obj }
         self.block = { notification, _ in
             guard let strongRecipient = weakRecipient else { return }
             guard let notification = notification as? U else { return }

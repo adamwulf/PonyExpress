@@ -325,11 +325,11 @@ public class PostOffice {
 
     /// Stops any future notifications from being sent to the `recipient`.
     /// - parameter recipient: The recipient object registered through ``register(queue:sender:_:_:)`` or related methods
-    public func unregister(_ recipient: AnyObject) {
+    public func unregister<T: AnyObject>(_ recipient: T) {
         lock.lock()
         defer { lock.unlock() }
         for key in listeners.keys {
-            listeners[key] = listeners[key]?.filter({ $0.recipient !== recipient })
+            listeners[key] = listeners[key]?.filter({ !$0.recipient.matches(recipient) })
         }
     }
 
