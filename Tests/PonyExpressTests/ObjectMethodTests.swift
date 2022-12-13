@@ -235,4 +235,28 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(count, 3)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testRegisterSubclassMethodWithoutSender() {
+        let sender1 = ExampleSender()
+        let postOffice = PostOffice()
+        var count = 0
+        let block = {
+            count += 1
+        }
+
+        autoreleasepool {
+            let recipient: ExampleRecipient = SubclassExampleRecipient()
+            recipient.testBlock = block
+
+            postOffice.register(recipient, ExampleRecipient.receiveWithSender)
+            postOffice.post(ExampleNotification(info: 12, other: 15), sender: sender1)
+            XCTAssertEqual(count, 1)
+            XCTAssertEqual(postOffice.count, 1)
+            XCTAssertEqual(recipient.count, 2) // we increment the recipient's count twice in the subclass
+        }
+
+        postOffice.post(ExampleNotification(info: 12, other: 15))
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(postOffice.count, 0)
+    }
 }

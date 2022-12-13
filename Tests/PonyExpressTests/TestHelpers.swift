@@ -24,7 +24,7 @@ class SomeSender { }
 class ExampleSender { }
 
 class ExampleRecipient {
-    private(set) var count = 0
+    fileprivate(set) var count = 0
 
     var testBlock: (() -> Void)?
 
@@ -46,5 +46,12 @@ class ExampleRecipient {
     func receiveWithoutSender(notification: ExampleNotification) {
         count += 1
         testBlock?()
+    }
+}
+
+class SubclassExampleRecipient: ExampleRecipient {
+    override func receiveWithSender(notification: ExampleNotification, sender: ExampleSender) {
+        count += 1
+        super.receiveWithSender(notification: notification, sender: sender)
     }
 }
