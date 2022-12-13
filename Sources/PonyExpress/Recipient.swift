@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import Locks
 
 /// An opaque value that represents a specific recipient registered at a ``PostOffice``.
 /// - SeeAlso: ``PostOffice/unregister(_:)``
 public struct RecipientId: Hashable {
-    static var nextIdentifier: UInt = 0
+    @Atomic static var nextIdentifier: UInt = 0
 
     let value: UInt
 
