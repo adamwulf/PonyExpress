@@ -52,13 +52,15 @@ public class PostOffice {
     private struct RecipientContext {
         let recipient: AnyRecipient
         let queue: DispatchQueue?
-        let sender: AnyObject?
+        weak var sender: AnyObject?
+        let requiresSender: Bool
         let id: RecipientId
 
         init(recipient: AnyRecipient, queue: DispatchQueue?, sender: AnyObject?) {
             self.recipient = recipient
             self.queue = queue
             self.sender = sender
+            self.requiresSender = sender != nil
             self.id = RecipientId()
         }
     }
@@ -329,7 +331,7 @@ public class PostOffice {
         lock.lock()
         defer { lock.unlock() }
         for key in listeners.keys {
-            listeners[key] = listeners[key]?.filter({ !$0.recipient.matches(recipient) })
+            listeners[key] = listeners[key]?.excluding({ $0.recipient.matches(recipient) })
         }
     }
 
@@ -345,7 +347,9 @@ public class PostOffice {
             if key.test(notification),
                let typeListeners = listeners[key] {
                 allListeners.append(contentsOf: typeListeners)
-                listeners[key] = typeListeners.filter({ !$0.recipient.canCollect })
+                listeners[key] = typeListeners.excluding({
+                    return $0.recipient.canCollect || ($0.sender == nil && $0.requiresSender)
+                })
             }
         }
         guard !allListeners.isEmpty else {
@@ -355,7 +359,7 @@ public class PostOffice {
         lock.unlock()
 
         for listener in allListeners {
-            guard listener.sender == nil || listener.sender === sender else { continue }
+            guard (listener.sender == nil && !listener.requiresSender) || listener.sender === sender else { continue }
             if let queue = listener.queue {
                 queue.async {
                     listener.recipient.block?(notification, sender)

@@ -307,6 +307,7 @@ final class ObjectMethodTests: XCTestCase {
             XCTAssertEqual(count, 1)
             XCTAssertEqual(postOffice.count, 1)
         }
+        postOffice.post(ExampleNotification(info: 12, other: 15))
 
         XCTAssertEqual(postOffice.count, 0)
     }
