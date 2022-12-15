@@ -43,8 +43,8 @@ public class PostOffice {
         static func key<T>(for type: T.Type) -> Key {
             return Key(name: String(describing: type),
                        test: { obj in
-                        return obj is T
-                       })
+                return obj is T
+            })
         }
     }
 
@@ -175,14 +175,14 @@ public class PostOffice {
         sender: Sender?,
         _ recipient: Recipient,
         _ method: @escaping (Recipient) -> (Notification) -> Void) -> RecipientId {
-        lock.lock()
-        defer { lock.unlock() }
-        let name = Key.key(for: Notification.self)
-        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
-        listeners[name, default: []].append(context)
-        recipientToKey[context.id] = name
-        return context.id
-    }
+            lock.lock()
+            defer { lock.unlock() }
+            let name = Key.key(for: Notification.self)
+            let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+            listeners[name, default: []].append(context)
+            recipientToKey[context.id] = name
+            return context.id
+        }
 
     /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
     /// matches the method's parameter's type.
@@ -232,8 +232,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                                sender: Sender? = nil,
-                                                                _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
+                                                                      sender: Sender? = nil,
+                                                                      _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -258,8 +258,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                                sender: Sender? = nil,
-                                                                _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
+                                                                      sender: Sender? = nil,
+                                                                      _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -288,8 +288,8 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                                sender: Sender?,
-                                                                _ block: @escaping (Notification) -> Void) -> RecipientId {
+                                                                      sender: Sender?,
+                                                                      _ block: @escaping (Notification) -> Void) -> RecipientId {
         return register(queue: queue, sender: sender, { (notification: Notification, _: Sender?) in
             block(notification)
         })
@@ -307,7 +307,7 @@ public class PostOffice {
     /// ```
     @discardableResult
     public func register<Notification: PostMarked>(queue: DispatchQueue? = nil,
-                                             _ block: @escaping (Notification) -> Void) -> RecipientId {
+                                                   _ block: @escaping (Notification) -> Void) -> RecipientId {
         let anySender: AnyObject? = nil
         return register(queue: queue, sender: anySender, { notification in
             block(notification)
