@@ -337,10 +337,26 @@ public class PostOffice {
 
     // MARK: - Post
 
-    /// Sends the notification to all recipients that match the notification's type.
+    /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``
+    /// but do not implement ``Mail`` _must_ be sent with a sender.
     /// - parameter notification: The notification object to send, must conform to ``PostMarked``.
+    /// - parameter sender: Required for ``PostMarked`` notifications that do not implement ``Mail``
+    /// - seeAlso: ``post(_:sender:)-5afi5``
+    public func post<Sender: AnyObject>(_ notification: PostMarked, sender: Sender) {
+        postHelper(notification, sender: sender)
+    }
+
+    /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``
+    /// but do not implement ``Mail`` _must_ be sent with a sender.
+    /// - parameter notification: The notification object to send, must conform to ``Mail``.
     /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
-    public func post<Sender: AnyObject>(_ notification: PostMarked, sender: Sender?) {
+    /// - seeAlso: ``post(_:sender:)-3fny7``
+    @_disfavoredOverload
+    public func post<Sender: AnyObject>(_ notification: Mail, sender: Sender?) {
+        postHelper(notification, sender: sender)
+    }
+
+    internal func postHelper<Sender: AnyObject>(_ notification: PostMarked, sender: Sender?) {
         lock.lock()
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {

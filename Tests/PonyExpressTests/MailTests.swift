@@ -4,7 +4,6 @@ import XCTest
 final class MailTests: XCTestCase {
 
     func testMatchSenderTypeOptional() throws {
-
         struct ExampleMail: Mail {
             var info: Int
         }
@@ -25,6 +24,13 @@ final class MailTests: XCTestCase {
 
         postOffice.post(ExamplePostmarked(info: 12), sender: sender)
         postOffice.post(ExampleMail(info: 12))
+
+        // compiler error, Postmarked notifications that do not implement Mail /must/ be sent with a Sender
+        // postOffice.post(ExamplePostmarked(info: 12))
+        // postOffice.post(ExamplePostmarked(info: 12), sender: nil)
+        // let emptySender: NSObject? = nil
+        // postOffice.post(ExamplePostmarked(info: 12), sender: emptySender)
+
         XCTAssertEqual(received, 2)
     }
 }
