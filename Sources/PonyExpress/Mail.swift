@@ -9,4 +9,6 @@ import Foundation
 
 /// All notifications sent through a ``PostOffice`` must conform to `Mail`.
 /// - seeAlso: ``PostOffice/post(_:)`` and ``PostOffice/post(_:sender:)``
-public protocol Mail { }
+public protocol Mail: PostMarked { }
+
+public protocol PostMarked { }
