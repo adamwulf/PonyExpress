@@ -209,65 +209,53 @@ public class PostOffice {
         return registerAny(queue: queue, recipient, method)
     }
 
-    //    // MARK: - Register Block with Sender
-    //
-    //    /// Register a block for the object and sender as parameters. This block will be called if the sender matches
-    //    /// the `sender` parameter, or if the sender is `nil`.
-    //    ///
-    //    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    //    /// on the queue of the sender.
-    //    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    //    /// - parameter block: The block that will receive the posted ``PostMarked`` and sender, if any. Posted notifications
-    //    /// that are sent with a `nil` sender will be passed to this block as well
-    //    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    //    ///
-    //    /// Example registration code:
-    //    /// ```
-    //    /// PostOffice.default.register { (notification: MyNotification, sender: MySender?) in ... }
-    //    /// ```
-    //    @discardableResult
-    //    public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-    //                                                                      sender: Sender? = nil,
-    //                                                                      _ block: @escaping (Notification, Sender?) -> Void) -> RecipientId {
-    //        lock.lock()
-    //        defer { lock.unlock() }
-    //        let name = Key.key(for: Notification.self)
-    //        let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
-    //        listeners[name, default: []].append(context)
-    //        recipientToKey[context.id] = name
-    //        return context.id
-    //    }
-    //
-    //    /// Register a block for the object and sender as parameters. The block will be called if the sender matches
-    //    /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
-    //    /// If the notification is posted without a sender, this block will not be called.
-    //    ///
-    //    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    //    /// on the queue of the sender.
-    //    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    //    /// - parameter block: The block that will receive the posted ``PostMarked`` and sender.
-    //    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    //    ///
-    //    /// ```
-    //    /// PostOffice.default.register { (notification: MyNotification, sender: MySender) in ... }
-    //    /// ```
-    //    @discardableResult
-    //    public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-    //                                                                      sender: Sender? = nil,
-    //                                                                      _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
-    //        lock.lock()
-    //        defer { lock.unlock() }
-    //        let name = Key.key(for: Notification.self)
-    //        let optBlock = { (note: Notification, sender: Sender?) in
-    //            guard let sender = sender else { return }
-    //            block(note, sender)
-    //        }
-    //        let context = RecipientContext(recipient: AnyRecipient(optBlock), queue: queue, sender: sender)
-    //        listeners[name, default: []].append(context)
-    //        recipientToKey[context.id] = name
-    //        return context.id
-    //    }
-    //
+    // MARK: - Register Block with Sender
+
+    /// Register a block for the object and sender as parameters. The block will be called if the sender matches
+    /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
+    /// If the notification is posted without a sender, this block will not be called.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``PostMarked`` and sender.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification, sender: MySender) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: PostMarked>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ block: @escaping (Notification, Notification.RequiredSender) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, block)
+    }
+
+    /// Register a block for the object and sender as parameters. This block will be called if the sender matches
+    /// the `sender` parameter, or if the sender is `nil`.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``PostMarked`` and sender, if any. Posted notifications
+    /// that are sent with a `nil` sender will be passed to this block as well
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification, sender: MySender?) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: PostMarked>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ block: @escaping (Notification, Notification.RequiredSender?) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, block)
+    }
+
     //    // MARK: - Register Block without Sender
     //
     //    /// Register a block from an optional `sender` with the notification as the single parameter.
@@ -389,7 +377,7 @@ extension PostOffice {
     }
 
     @discardableResult
-    private func registerAny<Recipient: AnyObject, Notification: Any, Sender: AnyObject>(
+    private func registerAny<Recipient: AnyObject, Notification, Sender: AnyObject>(
         queue: DispatchQueue? = nil,
         sender: Sender? = nil,
         _ recipient: Recipient,
@@ -415,6 +403,39 @@ extension PostOffice {
         let sender: AnyObject? = nil
         let name = Key.key(for: Notification.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToKey[context.id] = name
+        return context.id
+    }
+
+    // MARK: - Block Registration Helpers
+
+    @discardableResult
+    public func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
+                                                             sender: Sender? = nil,
+                                                             _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let name = Key.key(for: Notification.self)
+        let optBlock = { (note: Notification, sender: Sender?) in
+            guard let sender = sender else { return }
+            block(note, sender)
+        }
+        let context = RecipientContext(recipient: AnyRecipient(optBlock), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToKey[context.id] = name
+        return context.id
+    }
+
+    @discardableResult
+    public func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
+                                                             sender: Sender? = nil,
+                                                             _ block: @escaping (Notification, Sender?) -> Void)
+    -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let name = Key.key(for: Notification.self)
+        let context = RecipientContext(recipient: AnyRecipient(block), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
         recipientToKey[context.id] = name
         return context.id
