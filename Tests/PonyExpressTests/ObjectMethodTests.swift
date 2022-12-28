@@ -208,80 +208,34 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedRequiredSenderBlock() throws {
+    func testPostmarkedSubSender() throws {
+        class SubSender: PostmarkedSender { }
         let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let sender2 = PostmarkedSender()
+        let sender = SubSender()
         let postOffice = PostOffice()
-        var count = 0
 
-        postOffice.registerAny { (_: ExamplePostmarked, _: PostmarkedSender) in
-            count += 1
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: ExamplePostmarked) {
+                count += 1
+            }
         }
 
-        postOffice.post(notification, sender: sender1)
-        postOffice.post(notification, sender: sender2)
-        postOffice.post(notification)
+        let recipient = SpecificRecipient()
 
-        XCTAssertEqual(count, 2)
-    }
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
 
-    func testPostmarkedOptionalSenderBlock() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let postOffice = PostOffice()
-        var count = 0
+        postOffice.post(notification, sender: sender)
 
-        postOffice.registerAny { (_: ExamplePostmarked, _: PostmarkedSender?) in
-            count += 1
-        }
-
-        postOffice.post(notification, sender: sender1)
-        postOffice.post(notification)
-
-        XCTAssertEqual(count, 2)
-    }
-
-    func testPostmarkedSpecificSenderBlock() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let sender2 = PostmarkedSender()
-        let postOffice = PostOffice()
-        var count = 0
-
-        postOffice.registerAny(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender?) in
-            count += 1
-        }
-
-        postOffice.post(notification, sender: sender1)
-        postOffice.post(notification, sender: sender2)
-        postOffice.post(notification)
-
-        XCTAssertEqual(count, 1)
-    }
-
-    func testPostmarkedSpecificQueueBlock() throws {
-        let bgQueue = DispatchQueue(label: "test.queue")
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let postOffice = PostOffice()
-        var count = 0
-
-        postOffice.registerAny(queue: bgQueue) { (_: ExamplePostmarked, _: PostmarkedSender?) in
-            count += 1
-        }
-
-        postOffice.post(notification, sender: sender1)
-
-        let exp = expectation(description: "wait for notification")
-
-        bgQueue.sync {
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 0.1)
-
-        XCTAssertEqual(count, 1)
+        XCTAssertEqual(recipient.count, 3)
     }
 
 //    func testNotificationSubtype() throws {
