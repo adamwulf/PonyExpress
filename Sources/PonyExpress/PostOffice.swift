@@ -411,7 +411,7 @@ extension PostOffice {
     // MARK: - Block Registration Helpers
 
     @discardableResult
-    public func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
+    private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
                                                              sender: Sender? = nil,
                                                              _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
         lock.lock()
@@ -428,7 +428,7 @@ extension PostOffice {
     }
 
     @discardableResult
-    public func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
+    private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
                                                              sender: Sender? = nil,
                                                              _ block: @escaping (Notification, Sender?) -> Void)
     -> RecipientId {

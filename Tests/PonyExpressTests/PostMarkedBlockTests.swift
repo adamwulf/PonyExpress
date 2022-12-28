@@ -10,7 +10,7 @@ final class PostMarkedBlockTests: XCTestCase {
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.registerAny { (_: ExamplePostmarked, _: PostmarkedSender) in
+        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender) in
             count += 1
         }
 
@@ -27,7 +27,7 @@ final class PostMarkedBlockTests: XCTestCase {
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.registerAny { (_: ExamplePostmarked, _: PostmarkedSender?) in
+        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender?) in
             count += 1
         }
 
@@ -44,7 +44,7 @@ final class PostMarkedBlockTests: XCTestCase {
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.registerAny(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender?) in
+        postOffice.register(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender?) in
             count += 1
         }
 
@@ -62,7 +62,7 @@ final class PostMarkedBlockTests: XCTestCase {
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.registerAny(queue: bgQueue) { (_: ExamplePostmarked, _: PostmarkedSender?) in
+        postOffice.register(queue: bgQueue) { (_: ExamplePostmarked, _: PostmarkedSender?) in
             count += 1
         }
 
