@@ -1,7 +1,7 @@
 import XCTest
 @testable import PonyExpress
 
-final class BlockTests: XCTestCase {
+final class PostMarkedBlockTests: XCTestCase {
 
     func testPostmarkedRequiredSenderBlock() throws {
         let notification = ExamplePostmarked(info: 1, other: 2)
