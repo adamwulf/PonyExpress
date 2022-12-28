@@ -2,7 +2,6 @@ import XCTest
 @testable import PonyExpress
 
 final class ObjectMethodTests: XCTestCase {
-
     func testPostmarked() throws {
         let notification = ExamplePostmarked(info: 1, other: 2)
         let sender = PostmarkedSender()
@@ -68,6 +67,101 @@ final class ObjectMethodTests: XCTestCase {
         postOffice.unregister(id3)
 
         postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 0)
+    }
+
+    func testPostmarkedQueue() throws {
+        let bgQueue = DispatchQueue(label: "test.queue")
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender = PostmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: ExamplePostmarked) {
+                count += 1
+            }
+        }
+
+        let exp = expectation(description: "wait for notification")
+        let recipient = SpecificRecipient()
+
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receivePostmarked3)
+
+        bgQueue.sync {
+            exp.fulfill()
+        }
+
+        postOffice.post(notification, sender: sender)
+
+        wait(for: [exp], timeout: 0.1)
+        XCTAssertEqual(recipient.count, 3)
+    }
+
+    func testPostmarkedRequiredSender() throws {
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender = PostmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: ExamplePostmarked) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 3)
+    }
+
+    func testPostmarkedWrongSender() throws {
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = PostmarkedSender()
+        let sender2 = PostmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: ExamplePostmarked) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
+
+        postOffice.post(notification, sender: sender2)
 
         XCTAssertEqual(recipient.count, 0)
     }
