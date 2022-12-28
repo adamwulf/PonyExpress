@@ -62,13 +62,24 @@ final class ObjectMethodTests: XCTestCase {
         let id2 = postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
         let id3 = postOffice.register(recipient, SpecificRecipient.receivePostmarked3)
 
-        postOffice.unregister(id1)
-        postOffice.unregister(id2)
-        postOffice.unregister(id3)
-
         postOffice.post(notification, sender: sender)
 
-        XCTAssertEqual(recipient.count, 0)
+        XCTAssertEqual(recipient.count, 3)
+
+        postOffice.unregister(id1)
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 5)
+
+        postOffice.unregister(id2)
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 6)
+
+        postOffice.unregister(id3)
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 6)
     }
 
     func testUnregisterByObjPostmarked() throws {
