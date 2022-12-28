@@ -238,6 +238,74 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
+    func testSubPostmarked() throws {
+        class ClassNotification: PostMarked {
+            typealias RequiredSender = PostmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let notification = SubClassNotification()
+        let sender = PostmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: ClassNotification, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: ClassNotification, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: ClassNotification) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 3)
+    }
+
+    func testSubPostmarked2() throws {
+        class ClassNotification: PostMarked {
+            typealias RequiredSender = PostmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let notification = ClassNotification()
+        let sender = PostmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked1(notification: SubClassNotification, sender: PostmarkedSender) {
+                count += 1
+            }
+            func receivePostmarked2(notification: SubClassNotification, sender: PostmarkedSender?) {
+                count += 1
+            }
+            func receivePostmarked3(notification: SubClassNotification) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(recipient.count, 0)
+    }
+
 //    func testNotificationSubtype() throws {
 //        class MyNote: OtherNote {
 //            var foo: Int
