@@ -260,6 +260,30 @@ final class ObjectMethodTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
+    func testPostmarkedSpecificQueueBlock() throws {
+        let bgQueue = DispatchQueue(label: "test.queue")
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = PostmarkedSender()
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.registerAny(queue: bgQueue) { (_: ExamplePostmarked, _: PostmarkedSender?) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender1)
+
+        let exp = expectation(description: "wait for notification")
+
+        bgQueue.sync {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 0.1)
+
+        XCTAssertEqual(count, 1)
+    }
+
 //    func testNotificationSubtype() throws {
 //        class MyNote: OtherNote {
 //            var foo: Int
