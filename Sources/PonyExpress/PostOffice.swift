@@ -248,6 +248,116 @@ public class PostOffice {
         })
     }
 
+    // MARK: - Register UnmarkedMail Methods
+
+    /// Register a recipient and method with the `PostOffice`. This method will be called if both the posted notification
+    /// and `sender` match the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter recipient: The object that will receive the posted ``PostmarkedMail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
+    /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
+    /// types match.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
+    @discardableResult
+    public func register<Recipient: AnyObject, Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender? = nil,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> (Notification, Sender) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, recipient, method)
+    }
+
+    /// Register a recipient and method with the `PostOffice`. This method will be called if both the posted notification
+    /// and `sender` match the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter recipient: The object that will receive the posted ``PostmarkedMail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
+    /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
+    /// types match.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
+    ///
+    /// - note: Since `PostmarkedMail` notifications require a sender, registering a method with an optional `sender` is discouraged.
+    @discardableResult
+    public func register<Recipient: AnyObject, Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender? = nil,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> (Notification, Sender?) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, recipient, method)
+    }
+
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter recipient: The object that will receive the posted ``PostmarkedMail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
+    @discardableResult
+    public func register<Recipient: AnyObject, Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender?,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> (Notification) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, recipient, method)
+    }
+
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter recipient: The object that will receive the posted ``PostmarkedMail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
+    @discardableResult
+    public func register<Recipient: AnyObject, Notification: UnmarkedMail>(
+        queue: DispatchQueue? = nil,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> (Notification) -> Void)
+    -> RecipientId {
+        let sender: AnyObject? = nil
+        return registerAny(queue: queue, sender: sender, recipient, method)
+    }
+
     // MARK: - Post Postmarked
 
     /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``

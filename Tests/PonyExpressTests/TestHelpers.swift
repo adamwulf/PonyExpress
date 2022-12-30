@@ -8,7 +8,7 @@
 import Foundation
 import PonyExpress
 
-struct ExampleMail: UnmarkedMail {
+struct ExampleUnmarked: UnmarkedMail {
     var info: Int
     var other: Float
 }
