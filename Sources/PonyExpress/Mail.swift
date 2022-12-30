@@ -7,10 +7,10 @@
 
 import Foundation
 
-/// Unlike ``Mail``, any notification that implements ``PostMarked`` is required to be
+/// Unlike ``Mail``, any notification that implements ``PostmarkedMail`` is required to be
 /// posted with a `sender` of `RequiredSender` type.
 /// - seeAlso: ``PostOffice/post(_:)`` and ``PostOffice/post(_:sender:)``
-public protocol PostMarked {
+public protocol PostmarkedMail {
     associatedtype RequiredSender: AnyObject
 }
 

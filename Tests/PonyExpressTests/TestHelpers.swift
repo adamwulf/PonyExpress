@@ -13,7 +13,7 @@ struct ExampleMail: Mail {
     var other: Float
 }
 
-struct ExamplePostmarked: PostMarked {
+struct ExamplePostmarked: PostmarkedMail {
     typealias RequiredSender = PostmarkedSender
     var info: Int
     var other: Float

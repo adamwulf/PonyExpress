@@ -7,7 +7,7 @@ final class MailBlockTests: XCTestCase {
 //        struct ExampleMail: Mail {
 //            var info: Int
 //        }
-//        struct ExamplePostmarked: PostMarked {
+//        struct ExamplePostmarked: PostmarkedMail {
 //            var info: Int
 //        }
 //

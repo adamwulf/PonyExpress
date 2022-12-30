@@ -202,7 +202,7 @@ final class PostMarkedMethodTests: XCTestCase {
     }
 
     func testSubPostmarked() throws {
-        class ClassNotification: PostMarked {
+        class ClassNotification: PostmarkedMail {
             typealias RequiredSender = PostmarkedSender
         }
 
@@ -232,7 +232,7 @@ final class PostMarkedMethodTests: XCTestCase {
     }
 
     func testSubPostmarked2() throws {
-        class ClassNotification: PostMarked {
+        class ClassNotification: PostmarkedMail {
             typealias RequiredSender = PostmarkedSender
         }
 

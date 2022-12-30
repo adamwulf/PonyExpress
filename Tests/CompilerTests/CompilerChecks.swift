@@ -70,7 +70,7 @@ final class CompilerChecks: XCTestCase {
 
         let recipient = SpecificRecipient()
 
-        // Registering a PostMarked method with an optional sender should generate a warning
+        // Registering a PostmarkedMail method with an optional sender should generate a warning
         postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
     }
 
