@@ -16,7 +16,6 @@ final class PostMarkedBlockTests: XCTestCase {
 
         postOffice.post(notification, sender: sender1)
         postOffice.post(notification, sender: sender2)
-        postOffice.post(notification)
 
         XCTAssertEqual(count, 2)
     }
@@ -24,15 +23,16 @@ final class PostMarkedBlockTests: XCTestCase {
     func testPostmarkedOptionalSenderBlock() throws {
         let notification = ExamplePostmarked(info: 1, other: 2)
         let sender1 = PostmarkedSender()
+        let sender2 = PostmarkedSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender?) in
+        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender) in
             count += 1
         }
 
         postOffice.post(notification, sender: sender1)
-        postOffice.post(notification)
+        postOffice.post(notification, sender: sender2)
 
         XCTAssertEqual(count, 2)
     }
@@ -50,7 +50,6 @@ final class PostMarkedBlockTests: XCTestCase {
 
         postOffice.post(notification, sender: sender1)
         postOffice.post(notification, sender: sender2)
-        postOffice.post(notification)
 
         XCTAssertEqual(count, 1)
     }

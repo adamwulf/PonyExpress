@@ -136,24 +136,27 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, recipient, method)
     }
 
-    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
-    /// matches the method's parameter's type. The sender must also match the method's type or be `nil`.
+    /// Register a recipient and method with the `PostOffice`. This method will be called if both the posted notification
+    /// and `sender` match the method's parameter's type.
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
     /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
     /// - parameter recipient: The object that will receive the posted ``PostMarked``.
-    /// - parameter method: The method of the `recipient` that will be called with the posted ``PostMarked``. Its two arguments
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
-    /// types match, or if the notification type matches and the `sender` is `nil`.
+    /// types match.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
     /// ```
     /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
+    ///
+    /// - note: Since `PostMarked` notifications require a sender, registering a method with an optional `sender` is discouraged.
     @discardableResult
+    @available(*, deprecated, message: "Registering a method with an optional PostMarked.RequiredSender is discouraged. Remove the registered method's sender's optional to silence this warning.")
     public func register<Recipient: AnyObject, Notification: PostMarked>(
         queue: DispatchQueue? = nil,
         sender: Notification.RequiredSender? = nil,
@@ -213,29 +216,6 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, block)
     }
 
-    /// Register a block for the object and sender as parameters. This block will be called if the sender matches
-    /// the `sender` parameter, or if the sender is `nil`.
-    ///
-    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    /// on the queue of the sender.
-    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    /// - parameter block: The block that will receive the posted ``PostMarked`` and sender, if any. Posted notifications
-    /// that are sent with a `nil` sender will be passed to this block as well
-    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    ///
-    /// Example registration code:
-    /// ```
-    /// PostOffice.default.register { (notification: MyNotification, sender: MySender?) in ... }
-    /// ```
-    @discardableResult
-    public func register<Notification: PostMarked>(
-        queue: DispatchQueue? = nil,
-        sender: Notification.RequiredSender? = nil,
-        _ block: @escaping (Notification, Notification.RequiredSender?) -> Void)
-    -> RecipientId {
-        return registerAny(queue: queue, sender: sender, block)
-    }
-
     /// Register a block from an optional `sender` with the notification as the single parameter.
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
@@ -248,9 +228,11 @@ public class PostOffice {
     /// PostOffice.default.register { (notification: MyNotification) in ... }
     /// ```
     @discardableResult
-    public func register<Notification: PostMarked>(queue: DispatchQueue? = nil,
-                                                   sender: Notification.RequiredSender? = nil,
-                                                   _ block: @escaping (Notification) -> Void) -> RecipientId {
+    public func register<Notification: PostMarked>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ block: @escaping (Notification) -> Void)
+    -> RecipientId {
         return register(queue: queue, sender: sender, { (notification: Notification, _: Notification.RequiredSender?) in
             block(notification)
         })
@@ -265,15 +247,6 @@ public class PostOffice {
     /// - seeAlso: ``post(_:sender:)-5afi5``
     public func post<Notification: PostMarked>(_ notification: Notification, sender: Notification.RequiredSender) {
         postPostmarkedHelper(notification, sender: sender)
-    }
-
-    /// Sends the notification to all recipients that match the notification's type.
-    /// - parameter notification: The notification object to send, must conform to ``PostMarked``.
-    ///
-    /// This notification will arrive for all recipients registered without a specfiic `sender` or with a `nil` `sender`.
-    public func post<Notification: PostMarked>(_ notification: Notification) {
-        let anySender: Notification.RequiredSender? = nil
-        postPostmarkedHelper(notification, sender: anySender)
     }
 
     // MARK: - Post Mail
