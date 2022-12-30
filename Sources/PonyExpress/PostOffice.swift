@@ -233,7 +233,7 @@ public class PostOffice {
         sender: Notification.RequiredSender? = nil,
         _ block: @escaping (Notification) -> Void)
     -> RecipientId {
-        return register(queue: queue, sender: sender, { (notification: Notification, _: Notification.RequiredSender?) in
+        return register(queue: queue, sender: sender, { (notification: Notification, _: Notification.RequiredSender) in
             block(notification)
         })
     }
