@@ -253,7 +253,7 @@ public class PostOffice {
     /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``
     /// but do not implement ``Mail`` _must_ be sent with a sender.
     /// - parameter notification: The notification object to send, must conform to ``PostmarkedMail``.
-    /// - parameter sender: Required for ``PostmarkedMail`` notifications that do not implement ``Mail``
+    /// - parameter sender: Required for ``PostmarkedMail`` notifications that do not implement ``UnmarkedMail``
     /// - seeAlso: ``post(_:sender:)-5afi5``
     public func post<Notification: PostmarkedMail>(_ notification: Notification, sender: Notification.RequiredSender) {
         postPostmarkedHelper(notification, sender: sender)
@@ -262,11 +262,11 @@ public class PostOffice {
     // MARK: - Post Mail
 
     /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``
-    /// but do not implement ``Mail`` _must_ be sent with a sender.
-    /// - parameter notification: The notification object to send, must conform to ``Mail``.
+    /// but do not implement ``UnmarkedMail`` _must_ be sent with a sender.
+    /// - parameter notification: The notification object to send, must conform to ``UnmarkedMail``.
     /// - parameter sender: Optional. Ignored if `nil`. The object that represents the sender of the notification.
     /// - seeAlso: ``post(_:sender:)-3fny7``
-    public func post<Sender: AnyObject>(_ notification: Mail, sender: Sender?) {
+    public func post<Sender: AnyObject>(_ notification: UnmarkedMail, sender: Sender?) {
         postMailHelper(notification, sender: sender)
     }
 
@@ -274,7 +274,7 @@ public class PostOffice {
     /// - parameter notification: The notification object to send, must conform to ``Mail``.
     ///
     /// This notification will arrive for all recipients registered without a specfiic `sender` or with a `nil` `sender`.
-    public func post(_ notification: Mail) {
+    public func post(_ notification: UnmarkedMail) {
         let anySender: AnyObject? = nil
         postMailHelper(notification, sender: anySender)
     }
@@ -385,7 +385,7 @@ extension PostOffice {
 
     // MARK: - Post Helpers
 
-    private func postMailHelper<Sender: AnyObject>(_ notification: Mail, sender: Sender?) {
+    private func postMailHelper<Sender: AnyObject>(_ notification: UnmarkedMail, sender: Sender?) {
         lock.lock()
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {

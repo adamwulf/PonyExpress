@@ -325,7 +325,7 @@ final class PostMarkedBlockTests: XCTestCase {
 //    }
 //
 //    func testRegisterSubclass() throws {
-//        class ExampleObjectNotification: Mail { }
+//        class ExampleObjectNotification: UnmarkedMail { }
 //        class ExampleSubObjectNotification: ExampleObjectNotification { }
 //
 //        let sender = NSObject()

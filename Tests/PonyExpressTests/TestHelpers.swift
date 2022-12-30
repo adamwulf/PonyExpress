@@ -8,7 +8,7 @@
 import Foundation
 import PonyExpress
 
-struct ExampleMail: Mail {
+struct ExampleMail: UnmarkedMail {
     var info: Int
     var other: Float
 }
@@ -23,7 +23,7 @@ class MailSender { }
 
 class PostmarkedSender { }
 
-// enum MultipleChoice: Mail {
+// enum MultipleChoice: UnmarkedMail {
 //    case option1
 //    case option2
 //    case option3

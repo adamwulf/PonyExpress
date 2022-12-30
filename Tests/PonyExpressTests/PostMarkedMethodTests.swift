@@ -266,7 +266,7 @@ final class PostMarkedMethodTests: XCTestCase {
 //            var foo: Int
 //            init(_ foo: Int) { self.foo = foo }
 //        }
-//        class OtherNote: Mail { }
+//        class OtherNote: UnmarkedMail { }
 //        class SubNote: OtherNote { }
 //        class MySender { }
 //

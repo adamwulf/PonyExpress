@@ -4,7 +4,7 @@ import XCTest
 final class MailBlockTests: XCTestCase {
 
 //    func testMatchSenderTypeOptional() throws {
-//        struct ExampleMail: Mail {
+//        struct ExampleMail: UnmarkedMail {
 //            var info: Int
 //        }
 //        struct ExamplePostmarked: PostmarkedMail {
