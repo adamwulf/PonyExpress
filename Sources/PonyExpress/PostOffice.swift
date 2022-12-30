@@ -256,46 +256,27 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, block)
     }
 
-    //    // MARK: - Register Block without Sender
-    //
-    //    /// Register a block from an optional `sender` with the notification as the single parameter.
-    //    ///
-    //    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    //    /// on the queue of the sender.
-    //    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-    //    /// - parameter block: The block that will receive the posted ``PostMarked``.
-    //    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    //    ///
-    //    /// ```
-    //    /// PostOffice.default.register { (notification: MyNotification) in ... }
-    //    /// ```
-    //    @discardableResult
-    //    public func register<Notification: PostMarked, Sender: AnyObject>(queue: DispatchQueue? = nil,
-    //                                                                      sender: Sender?,
-    //                                                                      _ block: @escaping (Notification) -> Void) -> RecipientId {
-    //        return register(queue: queue, sender: sender, { (notification: Notification, _: Sender?) in
-    //            block(notification)
-    //        })
-    //    }
-    //
-    //    /// Register a block with the notification as the single parameter:
-    //    ///
-    //    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    //    ///
-    //    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    //    /// on the queue of the sender.
-    //    /// - parameter block: The block that will receive the posted ``PostMarked``.
-    //    /// ```
-    //    /// PostOffice.default.register { (notification: ExampleNotification) in ... }
-    //    /// ```
-    //    @discardableResult
-    //    public func register<Notification: PostMarked>(queue: DispatchQueue? = nil,
-    //                                                   _ block: @escaping (Notification) -> Void) -> RecipientId {
-    //        let anySender: AnyObject? = nil
-    //        return register(queue: queue, sender: anySender, { notification in
-    //            block(notification)
-    //        })
-    //    }
+        // MARK: - Register Block without Sender
+
+        /// Register a block from an optional `sender` with the notification as the single parameter.
+        ///
+        /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+        /// on the queue of the sender.
+        /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+        /// - parameter block: The block that will receive the posted ``PostMarked``.
+        /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+        ///
+        /// ```
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: PostMarked>(queue: DispatchQueue? = nil,
+                                                   sender: Notification.RequiredSender? = nil,
+                                                   _ block: @escaping (Notification) -> Void) -> RecipientId {
+        return register(queue: queue, sender: sender, { (notification: Notification, _: Notification.RequiredSender?) in
+            block(notification)
+        })
+    }
 
     // MARK: - Post Postmarked
 

@@ -79,6 +79,36 @@ final class PostMarkedBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
+    func testPostmarkedIgnoredSender() throws {
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = PostmarkedSender()
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register { (_: ExamplePostmarked) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender1)
+
+        XCTAssertEqual(count, 1)
+    }
+
+    func testPostmarkedIgnoredSender2() throws {
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = PostmarkedSender()
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register(sender: sender1) { (_: ExamplePostmarked) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender1)
+
+        XCTAssertEqual(count, 1)
+    }
+
 //    func testMatchSenderTypeOptional() throws {
 //        let sender = NSObject()
 //        let postOffice = PostOffice()
