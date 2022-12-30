@@ -209,7 +209,7 @@ public class PostOffice {
         return registerAny(queue: queue, recipient, method)
     }
 
-    // MARK: - Register Block with Sender
+    // MARK: - Register Postmarked Blocks
 
     /// Register a block for the object and sender as parameters. The block will be called if the sender matches
     /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
@@ -256,17 +256,15 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, block)
     }
 
-        // MARK: - Register Block without Sender
-
-        /// Register a block from an optional `sender` with the notification as the single parameter.
-        ///
-        /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-        /// on the queue of the sender.
-        /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
-        /// - parameter block: The block that will receive the posted ``PostMarked``.
-        /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-        ///
-        /// ```
+    /// Register a block from an optional `sender` with the notification as the single parameter.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``PostMarked``.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
     /// PostOffice.default.register { (notification: MyNotification) in ... }
     /// ```
     @discardableResult
@@ -393,8 +391,8 @@ extension PostOffice {
 
     @discardableResult
     private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                             sender: Sender? = nil,
-                                                             _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
+                                                              sender: Sender? = nil,
+                                                              _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -410,8 +408,8 @@ extension PostOffice {
 
     @discardableResult
     private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                             sender: Sender? = nil,
-                                                             _ block: @escaping (Notification, Sender?) -> Void)
+                                                              sender: Sender? = nil,
+                                                              _ block: @escaping (Notification, Sender?) -> Void)
     -> RecipientId {
         lock.lock()
         defer { lock.unlock() }

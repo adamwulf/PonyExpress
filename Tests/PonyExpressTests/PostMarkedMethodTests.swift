@@ -32,10 +32,6 @@ final class PostMarkedMethodTests: XCTestCase {
         // hit all three methods
         postOffice.post(notification, sender: sender)
         XCTAssertEqual(recipient.count, 5)
-
-        // the following should fail to compile
-//        let wrongSender = MailSender()
-//        postOffice.post(notification, sender: wrongSender)
     }
 
     func testUnregisterByIdPostmarked() throws {
