@@ -19,7 +19,7 @@ struct ExamplePostmarked: PostmarkedMail {
     var other: Float
 }
 
-class MailSender { }
+class UnmarkedSender { }
 
 class PostmarkedSender { }
 
