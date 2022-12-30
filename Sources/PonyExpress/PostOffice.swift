@@ -398,8 +398,8 @@ extension PostOffice {
 
     @discardableResult
     private func registerAny<Recipient: AnyObject, Notification: Any, Sender: AnyObject>(
-        queue: DispatchQueue? = nil,
-        sender: Sender? = nil,
+        queue: DispatchQueue?,
+        sender: Sender?,
         _ recipient: Recipient,
         _ method: @escaping (Recipient) -> (Notification, Sender) -> Void)
     -> RecipientId {
@@ -414,8 +414,8 @@ extension PostOffice {
 
     @discardableResult
     private func registerAny<Recipient: AnyObject, Notification: Any, Sender: AnyObject>(
-        queue: DispatchQueue? = nil,
-        sender: Sender? = nil,
+        queue: DispatchQueue?,
+        sender: Sender?,
         _ recipient: Recipient,
         _ method: @escaping (Recipient) -> (Notification, Sender?) -> Void)
     -> RecipientId {
@@ -430,29 +430,13 @@ extension PostOffice {
 
     @discardableResult
     private func registerAny<Recipient: AnyObject, Notification, Sender: AnyObject>(
-        queue: DispatchQueue? = nil,
-        sender: Sender? = nil,
+        queue: DispatchQueue?,
+        sender: Sender?,
         _ recipient: Recipient,
         _ method: @escaping (Recipient) -> (Notification) -> Void)
     -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
-        let name = Key.key(for: Notification.self)
-        let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
-        listeners[name, default: []].append(context)
-        recipientToKey[context.id] = name
-        return context.id
-    }
-
-    @discardableResult
-    private func registerAny<Recipient: AnyObject, Notification>(
-        queue: DispatchQueue? = nil,
-        _ recipient: Recipient,
-        _ method: @escaping (Recipient) -> (Notification) -> Void)
-    -> RecipientId {
-        lock.lock()
-        defer { lock.unlock() }
-        let sender: AnyObject? = nil
         let name = Key.key(for: Notification.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
@@ -463,9 +447,11 @@ extension PostOffice {
     // MARK: - Block Registration Helpers
 
     @discardableResult
-    private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                              sender: Sender? = nil,
-                                                              _ block: @escaping (Notification, Sender) -> Void) -> RecipientId {
+    private func registerAny<Notification, Sender: AnyObject>(
+        queue: DispatchQueue?,
+        sender: Sender?,
+        _ block: @escaping (Notification, Sender) -> Void)
+    -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
@@ -480,9 +466,10 @@ extension PostOffice {
     }
 
     @discardableResult
-    private func registerAny<Notification, Sender: AnyObject>(queue: DispatchQueue? = nil,
-                                                              sender: Sender? = nil,
-                                                              _ block: @escaping (Notification, Sender?) -> Void)
+    private func registerAny<Notification, Sender: AnyObject>(
+        queue: DispatchQueue?,
+        sender: Sender?,
+        _ block: @escaping (Notification, Sender?) -> Void)
     -> RecipientId {
         lock.lock()
         defer { lock.unlock() }
