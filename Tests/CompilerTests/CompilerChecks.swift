@@ -57,7 +57,7 @@ final class CompilerChecks: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarked() throws {
+    func testPostmarkedMethodOptionalSender() throws {
         let notification = ExamplePostmarked(info: 1, other: 2)
         let postOffice = PostOffice()
 
@@ -72,6 +72,21 @@ final class CompilerChecks: XCTestCase {
 
         // Registering a PostMarked method with an optional sender should generate a warning
         postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
+    }
+
+    func testPostmarkedBlockOptionalSender() throws {
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = PostmarkedSender()
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender?) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender1)
+
+        XCTAssertEqual(count, 1)
     }
 
 }

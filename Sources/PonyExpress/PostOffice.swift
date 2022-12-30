@@ -216,6 +216,16 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, block)
     }
 
+    @discardableResult
+    @available(*, deprecated, message: "Registering a block with an optional PostMarked.RequiredSender is discouraged. Remove the registered block's sender's optional to silence this warning.")
+    public func register<Notification: PostMarked>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ block: @escaping (Notification, Notification.RequiredSender?) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, block)
+    }
+
     /// Register a block from an optional `sender` with the notification as the single parameter.
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
