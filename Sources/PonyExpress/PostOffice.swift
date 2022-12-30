@@ -115,6 +115,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
     /// - parameter recipient: The object that will receive the posted ``PostMarked``.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its two arguments
     /// include the notification, and a required `sender`. The method will only be called if both the notification and `sender`
@@ -141,6 +142,7 @@ public class PostOffice {
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
     /// - parameter recipient: The object that will receive the posted ``PostMarked``.
     /// - parameter method: The method of the `recipient` that will be called with the posted ``PostMarked``. Its two arguments
     /// include the notification, and an optional `sender`. The method will only be called if both the notification and `sender`
@@ -166,7 +168,8 @@ public class PostOffice {
     ///
     /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
     /// on the queue of the sender.
-    /// - parameter sender: Optional. Limits the received notifications to only those sent by the `sender`.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
     /// - parameter recipient: The object that will receive the posted ``PostMarked``.
     /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
     /// is the posted notification. The method will only be called if the notification matches the method's argument type.
@@ -177,36 +180,13 @@ public class PostOffice {
     /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
-    public func register<Recipient: AnyObject, Notification: PostMarked, Sender: AnyObject>(
+    public func register<Recipient: AnyObject, Notification: PostMarked>(
         queue: DispatchQueue? = nil,
-        sender: Sender?,
+        sender: Notification.RequiredSender? = nil,
         _ recipient: Recipient,
         _ method: @escaping (Recipient) -> (Notification) -> Void)
     -> RecipientId {
         return registerAny(queue: queue, sender: sender, recipient, method)
-    }
-
-    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
-    /// matches the method's parameter's type.
-    ///
-    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
-    /// on the queue of the sender.
-    /// - parameter recipient: The object that will receive the posted notification.
-    /// - parameter method: The method of the `recipient` that will be called with the posted ``PostMarked``. Its one argument
-    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
-    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
-    ///
-    /// Example registration code:
-    /// ```
-    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
-    /// ```
-    @discardableResult
-    public func register<Recipient: AnyObject, Notification: PostMarked>(
-        queue: DispatchQueue? = nil,
-        _ recipient: Recipient,
-        _ method: @escaping (Recipient) -> (Notification) -> Void)
-    -> RecipientId {
-        return registerAny(queue: queue, recipient, method)
     }
 
     // MARK: - Register Postmarked Blocks

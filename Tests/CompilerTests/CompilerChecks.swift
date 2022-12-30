@@ -33,8 +33,28 @@ final class CompilerChecks: XCTestCase {
         postOffice.post(notification, sender: sender)
         XCTAssertEqual(recipient.count, 5)
 
-//         the following should fail to compile
-                let wrongSender = MailSender()
-                postOffice.post(notification, sender: wrongSender)
+        // the following should fail to compile
+        let wrongSender = MailSender()
+        postOffice.post(notification, sender: wrongSender)
     }
+
+    func testPostmarkedRegisterInvalidSender() throws {
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receivePostmarked3(notification: ExamplePostmarked) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+        let wrongSender = MailSender()
+
+        // the following should fail to compile. `sender1` is the wrong type
+        postOffice.register(sender: wrongSender, recipient, SpecificRecipient.receivePostmarked3)
+
+        XCTAssertEqual(recipient.count, 0)
+    }
+
 }
