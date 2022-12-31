@@ -564,11 +564,8 @@ extension PostOffice {
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {
             if key.test(notification),
-               let typeListeners = listeners[key] {
+               let typeListeners = _lockRequiredToCompactListeners(for: key) {
                 allListeners.append(contentsOf: typeListeners)
-                listeners[key] = typeListeners.excluding({
-                    return $0.recipient.canCollect || ($0.sender == nil && $0.requiresSender)
-                })
             }
         }
         guard !allListeners.isEmpty else {
@@ -594,11 +591,8 @@ extension PostOffice {
         var allListeners: [RecipientContext] = []
         for key in listeners.keys {
             if key.test(notification),
-               let typeListeners = listeners[key] {
+               let typeListeners = _lockRequiredToCompactListeners(for: key) {
                 allListeners.append(contentsOf: typeListeners)
-                listeners[key] = typeListeners.excluding({
-                    return $0.recipient.canCollect || ($0.sender == nil && $0.requiresSender)
-                })
             }
         }
         guard !allListeners.isEmpty else {
@@ -617,5 +611,15 @@ extension PostOffice {
                 listener.recipient.block?(notification, sender)
             }
         }
+    }
+
+    private func _lockRequiredToCompactListeners(for key: Key) -> [RecipientContext]? {
+        assert(!lock.try(), "Lock must be locked to modify listeners")
+        guard let typeListeners = listeners[key] else { return nil }
+        let filtered = typeListeners.excluding({
+            return $0.recipient.canCollect || ($0.sender == nil && $0.requiresSender)
+        })
+         listeners[key] = filtered
+        return filtered
     }
 }
