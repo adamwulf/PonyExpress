@@ -27,7 +27,7 @@ final class UnmarkedMailBlockTests: XCTestCase {
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExampleUnmarked, _: UnmarkedSender) in
+        postOffice.register { (_: ExampleUnmarked, _: UnmarkedSender?) in
             count += 1
         }
 

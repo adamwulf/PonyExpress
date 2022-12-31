@@ -358,6 +358,83 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, recipient, method)
     }
 
+    // MARK: - Register Unmarked Blocks
+
+    /// Register a block for the object and sender as parameters. The block will be called if the sender matches
+    /// the `sender` param, if any. If the `sender` parameter is nil, then all senders will be sent to this block.
+    /// If the notification is posted without a sender, this block will not be called.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``UnmarkedMail`` and sender.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification, sender: MySender) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender? = nil,
+        _ block: @escaping (Notification, Sender) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, block)
+    }
+
+    @discardableResult
+    public func register<Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender? = nil,
+        _ block: @escaping (Notification, Sender?) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, block)
+    }
+
+    /// Register a block from an optional `sender` with the notification as the single parameter.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``PostmarkedMail``.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: UnmarkedMail, Sender: AnyObject>(
+        queue: DispatchQueue? = nil,
+        sender: Sender?,
+        _ block: @escaping (Notification) -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, { (notification: Notification, _: Sender?) in
+            block(notification)
+        })
+    }
+
+    /// Register a block from an optional `sender` with the notification as the single parameter.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter block: The block that will receive the posted ``PostmarkedMail``.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: UnmarkedMail>(
+        queue: DispatchQueue? = nil,
+        _ block: @escaping (Notification) -> Void)
+    -> RecipientId {
+        let sender: AnyObject? = nil
+        return registerAny(queue: queue, sender: sender, { (notification: Notification, _: AnyObject?) in
+            block(notification)
+        })
+    }
+
     // MARK: - Post Postmarked
 
     /// Sends the notification to all recipients that match the notification's type. Notifications that implement ``Postmarked``
