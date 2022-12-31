@@ -156,7 +156,9 @@ public class PostOffice {
     ///
     /// - note: Since `PostmarkedMail` notifications require a sender, registering a method with an optional `sender` is discouraged.
     @discardableResult
+    // swiftlint:disable line_length
     @available(*, deprecated, message: "Registering a method with an optional PostMarked.RequiredSender is discouraged. Remove the registered method's sender's optional to silence this warning.")
+    // swiftlint:enable line_length
     public func register<Recipient: AnyObject, Notification: PostmarkedMail>(
         queue: DispatchQueue? = nil,
         sender: Notification.RequiredSender? = nil,
@@ -217,7 +219,9 @@ public class PostOffice {
     }
 
     @discardableResult
+    // swiftlint:disable line_length
     @available(*, deprecated, message: "Registering a block with an optional PostMarked.RequiredSender is discouraged. Remove the registered block's sender's optional to silence this warning.")
+    // swiftlint:enable line_length
     public func register<Notification: PostmarkedMail>(
         queue: DispatchQueue? = nil,
         sender: Notification.RequiredSender? = nil,
