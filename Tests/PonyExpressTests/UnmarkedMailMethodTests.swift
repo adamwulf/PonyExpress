@@ -78,7 +78,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 6)
     }
 
-    func testUnregisterByObjPostmarked() throws {
+    func testUnregisterByObjUnmarked() throws {
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender = UnmarkedSender()
         let postOffice = PostOffice()
@@ -109,7 +109,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedQueue() throws {
+    func testUnmarkedQueue() throws {
         let bgQueue = DispatchQueue(label: "test.queue")
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender = UnmarkedSender()
@@ -145,7 +145,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testPostmarkedRequiredSender() throws {
+    func testUnmarkedRequiredSender() throws {
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender = UnmarkedSender()
         let postOffice = PostOffice()
@@ -174,7 +174,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testPostmarkedWrongSender() throws {
+    func testUnmarkedWrongSender() throws {
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender1 = UnmarkedSender()
         let sender2 = UnmarkedSender()
@@ -204,7 +204,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedSubSender() throws {
+    func testUnmarkedSubSender() throws {
         class SubSender: UnmarkedSender { }
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender = SubSender()
@@ -234,7 +234,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testSubPostmarked() throws {
+    func testSubUnmarked() throws {
         class ClassNotification: UnmarkedMail {
             typealias RequiredSender = UnmarkedSender
         }
@@ -268,7 +268,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testSubPostmarked2() throws {
+    func testSubUnmarked2() throws {
         class ClassNotification: UnmarkedMail {
             typealias RequiredSender = UnmarkedSender
         }
@@ -302,7 +302,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testSubPostmarked3() throws {
+    func testSubUnmarked3() throws {
         class ClassNotification: UnmarkedMail {
             typealias RequiredSender = UnmarkedSender
         }
@@ -338,7 +338,7 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 8)
     }
 
-    func testSubPostmarked4() throws {
+    func testSubUnmarked4() throws {
         class ClassNotification: UnmarkedMail {
             typealias RequiredSender = UnmarkedSender
         }

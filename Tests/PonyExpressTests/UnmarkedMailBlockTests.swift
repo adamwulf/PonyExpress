@@ -107,34 +107,116 @@ final class UnmarkedMailBlockTests: XCTestCase {
 
         XCTAssertEqual(count, 1)
     }
-//    func testMatchSenderTypeOptional() throws {
-//        struct ExampleUnmarked: UnmarkedMail {
-//            var info: Int
-//        }
-//        struct ExampleUnmarked: UnmarkedMail {
-//            var info: Int
-//        }
-//
-//        let sender = NSObject()
-//        let postOffice = PostOffice()
-//        var received = 0
-//
-//        postOffice.register { (_: ExampleMail) -> Void in
-//            received += 1
-//        }
-//        postOffice.register { (_: ExampleUnmarked) -> Void in
-//            received += 1
-//        }
-//
-//        postOffice.post(ExampleUnmarked(info: 12), sender: sender)
-//        postOffice.post(ExampleMail(info: 12))
-//
-//        // compiler error, Unmarked notifications that do not implement Mail /must/ be sent with a Sender
-//        // postOffice.post(ExampleUnmarked(info: 12))
-//        // postOffice.post(ExampleUnmarked(info: 12), sender: nil)
-//        // let emptySender: NSObject? = nil
-//        // postOffice.post(ExampleUnmarked(info: 12), sender: emptySender)
-//
-//        XCTAssertEqual(received, 2)
-//    }
+
+    func testSubUnmarked() throws {
+        class ClassNotification: UnmarkedMail {
+            typealias RequiredSender = UnmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let notification = SubClassNotification()
+        let sender = UnmarkedSender()
+        let postOffice = PostOffice()
+
+        var count = 0
+
+        postOffice.register(sender: sender) { (_: ClassNotification, _: UnmarkedSender) in
+            count += 1
+        }
+        postOffice.register(sender: sender) { (_: ClassNotification, _: UnmarkedSender?) in
+            count += 1
+        }
+        postOffice.register(sender: sender) { (_: ClassNotification) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(count, 3)
+    }
+
+    func testSubUnmarked2() throws {
+        class ClassNotification: UnmarkedMail {
+            typealias RequiredSender = UnmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let notification = ClassNotification()
+        let sender = UnmarkedSender()
+        let postOffice = PostOffice()
+
+        var count = 0
+
+        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnmarkedSender) in
+            count += 1
+        }
+        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnmarkedSender?) in
+            count += 1
+        }
+        postOffice.register(sender: sender) { (_: SubClassNotification) in
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender)
+
+        XCTAssertEqual(count, 0)
+    }
+
+    func testSubUnmarked3() throws {
+        class ClassNotification: UnmarkedMail {
+            typealias RequiredSender = UnmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let sender = UnmarkedSender()
+        let postOffice = PostOffice()
+
+        var count = 0
+
+        postOffice.register { (_: ClassNotification, _: UnmarkedSender) in
+            count += 1
+        }
+        postOffice.register { (_: ClassNotification, _: UnmarkedSender?) in
+            count += 1
+        }
+        postOffice.register { (_: ClassNotification) in
+            count += 1
+        }
+
+        postOffice.post(ClassNotification(), sender: sender)
+        XCTAssertEqual(count, 3)
+        postOffice.post(SubClassNotification(), sender: sender)
+        XCTAssertEqual(count, 6)
+        postOffice.post(SubClassNotification())
+        XCTAssertEqual(count, 8)
+    }
+
+    func testSubUnmarked4() throws {
+        class ClassNotification: UnmarkedMail {
+            typealias RequiredSender = UnmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let sender = UnmarkedSender()
+        let postOffice = PostOffice()
+
+        var count = 0
+
+        postOffice.register { (_: SubClassNotification, _: UnmarkedSender) in
+            count += 1
+        }
+        postOffice.register { (_: SubClassNotification, _: UnmarkedSender?) in
+            count += 1
+        }
+        postOffice.register { (_: SubClassNotification) in
+            count += 1
+        }
+
+        postOffice.post(ClassNotification(), sender: sender)
+        XCTAssertEqual(count, 0)
+        postOffice.post(SubClassNotification(), sender: sender)
+        XCTAssertEqual(count, 3)
+        postOffice.post(SubClassNotification())
+        XCTAssertEqual(count, 5)
+    }
 }
