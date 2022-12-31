@@ -22,16 +22,15 @@ final class MemoryTests: XCTestCase {
             let sender1 = PostmarkedSender()
 
             postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
 
             postOffice.post(notification, sender: sender1)
 
-            XCTAssertEqual(postOffice.count, 2)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
         // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
         // that will cleanup after a notification is sent to that key again
-        XCTAssertEqual(postOffice.count, 2)
+        XCTAssertEqual(postOffice.count, 1)
 
         postOffice.post(notification, sender: sender2)
 
@@ -57,18 +56,43 @@ final class MemoryTests: XCTestCase {
             let recipient = SpecificRecipient()
 
             postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
 
             postOffice.post(notification, sender: sender1)
 
-            XCTAssertEqual(postOffice.count, 2)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
         // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
         // that will cleanup after a notification is sent to that key again
-        XCTAssertEqual(postOffice.count, 2)
+        XCTAssertEqual(postOffice.count, 1)
 
         postOffice.post(notification, sender: sender1)
+
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
+    func testPostmarkedWeakSenderBlock() throws {
+        let postOffice = PostOffice()
+        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender2 = PostmarkedSender()
+
+        autoreleasepool {
+            let sender1 = PostmarkedSender()
+
+            postOffice.register(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender) in
+                // noop
+            }
+
+            postOffice.post(notification, sender: sender1)
+
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
+        // that will cleanup after a notification is sent to that key again
+        XCTAssertEqual(postOffice.count, 1)
+
+        postOffice.post(notification, sender: sender2)
 
         XCTAssertEqual(postOffice.count, 0)
     }
@@ -93,16 +117,15 @@ final class MemoryTests: XCTestCase {
             let sender1 = UnmarkedSender()
 
             postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
 
             postOffice.post(notification, sender: sender1)
 
-            XCTAssertEqual(postOffice.count, 2)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
         // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
         // that will cleanup after a notification is sent to that key again
-        XCTAssertEqual(postOffice.count, 2)
+        XCTAssertEqual(postOffice.count, 1)
 
         postOffice.post(notification, sender: sender2)
 
@@ -128,19 +151,45 @@ final class MemoryTests: XCTestCase {
             let recipient = SpecificRecipient()
 
             postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
 
             postOffice.post(notification, sender: sender1)
 
-            XCTAssertEqual(postOffice.count, 2)
+            XCTAssertEqual(postOffice.count, 1)
         }
 
         // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
         // that will cleanup after a notification is sent to that key again
-        XCTAssertEqual(postOffice.count, 2)
+        XCTAssertEqual(postOffice.count, 1)
 
         postOffice.post(notification, sender: sender1)
 
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testUnmarkedWeakSenderBlock() throws {
+        let postOffice = PostOffice()
+        let notification = ExampleUnmarked(info: 1, other: 2)
+        let sender2 = UnmarkedSender()
+
+        autoreleasepool {
+            let sender1 = UnmarkedSender()
+
+            postOffice.register(sender: sender1) { (_: ExampleUnmarked, _: UnmarkedSender) in
+                // noop
+            }
+
+            postOffice.post(notification, sender: sender1)
+
+            XCTAssertEqual(postOffice.count, 1)
+        }
+
+        // While the senders have dealloc'd, we still hold RecipientIds for the registered listeners
+        // that will cleanup after a notification is sent to that key again
+        XCTAssertEqual(postOffice.count, 1)
+
+        postOffice.post(notification, sender: sender2)
+
+        XCTAssertEqual(postOffice.count, 0)
+    }
+
 }
