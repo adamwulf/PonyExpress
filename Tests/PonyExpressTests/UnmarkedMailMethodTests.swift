@@ -337,4 +337,40 @@ final class UnmarkedMailMethodTests: XCTestCase {
         postOffice.post(SubClassNotification())
         XCTAssertEqual(recipient.count, 8)
     }
+
+    func testSubPostmarked4() throws {
+        class ClassNotification: UnmarkedMail {
+            typealias RequiredSender = UnmarkedSender
+        }
+
+        class SubClassNotification: ClassNotification { }
+        let sender = UnmarkedSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveUnmarked1(notification: SubClassNotification, sender: UnmarkedSender) {
+                count += 1
+            }
+            func receiveUnmarked2(notification: SubClassNotification, sender: UnmarkedSender?) {
+                count += 1
+            }
+            func receiveUnmarked3(notification: SubClassNotification) {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
+        postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
+        postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+
+        postOffice.post(ClassNotification(), sender: sender)
+        XCTAssertEqual(recipient.count, 0)
+        postOffice.post(SubClassNotification(), sender: sender)
+        XCTAssertEqual(recipient.count, 3)
+        postOffice.post(SubClassNotification())
+        XCTAssertEqual(recipient.count, 5)
+    }
 }
