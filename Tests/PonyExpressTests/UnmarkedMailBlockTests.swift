@@ -1,7 +1,7 @@
 import XCTest
 @testable import PonyExpress
 
-final class MailBlockTests: XCTestCase {
+final class UnmarkedMailBlockTests: XCTestCase {
 
 //    func testMatchSenderTypeOptional() throws {
 //        struct ExampleUnmarked: UnmarkedMail {

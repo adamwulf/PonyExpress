@@ -1,7 +1,7 @@
 import XCTest
 @testable import PonyExpress
 
-final class MailMethodTests: XCTestCase {
+final class UnmarkedMailMethodTests: XCTestCase {
     func testMail() throws {
         let notification = ExampleUnmarked(info: 1, other: 2)
         let sender = UnmarkedSender()
@@ -264,4 +264,6 @@ final class MailMethodTests: XCTestCase {
 
         XCTAssertEqual(recipient.count, 0)
     }
+
+    // MARK: - UnmarkedMail Specific
 }
