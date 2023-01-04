@@ -3,14 +3,14 @@ import XCTest
 
 final class PostMarkedBlockTests: XCTestCase {
 
-    func testPostmarkedRequiredSenderBlock() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let sender2 = PostmarkedSender()
+    func testVerifiedMailRequiredSenderBlock() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
+        let sender2 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender) in
+        postOffice.register { (_: ExampleVerifiedMail, _: VerifiedMailSender) in
             count += 1
         }
 
@@ -20,14 +20,14 @@ final class PostMarkedBlockTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
-    func testPostmarkedSpecificSenderBlock() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let sender2 = PostmarkedSender()
+    func testVerifiedMailSpecificSenderBlock() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
+        let sender2 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender) in
+        postOffice.register(sender: sender1) { (_: ExampleVerifiedMail, _: VerifiedMailSender) in
             count += 1
         }
 
@@ -37,14 +37,14 @@ final class PostMarkedBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testPostmarkedSpecificQueueBlock() throws {
+    func testVerifiedMailSpecificQueueBlock() throws {
         let bgQueue = DispatchQueue(label: "test.queue")
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(queue: bgQueue) { (_: ExamplePostmarked, _: PostmarkedSender) in
+        postOffice.register(queue: bgQueue) { (_: ExampleVerifiedMail, _: VerifiedMailSender) in
             count += 1
         }
 
@@ -61,13 +61,13 @@ final class PostMarkedBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testPostmarkedIgnoredSender() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
+    func testVerifiedMailIgnoredSender() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExamplePostmarked) in
+        postOffice.register { (_: ExampleVerifiedMail) in
             count += 1
         }
 
@@ -76,13 +76,13 @@ final class PostMarkedBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testPostmarkedIgnoredSender2() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
+    func testVerifiedMailIgnoredSender2() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(sender: sender1) { (_: ExamplePostmarked) in
+        postOffice.register(sender: sender1) { (_: ExampleVerifiedMail) in
             count += 1
         }
 

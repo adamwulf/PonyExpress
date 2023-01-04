@@ -2,29 +2,29 @@ import XCTest
 @testable import PonyExpress
 
 final class CompilerChecks: XCTestCase {
-    func testPostmarked() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+    func testVerifiedMail() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+            func receiveVerifiedMail2(notification: ExampleVerifiedMail, sender: VerifiedMailSender?) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail2)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification)
         // hit the method w/o a sender and with a nullable sender, miss the method with required sender
@@ -38,12 +38,12 @@ final class CompilerChecks: XCTestCase {
         postOffice.post(notification, sender: wrongSender)
     }
 
-    func testPostmarkedRegisterInvalidSender() throws {
+    func testVerifiedMailRegisterInvalidSender() throws {
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
@@ -52,35 +52,35 @@ final class CompilerChecks: XCTestCase {
         let wrongSender = MailSender()
 
         // the following should fail to compile. `sender1` is the wrong type
-        postOffice.register(sender: wrongSender, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: wrongSender, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedMethodOptionalSender() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
+    func testVerifiedMailMethodOptionalSender() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked2(notification: ExamplePostmarked, sender: PostmarkedSender?) {
+            func receiveVerifiedMail2(notification: ExampleVerifiedMail, sender: VerifiedMailSender?) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        // Registering a PostmarkedMail method with an optional sender should generate a warning
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
+        // Registering a VerifiedMail method with an optional sender should generate a warning
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail2)
     }
 
-    func testPostmarkedBlockOptionalSender() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
+    func testVerifiedMailBlockOptionalSender() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExamplePostmarked, _: PostmarkedSender?) in
+        postOffice.register { (_: ExampleVerifiedMail, _: VerifiedMailSender?) in
             count += 1
         }
 

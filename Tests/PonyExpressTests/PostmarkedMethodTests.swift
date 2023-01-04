@@ -2,25 +2,25 @@ import XCTest
 @testable import PonyExpress
 
 final class PostMarkedMethodTests: XCTestCase {
-    func testPostmarked() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+    func testVerifiedMail() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked2(notification: ExamplePostmarked) {
+            func receiveVerifiedMail2(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail2)
 
         postOffice.post(notification, sender: sender)
         // hit the method with and without a sender
@@ -30,25 +30,25 @@ final class PostMarkedMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 4)
     }
 
-    func testUnregisterByIdPostmarked() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+    func testUnregisterByIdVerifiedMail() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        let id1 = postOffice.register(recipient, SpecificRecipient.receivePostmarked1)
-        let id2 = postOffice.register(recipient, SpecificRecipient.receivePostmarked3)
+        let id1 = postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail1)
+        let id2 = postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
@@ -65,25 +65,25 @@ final class PostMarkedMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testUnregisterByObjPostmarked() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+    func testUnregisterByObjVerifiedMail() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.unregister(recipient)
 
@@ -92,18 +92,18 @@ final class PostMarkedMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedQueue() throws {
+    func testVerifiedMailQueue() throws {
         let bgQueue = DispatchQueue(label: "test.queue")
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
@@ -111,8 +111,8 @@ final class PostMarkedMethodTests: XCTestCase {
         let exp = expectation(description: "wait for notification")
         let recipient = SpecificRecipient()
 
-        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         bgQueue.sync {
             exp.fulfill()
@@ -124,137 +124,137 @@ final class PostMarkedMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 2)
     }
 
-    func testPostmarkedRequiredSender() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender = PostmarkedSender()
+    func testVerifiedMailRequiredSender() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 2)
     }
 
-    func testPostmarkedWrongSender() throws {
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender1 = PostmarkedSender()
-        let sender2 = PostmarkedSender()
+    func testVerifiedMailWrongSender() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
+        let sender2 = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender2)
 
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testPostmarkedSubSender() throws {
-        class SubSender: PostmarkedSender { }
-        let notification = ExamplePostmarked(info: 1, other: 2)
+    func testVerifiedMailSubSender() throws {
+        class SubSender: VerifiedMailSender { }
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
         let sender = SubSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 2)
     }
 
-    func testSubPostmarked() throws {
-        class ClassNotification: PostmarkedMail {
-            typealias RequiredSender = PostmarkedSender
+    func testSubVerifiedMail() throws {
+        class ClassNotification: VerifiedMail {
+            typealias RequiredSender = VerifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = SubClassNotification()
-        let sender = PostmarkedSender()
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ClassNotification, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ClassNotification, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ClassNotification) {
+            func receiveVerifiedMail3(notification: ClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 2)
     }
 
-    func testSubPostmarked2() throws {
-        class ClassNotification: PostmarkedMail {
-            typealias RequiredSender = PostmarkedSender
+    func testSubVerifiedMail2() throws {
+        class ClassNotification: VerifiedMail {
+            typealias RequiredSender = VerifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = ClassNotification()
-        let sender = PostmarkedSender()
+        let sender = VerifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: SubClassNotification, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: SubClassNotification, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: SubClassNotification) {
+            func receiveVerifiedMail3(notification: SubClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receivePostmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveVerifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
@@ -266,19 +266,19 @@ final class PostMarkedMethodTests: XCTestCase {
 
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked2(notification: ExamplePostmarked) {
+            func receiveVerifiedMail2(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked1)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail1)
         XCTAssertEqual(postOffice.count, 1)
-        postOffice.register(recipient, SpecificRecipient.receivePostmarked2)
+        postOffice.register(recipient, SpecificRecipient.receiveVerifiedMail2)
         XCTAssertEqual(postOffice.count, 2)
         postOffice.unregister(recipient)
         XCTAssertEqual(postOffice.count, 0)

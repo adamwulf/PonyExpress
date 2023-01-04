@@ -1,30 +1,30 @@
 import XCTest
 @testable import PonyExpress
 
-final class UnmarkedMailMethodTests: XCTestCase {
+final class UnverifiedMailMailMethodTests: XCTestCase {
     func testMail() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender = UnmarkedSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification)
         // hit the method w/o a sender and with a nullable sender, miss the method with required sender
@@ -34,29 +34,29 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 5)
     }
 
-    func testUnregisterByIdUnmarked() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender = UnmarkedSender()
+    func testUnregisterByIdUnverifiedMail() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        let id1 = postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
-        let id2 = postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
-        let id3 = postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+        let id1 = postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail1)
+        let id2 = postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail2)
+        let id3 = postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
@@ -78,29 +78,29 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 6)
     }
 
-    func testUnregisterByObjUnmarked() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender = UnmarkedSender()
+    func testUnregisterByObjUnverifiedMail() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.unregister(recipient)
 
@@ -109,21 +109,21 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testUnmarkedQueue() throws {
+    func testUnverifiedMailQueue() throws {
         let bgQueue = DispatchQueue(label: "test.queue")
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender = UnmarkedSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
@@ -131,9 +131,9 @@ final class UnmarkedMailMethodTests: XCTestCase {
         let exp = expectation(description: "wait for notification")
         let recipient = SpecificRecipient()
 
-        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(queue: bgQueue, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         bgQueue.sync {
             exp.fulfill()
@@ -145,190 +145,190 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testUnmarkedRequiredSender() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender = UnmarkedSender()
+    func testUnverifiedMailRequiredSender() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testUnmarkedWrongSender() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
-        let sender2 = UnmarkedSender()
+    func testUnverifiedMailWrongSender() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
+        let sender2 = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender2)
 
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testUnmarkedSubSender() throws {
-        class SubSender: UnmarkedSender { }
-        let notification = ExampleUnmarked(info: 1, other: 2)
+    func testUnverifiedMailSubSender() throws {
+        class SubSender: UnverifiedMailSender { }
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
         let sender = SubSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ExampleUnmarked, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ExampleUnmarked) {
+            func receiveUnverifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testSubUnmarked() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = SubClassNotification()
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ClassNotification, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ClassNotification, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ClassNotification, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ClassNotification, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ClassNotification) {
+            func receiveUnverifiedMail3(notification: ClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 3)
     }
 
-    func testSubUnmarked2() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail2() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = ClassNotification()
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: SubClassNotification, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: SubClassNotification, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: SubClassNotification, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: SubClassNotification, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: SubClassNotification) {
+            func receiveUnverifiedMail3(notification: SubClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(sender: sender, recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(notification, sender: sender)
 
         XCTAssertEqual(recipient.count, 0)
     }
 
-    func testSubUnmarked3() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail3() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: ClassNotification, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: ClassNotification, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: ClassNotification, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: ClassNotification, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: ClassNotification) {
+            func receiveUnverifiedMail3(notification: ClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(ClassNotification(), sender: sender)
         XCTAssertEqual(recipient.count, 3)
@@ -338,33 +338,33 @@ final class UnmarkedMailMethodTests: XCTestCase {
         XCTAssertEqual(recipient.count, 8)
     }
 
-    func testSubUnmarked4() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail4() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         class SpecificRecipient {
             var count = 0
-            func receiveUnmarked1(notification: SubClassNotification, sender: UnmarkedSender) {
+            func receiveUnverifiedMail1(notification: SubClassNotification, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receiveUnmarked2(notification: SubClassNotification, sender: UnmarkedSender?) {
+            func receiveUnverifiedMail2(notification: SubClassNotification, sender: UnverifiedMailSender?) {
                 count += 1
             }
-            func receiveUnmarked3(notification: SubClassNotification) {
+            func receiveUnverifiedMail3(notification: SubClassNotification) {
                 count += 1
             }
         }
 
         let recipient = SpecificRecipient()
 
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked1)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked2)
-        postOffice.register(recipient, SpecificRecipient.receiveUnmarked3)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail1)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail2)
+        postOffice.register(recipient, SpecificRecipient.receiveUnverifiedMail3)
 
         postOffice.post(ClassNotification(), sender: sender)
         XCTAssertEqual(recipient.count, 0)

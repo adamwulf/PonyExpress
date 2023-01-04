@@ -8,22 +8,22 @@
 import Foundation
 import PonyExpress
 
-struct ExampleUnmarked: UnmarkedMail {
+struct ExampleUnverifiedMail: UnverifiedMail {
     var info: Int
     var other: Float
 }
 
-struct ExamplePostmarked: PostmarkedMail {
-    typealias RequiredSender = PostmarkedSender
+struct ExampleVerifiedMail: VerifiedMail {
+    typealias RequiredSender = VerifiedMailSender
     var info: Int
     var other: Float
 }
 
-class UnmarkedSender { }
+class UnverifiedMailSender { }
 
-class PostmarkedSender { }
+class VerifiedMailSender { }
 
-// enum MultipleChoice: UnmarkedMail {
+// enum MultipleChoice: UnverifiedMail {
 //    case option1
 //    case option2
 //    case option3

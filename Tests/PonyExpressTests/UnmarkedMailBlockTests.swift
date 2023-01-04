@@ -1,16 +1,16 @@
 import XCTest
 @testable import PonyExpress
 
-final class UnmarkedMailBlockTests: XCTestCase {
+final class UnverifiedMailMailBlockTests: XCTestCase {
 
-    func testUnmarkedRequiredSenderBlock() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
-        let sender2 = UnmarkedSender()
+    func testUnverifiedMailRequiredSenderBlock() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
+        let sender2 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExampleUnmarked, _: UnmarkedSender) in
+        postOffice.register { (_: ExampleUnverifiedMail, _: UnverifiedMailSender) in
             count += 1
         }
 
@@ -20,14 +20,14 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
-    func testUnmarkedOptionalSenderBlock() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
-        let sender2 = UnmarkedSender()
+    func testUnverifiedMailOptionalSenderBlock() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
+        let sender2 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExampleUnmarked, _: UnmarkedSender?) in
+        postOffice.register { (_: ExampleUnverifiedMail, _: UnverifiedMailSender?) in
             count += 1
         }
 
@@ -37,14 +37,14 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
-    func testUnmarkedSpecificSenderBlock() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
-        let sender2 = UnmarkedSender()
+    func testUnverifiedMailSpecificSenderBlock() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
+        let sender2 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(sender: sender1) { (_: ExampleUnmarked, _: UnmarkedSender) in
+        postOffice.register(sender: sender1) { (_: ExampleUnverifiedMail, _: UnverifiedMailSender) in
             count += 1
         }
 
@@ -54,14 +54,14 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testUnmarkedSpecificQueueBlock() throws {
+    func testUnverifiedMailSpecificQueueBlock() throws {
         let bgQueue = DispatchQueue(label: "test.queue")
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(queue: bgQueue) { (_: ExampleUnmarked, _: UnmarkedSender) in
+        postOffice.register(queue: bgQueue) { (_: ExampleUnverifiedMail, _: UnverifiedMailSender) in
             count += 1
         }
 
@@ -78,13 +78,13 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testUnmarkedIgnoredSender() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
+    func testUnverifiedMailIgnoredSender() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register { (_: ExampleUnmarked) in
+        postOffice.register { (_: ExampleUnverifiedMail) in
             count += 1
         }
 
@@ -93,13 +93,13 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testUnmarkedIgnoredSender2() throws {
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender1 = UnmarkedSender()
+    func testUnverifiedMailIgnoredSender2() throws {
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
         let postOffice = PostOffice()
         var count = 0
 
-        postOffice.register(sender: sender1) { (_: ExampleUnmarked) in
+        postOffice.register(sender: sender1) { (_: ExampleUnverifiedMail) in
             count += 1
         }
 
@@ -108,22 +108,22 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testSubUnmarked() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = SubClassNotification()
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         var count = 0
 
-        postOffice.register(sender: sender) { (_: ClassNotification, _: UnmarkedSender) in
+        postOffice.register(sender: sender) { (_: ClassNotification, _: UnverifiedMailSender) in
             count += 1
         }
-        postOffice.register(sender: sender) { (_: ClassNotification, _: UnmarkedSender?) in
+        postOffice.register(sender: sender) { (_: ClassNotification, _: UnverifiedMailSender?) in
             count += 1
         }
         postOffice.register(sender: sender) { (_: ClassNotification) in
@@ -135,22 +135,22 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 3)
     }
 
-    func testSubUnmarked2() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail2() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
         let notification = ClassNotification()
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         var count = 0
 
-        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnmarkedSender) in
+        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnverifiedMailSender) in
             count += 1
         }
-        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnmarkedSender?) in
+        postOffice.register(sender: sender) { (_: SubClassNotification, _: UnverifiedMailSender?) in
             count += 1
         }
         postOffice.register(sender: sender) { (_: SubClassNotification) in
@@ -162,21 +162,21 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 0)
     }
 
-    func testSubUnmarked3() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail3() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         var count = 0
 
-        postOffice.register { (_: ClassNotification, _: UnmarkedSender) in
+        postOffice.register { (_: ClassNotification, _: UnverifiedMailSender) in
             count += 1
         }
-        postOffice.register { (_: ClassNotification, _: UnmarkedSender?) in
+        postOffice.register { (_: ClassNotification, _: UnverifiedMailSender?) in
             count += 1
         }
         postOffice.register { (_: ClassNotification) in
@@ -191,21 +191,21 @@ final class UnmarkedMailBlockTests: XCTestCase {
         XCTAssertEqual(count, 8)
     }
 
-    func testSubUnmarked4() throws {
-        class ClassNotification: UnmarkedMail {
-            typealias RequiredSender = UnmarkedSender
+    func testSubUnverifiedMail4() throws {
+        class ClassNotification: UnverifiedMail {
+            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
-        let sender = UnmarkedSender()
+        let sender = UnverifiedMailSender()
         let postOffice = PostOffice()
 
         var count = 0
 
-        postOffice.register { (_: SubClassNotification, _: UnmarkedSender) in
+        postOffice.register { (_: SubClassNotification, _: UnverifiedMailSender) in
             count += 1
         }
-        postOffice.register { (_: SubClassNotification, _: UnmarkedSender?) in
+        postOffice.register { (_: SubClassNotification, _: UnverifiedMailSender?) in
             count += 1
         }
         postOffice.register { (_: SubClassNotification) in

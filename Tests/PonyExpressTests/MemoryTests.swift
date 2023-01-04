@@ -2,26 +2,26 @@ import XCTest
 @testable import PonyExpress
 
 final class MemoryTests: XCTestCase {
-    func testPostmarkedWeakSender() throws {
+    func testVerifiedMailWeakSender() throws {
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExamplePostmarked) {
+            func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                 count += 1
             }
         }
 
         let postOffice = PostOffice()
-        let sender2 = PostmarkedSender()
-        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender2 = VerifiedMailSender()
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
         let recipient = SpecificRecipient()
 
         autoreleasepool {
-            let sender1 = PostmarkedSender()
+            let sender1 = VerifiedMailSender()
 
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
+            postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail1)
 
             postOffice.post(notification, sender: sender1)
 
@@ -37,25 +37,25 @@ final class MemoryTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testPostmarkedWeakRecipient() throws {
+    func testVerifiedMailWeakRecipient() throws {
         let postOffice = PostOffice()
-        let sender1 = PostmarkedSender()
-        let notification = ExamplePostmarked(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
 
         autoreleasepool {
             class SpecificRecipient {
                 var count = 0
-                func receivePostmarked1(notification: ExamplePostmarked, sender: PostmarkedSender) {
+                func receiveVerifiedMail1(notification: ExampleVerifiedMail, sender: VerifiedMailSender) {
                     count += 1
                 }
-                func receivePostmarked3(notification: ExamplePostmarked) {
+                func receiveVerifiedMail3(notification: ExampleVerifiedMail) {
                     count += 1
                 }
             }
 
             let recipient = SpecificRecipient()
 
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
+            postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail1)
 
             postOffice.post(notification, sender: sender1)
 
@@ -71,15 +71,15 @@ final class MemoryTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testPostmarkedWeakSenderBlock() throws {
+    func testVerifiedMailWeakSenderBlock() throws {
         let postOffice = PostOffice()
-        let notification = ExamplePostmarked(info: 1, other: 2)
-        let sender2 = PostmarkedSender()
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender2 = VerifiedMailSender()
 
         autoreleasepool {
-            let sender1 = PostmarkedSender()
+            let sender1 = VerifiedMailSender()
 
-            postOffice.register(sender: sender1) { (_: ExamplePostmarked, _: PostmarkedSender) in
+            postOffice.register(sender: sender1) { (_: ExampleVerifiedMail, _: VerifiedMailSender) in
                 // noop
             }
 
@@ -97,26 +97,26 @@ final class MemoryTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testUnmarkedWeakSender() throws {
+    func testUnverifiedMailWeakSender() throws {
         class SpecificRecipient {
             var count = 0
-            func receivePostmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+            func receiveVerifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                 count += 1
             }
-            func receivePostmarked3(notification: ExampleUnmarked) {
+            func receiveVerifiedMail3(notification: ExampleUnverifiedMail) {
                 count += 1
             }
         }
 
         let postOffice = PostOffice()
-        let sender2 = UnmarkedSender()
-        let notification = ExampleUnmarked(info: 1, other: 2)
+        let sender2 = UnverifiedMailSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
         let recipient = SpecificRecipient()
 
         autoreleasepool {
-            let sender1 = UnmarkedSender()
+            let sender1 = UnverifiedMailSender()
 
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
+            postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail1)
 
             postOffice.post(notification, sender: sender1)
 
@@ -132,25 +132,25 @@ final class MemoryTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testUnmarkedWeakRecipient() throws {
+    func testUnverifiedMailWeakRecipient() throws {
         let postOffice = PostOffice()
-        let sender1 = UnmarkedSender()
-        let notification = ExampleUnmarked(info: 1, other: 2)
+        let sender1 = UnverifiedMailSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
 
         autoreleasepool {
             class SpecificRecipient {
                 var count = 0
-                func receivePostmarked1(notification: ExampleUnmarked, sender: UnmarkedSender) {
+                func receiveVerifiedMail1(notification: ExampleUnverifiedMail, sender: UnverifiedMailSender) {
                     count += 1
                 }
-                func receivePostmarked3(notification: ExampleUnmarked) {
+                func receiveVerifiedMail3(notification: ExampleUnverifiedMail) {
                     count += 1
                 }
             }
 
             let recipient = SpecificRecipient()
 
-            postOffice.register(sender: sender1, recipient, SpecificRecipient.receivePostmarked1)
+            postOffice.register(sender: sender1, recipient, SpecificRecipient.receiveVerifiedMail1)
 
             postOffice.post(notification, sender: sender1)
 
@@ -166,15 +166,15 @@ final class MemoryTests: XCTestCase {
         XCTAssertEqual(postOffice.count, 0)
     }
 
-    func testUnmarkedWeakSenderBlock() throws {
+    func testUnverifiedMailWeakSenderBlock() throws {
         let postOffice = PostOffice()
-        let notification = ExampleUnmarked(info: 1, other: 2)
-        let sender2 = UnmarkedSender()
+        let notification = ExampleUnverifiedMail(info: 1, other: 2)
+        let sender2 = UnverifiedMailSender()
 
         autoreleasepool {
-            let sender1 = UnmarkedSender()
+            let sender1 = UnverifiedMailSender()
 
-            postOffice.register(sender: sender1) { (_: ExampleUnmarked, _: UnmarkedSender) in
+            postOffice.register(sender: sender1) { (_: ExampleUnverifiedMail, _: UnverifiedMailSender) in
                 // noop
             }
 
