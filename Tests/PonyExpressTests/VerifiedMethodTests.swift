@@ -1,7 +1,7 @@
 import XCTest
 @testable import PonyExpress
 
-final class PostMarkedMethodTests: XCTestCase {
+final class VerifiedMethodTests: XCTestCase {
     func testVerifiedMail() throws {
         let notification = ExampleVerifiedMail(info: 1, other: 2)
         let sender = VerifiedMailSender()

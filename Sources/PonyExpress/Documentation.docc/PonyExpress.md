@@ -109,7 +109,7 @@ Sending a ``Mail`` notification can optionally include a `sender` as well. This 
 where recipients can optionally register for notifications sent only from a specific sender. In PonyExpress,
 both the notification and sender are strongly typed.
 
-For notifications that implement ``PostMarked`` but do not implement ``Mail``, these notifications
+For notifications that implement ``Verified`` but do not implement ``Mail``, these notifications
 _must_ include a sender. This is a helpful way to ensure that some notifications are always sent
 with a sender, guaranteed at compile time.
 
