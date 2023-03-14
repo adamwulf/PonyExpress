@@ -208,7 +208,7 @@ public class PostOffice {
     ///
     /// Example registration code:
     /// ```
-    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// PostOffice.default.register(ExampleNotification.self, recipient, ExampleRecipient.receiveNotification)
     /// ```
     @discardableResult
     public func register<Recipient: AnyObject, Notification: VerifiedMail>(
@@ -289,7 +289,7 @@ public class PostOffice {
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// ```
-    /// PostOffice.default.register { (notification: MyNotification) in ... }
+    /// PostOffice.default.register(MyNotification.self) { ... }
     /// ```
     @discardableResult
     public func register<Notification: VerifiedMail>(
