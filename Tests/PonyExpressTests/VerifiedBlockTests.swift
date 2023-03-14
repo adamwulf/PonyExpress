@@ -90,4 +90,19 @@ final class VerifiedBlockTests: XCTestCase {
 
         XCTAssertEqual(count, 1)
     }
+
+    func testVerifiedMailVoidBlock() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender1 = VerifiedMailSender()
+        let postOffice = PostOffice()
+        var count = 0
+
+        postOffice.register(sender: sender1, ExampleVerifiedMail.self) {
+            count += 1
+        }
+
+        postOffice.post(notification, sender: sender1)
+
+        XCTAssertEqual(count, 1)
+    }
 }

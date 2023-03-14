@@ -194,6 +194,33 @@ public class PostOffice {
         return registerAny(queue: queue, sender: sender, recipient, method)
     }
 
+    /// Register a recipient and method with the `PostOffice`. This method will be called if the posted notification
+    /// matches the method's parameter's type.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter recipient: The object that will receive the posted ``VerifiedMail``.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
+    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// Example registration code:
+    /// ```
+    /// PostOffice.default.register(recipient, ExampleRecipient.receiveNotification)
+    /// ```
+    @discardableResult
+    public func register<Recipient: AnyObject, Notification: VerifiedMail>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ notification: Notification.Type,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> () -> Void)
+    -> RecipientId {
+        return registerAny(queue: queue, sender: sender, notification, recipient, method)
+    }
+
     // MARK: - Register VerifiedMail Blocks
 
     /// Register a block for the object and sender as parameters. The block will be called if the sender matches
@@ -249,6 +276,30 @@ public class PostOffice {
     -> RecipientId {
         return register(queue: queue, sender: sender, { (notification: Notification, _: Notification.RequiredSender) in
             block(notification)
+        })
+    }
+
+    /// Register a block from an optional `sender` with no parameters.
+    ///
+    /// - parameter queue: The recipient will always receive posts on this queue. If `nil`, then the post will be made
+    /// on the queue of the sender.
+    /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
+    /// - parameter notification: The notification type that will trigger calls to the block.
+    /// - parameter block: The block that will receive the posted ``VerifiedMail``.
+    /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
+    ///
+    /// ```
+    /// PostOffice.default.register { (notification: MyNotification) in ... }
+    /// ```
+    @discardableResult
+    public func register<Notification: VerifiedMail>(
+        queue: DispatchQueue? = nil,
+        sender: Notification.RequiredSender? = nil,
+        _ notification: Notification.Type,
+        _ block: @escaping () -> Void)
+    -> RecipientId {
+        return register(queue: queue, sender: sender, { (_: Notification, _: Notification.RequiredSender) in
+            block()
         })
     }
 
@@ -504,6 +555,23 @@ extension PostOffice {
         defer { lock.unlock() }
         let name = Key.key(for: Notification.self)
         let context = RecipientContext(recipient: AnyRecipient(recipient, method), queue: queue, sender: sender)
+        listeners[name, default: []].append(context)
+        recipientToKey[context.id] = name
+        return context.id
+    }
+
+    @discardableResult
+    private func registerAny<Recipient: AnyObject, Notification, Sender: AnyObject>(
+        queue: DispatchQueue?,
+        sender: Sender?,
+        _ notification: Notification.Type,
+        _ recipient: Recipient,
+        _ method: @escaping (Recipient) -> () -> Void)
+    -> RecipientId {
+        lock.lock()
+        defer { lock.unlock() }
+        let name = Key.key(for: Notification.self)
+        let context = RecipientContext(recipient: AnyRecipient(recipient, notification, method), queue: queue, sender: sender)
         listeners[name, default: []].append(context)
         recipientToKey[context.id] = name
         return context.id

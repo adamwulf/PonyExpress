@@ -283,4 +283,28 @@ final class VerifiedMethodTests: XCTestCase {
         postOffice.unregister(recipient)
         XCTAssertEqual(postOffice.count, 0)
     }
+
+    func testVerifiedMailVoidMethod() throws {
+        let notification = ExampleVerifiedMail(info: 1, other: 2)
+        let sender = VerifiedMailSender()
+        let postOffice = PostOffice()
+
+        class SpecificRecipient {
+            var count = 0
+            func receiveVerifiedMail() {
+                count += 1
+            }
+        }
+
+        let recipient = SpecificRecipient()
+
+        postOffice.register(ExampleVerifiedMail.self, recipient, SpecificRecipient.receiveVerifiedMail)
+
+        postOffice.post(notification, sender: sender)
+        // hit the method with and without a sender
+        XCTAssertEqual(recipient.count, 1)
+        // hit all methods
+        postOffice.post(notification, sender: sender)
+        XCTAssertEqual(recipient.count, 2)
+    }
 }

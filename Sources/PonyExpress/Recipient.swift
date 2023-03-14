@@ -95,4 +95,18 @@ internal class AnyRecipient {
             method(strongRecipient)(notification)
         }
     }
+
+    init<T: AnyObject, U>(_ recipient: T, _ notification: U.Type, _ method: @escaping (T) -> () -> Void) {
+        weak var weakRecipient = recipient
+        _canCollect = {
+            guard weakRecipient != nil else { return true }
+            return false
+        }
+        self.matchesObject = { obj in weakRecipient === obj }
+        self.block = { notification, _ in
+            guard let strongRecipient = weakRecipient else { return }
+            guard notification as? U != nil else { return }
+            method(strongRecipient)()
+        }
+    }
 }
