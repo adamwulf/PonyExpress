@@ -201,9 +201,9 @@ public class PostOffice {
     /// on the queue of the sender.
     /// - parameter sender: Optional. Ignored if `nil`, otherwise will limit the received notifications to only those sent by the `sender`.
     /// This sender must match the `RequiredSender` of the notification type. The `sender` is held weakly.
+    /// - parameter notification: The notification type that will trigger calls to the block.
     /// - parameter recipient: The object that will receive the posted ``VerifiedMail``.
-    /// - parameter method: The method of the `recipient` that will be called with the posted notification. Its one argument
-    /// is the posted notification. The method will only be called if the notification matches the method's argument type.
+    /// - parameter method: The method of the `recipient` that will be called with the posted notification.
     /// - returns: A ``RecipientId`` that can be used later to unregister the recipient.
     ///
     /// Example registration code:
