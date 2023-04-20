@@ -104,8 +104,8 @@ example2.post(notification: FakeMail())
 class RuntimeCheckedExample<Generic1> {
     var recipients: [AnyRecipient] = []
     func register<Generic2>(block: @escaping (Generic2) -> Void) {
-        let type1 = String(describing: Generic1.self)
-        let type2 = String(describing: Generic2.self)
+        let type1 = String(reflecting: Generic1.self)
+        let type2 = String(reflecting: Generic2.self)
         // The below will always evaluate to false unless Generic2 == Generic1
         print("\(type1) is \(type2) == \(Generic2.self is Generic1.Type)")
         recipients.append(AnyRecipient(block))
@@ -147,8 +147,8 @@ class CompileCheckedExample<Generic1> {
     var recipients: [AnyRecipient] = []
     // error: type 'Generic2' constrained to non-protocol, non-class type 'Generic1'
     func register<Generic2: Generic1>(block: @escaping (Generic2) -> Void) {
-        print("1: " + String(describing: Generic1.self))
-        print("2: " + String(describing: Generic2.self))
+        print("1: " + String(reflecting: Generic1.self))
+        print("2: " + String(reflecting: Generic2.self))
         // The below will always fail unless Generic2 == Generic1
         if Generic2.self is Generic1.Type { print("ok") }
         print("done")

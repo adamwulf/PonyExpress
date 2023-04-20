@@ -50,10 +50,10 @@ public class PostOffice {
         }
 
         static func key<T>(for type: T.Type) -> Key {
-            return Key(name: String(describing: type),
+            return Key(name: String(reflecting: type),
                        test: { obj in
-                return obj is T
-            })
+                        return obj is T
+                       })
         }
     }
 
@@ -691,7 +691,7 @@ extension PostOffice {
         let filtered = typeListeners.excluding({
             return $0.recipient.canCollect || ($0.sender == nil && $0.requiresSender)
         })
-         listeners[key] = filtered
+        listeners[key] = filtered
         return filtered
     }
 }

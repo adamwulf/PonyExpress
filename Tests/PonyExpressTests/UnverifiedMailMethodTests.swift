@@ -236,7 +236,6 @@ final class UnverifiedMailMailMethodTests: XCTestCase {
 
     func testSubUnverifiedMail() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -270,7 +269,6 @@ final class UnverifiedMailMailMethodTests: XCTestCase {
 
     func testSubUnverifiedMail2() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -304,7 +302,6 @@ final class UnverifiedMailMailMethodTests: XCTestCase {
 
     func testSubUnverifiedMail3() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -340,7 +337,6 @@ final class UnverifiedMailMailMethodTests: XCTestCase {
 
     func testSubUnverifiedMail4() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }

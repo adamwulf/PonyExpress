@@ -110,7 +110,6 @@ final class UnverifiedMailMailBlockTests: XCTestCase {
 
     func testSubUnverifiedMail() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -137,7 +136,6 @@ final class UnverifiedMailMailBlockTests: XCTestCase {
 
     func testSubUnverifiedMail2() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -164,7 +162,6 @@ final class UnverifiedMailMailBlockTests: XCTestCase {
 
     func testSubUnverifiedMail3() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -193,7 +190,6 @@ final class UnverifiedMailMailBlockTests: XCTestCase {
 
     func testSubUnverifiedMail4() throws {
         class ClassNotification: UnverifiedMail {
-            typealias RequiredSender = UnverifiedMailSender
         }
 
         class SubClassNotification: ClassNotification { }
@@ -219,4 +215,35 @@ final class UnverifiedMailMailBlockTests: XCTestCase {
         postOffice.post(SubClassNotification())
         XCTAssertEqual(count, 5)
     }
+
+    func testNotificationSameName() throws {
+        enum Namespace1 {
+            enum Event: UnverifiedMail {
+                case example
+            }
+        }
+        enum Namespace2 {
+            enum Event: UnverifiedMail {
+                case example
+            }
+        }
+
+        let postOffice = PostOffice()
+
+        var count = 0
+
+        postOffice.register { (_: Namespace1.Event) in
+            count += 1
+        }
+
+        postOffice.register { (_: Namespace2.Event) in
+            count += 1
+        }
+
+        postOffice.post(Namespace1.Event.example)
+        XCTAssertEqual(count, 1)
+        postOffice.post(Namespace2.Event.example)
+        XCTAssertEqual(count, 2)
+    }
+
 }
