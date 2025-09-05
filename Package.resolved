@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/adamwulf/Locks.git",
       "state" : {
-        "revision" : "8ae19d91664b8758fa422cd8c0d41d93cc037912",
-        "version" : "1.0.0"
+        "revision" : "e5c133845f3ad1a890a8823374c2694f969884e2",
+        "version" : "1.0.1"
       }
     }
   ],
